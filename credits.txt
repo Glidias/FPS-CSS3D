@@ -1,0 +1,27 @@
+Links, credits, and references:
+-------------------------------------
+- src of inspiration (where it started from..)
+http://www.keithclark.co.uk/labs/3dcss/demo/
+
+
+Dungeon building algorithms 
+- http://wonderfl.net/c/57nZ  (Room filler)
+- http://wonderfl.net/c/1Aol  (Rogue-like variable sized rooms)
+- http://wonderfl.net/c/rhcZ  (Rogue-like square fixed rooms)
+- http://wonderfl.net/c/vK7m  (Simple 3D Maze)
+- http://wonderfl.net/c/hNt6  (Single room 3D maze)
+- http://wonderfl.net/c/vS08  (Thin wall Dense maze)
+
+
+Danbo
+-http://wonderfl.net/c/45Lw
+-http://wonderfl.net/c/bGpZ
+-http://wonderfl.net/c/fz1TR
+- http://wonderfl.net/c/kbKq  (with city from KD-image generation)
+
+
+Random city BSP/KD Layout
+- http://wonderfl.net/c/zx7L
+
+
+

@@ -1,0 +1,392 @@
+package glidias;
+	import glidias.TypeDefs;
+
+    class RoomFiller
+    {
+        // Size
+         static inline var COLS:Int = 80;
+         static inline var  ROWS:Int = 80;
+        // Types
+         static inline var  DIRT:Int = 0;
+         static inline var  FLOOR:Int = 1;
+         static inline var  WALL:Int = 2;
+         static inline var  DOOR:Int = 3;
+        // Consts
+        static inline var  FEATURES:Int = 50;
+        static inline var  NEW_FEATURE_TRIES:Int = 200;
+
+        static inline var  MIN_CORRIDOR:Int = 10;
+        static inline var  MAX_CORRIDOR:Int = 20;
+
+        static inline var  MIN_ROOM:Int = 6;
+        static inline var  MAX_ROOM:Int = 14;
+
+
+        // Dungeon container
+        public var grid:Array<Array<Int>>;
+		public var doors:Array<Int4>;
+		public var rooms:Array<Rectangle>;
+		
+        private var random:PM_PRNG;
+        private var roomInterv:UInt;
+        private var currFeature:Int;
+
+       // private var screen:BitmapData;
+        private var drawTile:Rectangle;
+
+		private var async:Int;
+		
+        public function new(async:Int=0)
+        {
+			this.async = async;
+			drawTile = new Rectangle( 0, 0, 10, 10 );
+            grid = new Array<Array<Int>>();
+			doors = new Array<Int4>();
+			rooms = new Array<Rectangle>();
+            for ( i in 0...COLS)
+            {
+                grid[ i ] = new Array<Int>();
+                for ( j in 0...ROWS )
+                    grid[ i ][ j ] = DIRT;
+            }
+
+            random = new PM_PRNG( 12345 );
+
+           // screen = new BitmapData( 400, 400, false, 0x000000 );
+            //addChild( new Bitmap( screen ));
+
+            createFirstRoom();
+
+          
+		  if (async == 0) {
+			  // do nothing
+		  }
+		  else {  // todo: asynchrounous update of room state
+			   //stage.addEventListener( Event.ENTER_FRAME, update );
+		  }
+        }
+		
+		/**
+		 * Useful to check if corridoor is facing outdoors(dirt) or facing another room(floor) or facing a wall!
+		 * @param	door
+		 * @return	The door type
+		 */
+		public function getDoorType(door:Int4):Int {
+			var xer = door.x * -door.z;
+			if (xer < 0 || xer >= COLS) return DIRT;
+			var yer = door.y * -door.w;
+			if (yer < 0 || yer >= ROWS) return DIRT;
+			return grid[xer][yer];
+		}
+
+
+
+        private function update( ):Void
+        {
+           // screen.lock();
+          //  screen.fillRect( screen.rect, 0x000000 );
+		  
+            // Draw tiles            
+            for ( i in 0...COLS )
+            {
+                for (j in 0...ROWS )
+                {
+                    drawTile.x = i * 5;
+                    drawTile.y = j * 5;
+                    switch ( grid[ i ][ j ])
+                    {
+                        case DIRT:
+                          //  screen.fillRect( drawTile, 0x000000 );
+                            break;
+                        case FLOOR:
+                          //  screen.fillRect( drawTile, 0x2B2121 );
+                            break;
+                        case WALL:
+                         //   screen.fillRect( drawTile, 0x3D3C37 );
+                            break;
+                        case DOOR:
+                          //  screen.fillRect( drawTile, 0x733F12 );
+                            break;
+                    }
+                }
+            }
+           // screen.unlock();
+        }
+		
+		private inline function floor(val:Float):Int {
+			return Math.floor(val);
+		}
+
+
+        private function createFirstRoom():Void
+        {
+            var fw:Int = random.nextIntRange( 6, 12 );
+            var fh:Int = random.nextIntRange( 6, 12 );
+
+            createRoom( floor( ( COLS * .5 ) - ( fw * .5 ) ), floor(( ROWS * .5 ) - ( fh * .5 )), fw, fh );
+
+            currFeature = FEATURES;
+			
+            
+		    if (async == 0) {
+			  while ( createFeature() ) { };
+			}
+			else {  
+				roomInterv = setInterval( createFeature, async );
+			}   
+        }
+		
+		private inline function clearInterval(ier:Int):Void {
+			
+		}
+		private inline function setInterval(target:Dynamic, timeMs:Int):Int {
+			return 0;
+		}
+
+        private function createFeature():Bool
+        {
+			//trace( currFeature );
+            if ( currFeature-- == 0 )
+            {
+               clearInterval( roomInterv );
+                return false;
+            }
+
+            var i:Int, j:Int;
+            var giveUp:UInt = 0;
+            var tx:Int = -1;
+            var ty:Int = -1;
+            var tt:Int, tb:Int, tl:Int, tr:Int;
+            var dir:Int = -1;
+            do
+            {
+                i = random.nextIntRange( 2, COLS - 2 );
+                j = random.nextIntRange( 2, ROWS - 2 );
+
+                trace( i, j );
+                if ( grid[ i ][ j ] == WALL )
+                {
+                    tt = grid[ i ][ j - 1 ];
+                    tb = grid[ i ][ j + 1 ];
+                    tl = grid[ i - 1 ][ j ];
+                    tr = grid[ i + 1 ][ j ];
+                    if ( tt == DIRT && ( tl == WALL && tr == WALL ))
+                    {
+                        tx = i;
+                        ty = j - 1;
+                        dir = 0;
+                    }
+                    else if ( tb == DIRT && ( tl == WALL && tr == WALL ))
+                    {
+                        tx = i;
+                        ty = j + 1;
+                        dir = 1;
+                    }
+                    else if ( tl == DIRT && ( tt == WALL && tb == WALL ))
+                    {
+                        tx = i - 1;
+                        ty = j;
+                        dir = 2;
+                    }
+                    else if ( tr == DIRT && ( tt == WALL && tb == WALL ))
+                    {
+                        tx = i + 1;
+                        ty = j;
+                        dir = 3;
+                    }
+
+                }
+            } while ( dir == -1 && giveUp++ < NEW_FEATURE_TRIES );
+
+            if ( dir != -1 )
+            {
+                do
+                {
+                    var w:Int, h:Int;
+                    var sx:Int, sy:Int;
+                    var feature:Float = Math.random();
+                    // Two features for now
+                    if ( feature < .3 )
+                    {
+                        // Corridor
+                        {
+                            if ( dir == 0 || dir == 1 )
+                            {
+                                sx = tx - 1;
+                                w = 3;
+                                h = random.nextIntRange( MIN_CORRIDOR, MAX_CORRIDOR );
+                                if ( dir == 0 )
+                                {
+                                    // Up
+                                    sy = ty - h;
+                                    if ( sy < 1 )
+                                        continue;
+                                }
+                                else
+                                {
+                                    // Down
+                                    sy = ty + 1;
+                                    if ( ty + h > ROWS - 1 )
+                                        continue;
+                                }
+                            }
+                            else
+                            {
+                                sy = ty - 1;
+                                w = random.nextIntRange( MIN_CORRIDOR, MAX_CORRIDOR );
+                                h = 3;
+                                if ( dir == 2 )
+                                {
+                                    // Left
+                                    sx = tx - w;
+                                    if ( sx < 1 )
+                                        continue;
+                                }
+                                else
+                                {
+                                    // Right
+                                    sx = tx + 1;
+                                    if ( tx + w > ROWS - 1 )
+                                        continue;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Room
+                        {
+                            if ( dir == 0 || dir == 1 )
+                            {
+                                w = random.nextIntRange( MIN_ROOM, MAX_ROOM );
+                                h = random.nextIntRange( MIN_ROOM, MAX_ROOM );
+
+                                sx = tx - floor( w * .5 );
+                                if ( sx < 1 || ( sx + w ) > COLS - 1 )
+                                    continue;
+
+                                if ( dir == 0 )
+                                {
+                                    // Up
+                                    sy = ty - h;
+                                    if ( sy < 1 )
+                                        continue;
+                                }
+                                else
+                                {
+                                    // Down
+                                    sy = ty + 1;
+                                    if ( ty + h > ROWS - 1 )
+                                        continue;
+                                }
+                            }
+                            else
+                            {
+                                w = random.nextIntRange( MIN_ROOM, MAX_ROOM );
+                                h = random.nextIntRange( MIN_ROOM, MAX_ROOM );
+
+                                sy = ty - floor( h * .5 );
+                                if ( sy < 1 || ( sy + h ) > ROWS - 1 )
+                                    return true;
+
+                                if ( dir == 2 )
+                                {
+                                    // Left
+                                    sx = tx - w;
+                                    if ( sx < 1 )
+                                        continue;
+                                }
+                                else
+                                {
+                                    // Right
+                                    sx = tx + 1;
+                                    if ( tx + w > ROWS - 1 )
+                                        continue;
+                                }
+                            }
+                        }
+                    }
+
+                    // Check Bounds
+                    if ( sx < 1 )
+                        sx = 2;
+                    if ( sx + w > COLS - 2 )
+                        w = sx - COLS - 2;
+                    if ( sy < 1 )
+                        sy = 1;
+                    if ( sy + h > ROWS - 2 )
+                        h = sy - ROWS - 2;
+                    
+                    // Attempt to create
+                    if ( createRoom( sx, sy, w, h ))
+                    {
+                        grid[ tx ][ ty ] = DOOR;
+						
+                        switch(dir)
+                        {
+                            case 0:
+                                grid[tx][ty + 1] = FLOOR;
+								doors.push( new Int4(tx, ty, 0, 1) );
+                                break;
+                            case 1:
+                                grid[tx][ty - 1] = FLOOR;
+								doors.push( new Int4(tx, ty, 0, -1) );
+                                break;
+                            case 2:
+                                grid[tx + 1][ty] = FLOOR;
+								doors.push( new Int4(tx, ty, 1, 0) );
+                                break;
+                            case 3:
+                                grid[tx - 1][ty] = FLOOR;
+								doors.push( new Int4(tx, ty, -1, 0) );
+                                break;
+                        }
+                        break;
+                    }
+                } while ( giveUp++ < NEW_FEATURE_TRIES );
+            }
+			return true;
+        }
+
+        private function createRoom( s:Int, e:Int, w:Int, h:Int ):Bool
+        {
+            w += s;
+            h += e;
+            if ( checkArea( s, e, w, h ) && (s != w && e != h))
+            {
+                for ( i in s...(w+1) )
+                {
+                    for ( j in e...(h+1) )
+                    {
+                        if ( i == s || i == w || j == e || j == h )
+                            grid[ i ][ j ] = WALL;
+                        else
+                            grid[ i ][ j ] = FLOOR;
+                    }
+                }
+				rooms.push( new Rectangle(s, e, w+1, h+1) );
+                return true;
+            }
+
+            return false;
+        }
+
+        private function checkArea( s:Int, e:Int, w:Int, h:Int ):Bool
+        {
+            for ( i in s...(w+1) )
+            {
+                for ( j in e...(h+1) )
+                {
+                    if ( grid[ i ][ j ] != DIRT )
+                        return false;
+                }
+            }
+            return true;
+        }
+    }
+
+
+
+
+
+

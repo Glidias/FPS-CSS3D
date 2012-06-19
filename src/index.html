@@ -1,0 +1,589 @@
+
+<!doctype html>
+
+<html>
+
+<head>
+
+	<title>A 3D FPS concept using HTML and CSS3 transforms by Keith Clark</title>
+
+	<style>
+
+		body, html {
+
+			height:100%;
+
+			margin:0;
+
+			overflow:hidden;
+
+		}
+
+		#viewporthud {
+			border:1px solid #ff0000;
+			
+			top:15%;
+			left:15%;
+			
+			width:70%;
+			height:70%;
+			
+			position:absolute;
+			z-index:1;
+		}
+		
+
+		.viewport {
+
+			position:relative;
+
+			float:left;
+
+			aoverflow: hidden;
+			
+			top:15%;
+			left:15%;
+			width:70%;
+			height:70%;
+
+			background: #222;
+
+			-webkit-perspective: 700px;
+
+			-moz-perspective: 700px;
+			z-index:0;
+			
+
+		}
+		
+		
+
+		.world {
+
+			position: absolute;
+
+			left:50%;
+
+			top:50%;
+
+			-webkit-transform-style: preserve-3d;
+
+			-moz-transform-style: preserve-3d;
+
+		}
+
+		.plane {
+
+			position: absolute;
+
+			-webkit-transform-origin: 0 0 0;
+
+			-webkit-backface-visibility: hidden;
+
+			-moz-transform-origin: 0 0 0;
+
+			-moz-backface-visibility: hidden;
+
+		}
+
+		#gun {
+
+			background:url(http://www.keithclark.co.uk/labs/3dcss/demo/gun.png);
+
+			position: absolute;
+
+			bottom:0;
+
+			left:50%;
+
+			z-index:2000;
+
+			height:315px;
+
+			width:360px;
+
+			z-index:50000;
+
+			-webkit-animation: gun 2.5s infinite;
+
+			-moz-animation: gun 2.5s infinite;
+
+		}
+
+		
+
+		/* ---- notices ---- */
+
+		#about {
+
+			font: 12px/1.5 Tahoma, Arial;
+
+			position:absolute;
+
+			top:0;
+
+			width:100%;
+
+			background:rgba(0,0,0,0.7);
+
+			z-index:50001;
+
+		}
+
+		p {
+
+			margin:0;
+
+			padding:15px 20px;
+
+			color:#fff;
+
+		}
+
+		p:first-child {
+
+			float:left;
+
+		}
+
+		p:last-child {
+
+			float:right;
+
+		}
+
+		a { 
+
+			color: #fc0;
+
+		}	
+
+		kbd {
+
+			display: inline-block;
+
+			padding:0 5px;
+
+			background: #eee;
+
+			color: #000;
+
+			border-radius: 4px;
+
+			border:1px solid #bbb;
+
+			border-bottom:3px solid #999;
+
+			-webkit-box-shadow: 0 0 3px #000;
+
+		}
+
+		
+
+		@-webkit-keyframes gun {
+
+			50% {-webkit-transform:translateY(7px) scale(0.99);}
+
+		}
+
+		@-moz-keyframes gun {
+
+			50% {-moz-transform:translateY(7px);}
+
+		}
+
+	</style>
+
+		
+
+	<script src="threedee.js"></script>
+
+	<script>
+
+
+
+		window.onload = function() {
+
+			
+
+			var maxSpeed = 5;
+
+			var accel = 0.2;
+
+			var speed = 0;
+
+			var viewport = new Viewport( document.body );
+
+			var world = new World( viewport );
+
+			var keyState = { forward: false, backward: false, strafeLeft: false, strafeRight: false}
+
+			var pointer = { x: 0, y: 0 };
+
+		
+
+			function buildCube( colour, w, h, d, x, y, z, rx, ry, rz ) {
+
+
+
+				world.addPlane( new Plane(colour, h, w, x, y, z, 0, 180, 90)	);		
+
+				world.addPlane( new Plane(colour, w, d, x, y, z, 90, 0, 0));
+
+				world.addPlane( new Plane(colour, d, h, x, y, z, 0, 270, 0));
+
+				world.addPlane( new Plane(colour, d, h, x+w, y, z+d, 0, 90, 0));
+
+				world.addPlane( new Plane(colour, w, d, x+w, y+h, z, 90, 180, 0));
+
+				world.addPlane( new Plane(colour, w, h, x, y, z+d, 0, 0, 0));
+
+			}
+
+
+
+			// floor
+
+			world.addPlane( new Plane("url(http://www.keithclark.co.uk/labs/3dcss/demo/wood.jpg)", 800, 800, -400, 400, 53, 180, 0, 0));
+
+
+
+			// walls
+
+			world.addPlane( new Plane("url(http://www.keithclark.co.uk/labs/3dcss/demo/wall.jpg?3)", 800, 500, 400, -400, -447, 270, 0,180));
+
+			world.addPlane( new Plane("url(http://www.keithclark.co.uk/labs/3dcss/demo/wall.jpg?3)", 800, 500, -400, -400, -447, 270, 90, 180));
+
+			world.addPlane( new Plane("url(http://www.keithclark.co.uk/labs/3dcss/demo/wall.jpg?3)", 800, 500, -400, 400, -447, 90, 00, 0,0));
+
+			world.addPlane( new Plane("url(http://www.keithclark.co.uk/labs/3dcss/demo/wall.jpg?3)", 800, 500, 400, 400, -447, 90, 270, 0));
+
+
+
+			// rug
+
+			world.addPlane( new Plane("url(http://www.keithclark.co.uk/labs/3dcss/demo/rug.jpg)", 200, 340, 100, -170, 52,0,180,0));
+
+
+
+			// table
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 10, 10, 100, -50, -100, -49);
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 10, 10, 100, 50, -100, -49);
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 10, 10, 100, -50, 100, -49);
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 10, 10, 100, 50, 100, -49);
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 130, 250, 15, -60, -120, -65);
+
+		
+
+			// chair
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 10, 10, 55, 135, -30, -4);
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 10, 10, 55, 135, 30, -4);
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 10, 10, 55, 75, -30, -4);
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 10, 10, 55, 75, 30, -4);
+
+			buildCube("#111", 60, 70, 15, 75, -30, -20);
+
+			buildCube("#111", 10, 70, 95, 135, -30, -100);
+
+
+
+			// mac
+
+			buildCube("#eee", 10, 120, 85, -30, -60, -170);
+
+			buildCube("#ccc", 40, 50, 2, -50, -25, -67);
+
+			world.addPlane( new Plane("url(http://www.keithclark.co.uk/labs/3dcss/demo/osx.jpg)", 110, 65,-19,-55,-165,90,90,0));
+
+
+
+			//buildCube("#ddd", 2, 50, 50, -50, -25, -118);
+
+			world.addPlane( new Plane("#bbb", 2, 50,-33,-25,-115,90,0,20));
+
+			world.addPlane( new Plane("#999", 50, 50,-33,-25,-115,0,250,0));
+
+			world.addPlane( new Plane("#bbb", 2, 50,-31,25,-115,90,180,340));
+
+			world.addPlane( new Plane("#eee", 50, 50,-48,-25,-68,0,70,0));
+
+			world.addPlane( new Plane("#ddd", 2, 50,-30,-25,-115,0,160,0));
+
+
+
+			// keyboard
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/mac-keybd.png)", 31, 70, 1, 10, -35, -67);
+
+
+
+			// mouse
+
+			buildCube("#eee", 20, 12, 2, 20, 60, -69);
+
+
+
+			// bookshelf
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 10, 50, 300, -350, 345, -250);
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 10, 50, 300, -150, 345, -250);
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 190, 50, 10, -340, 345, -250); // shelf
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 190, 50, 10, -340, 345, -160); // shelf
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 190, 50, 10, -340, 345, -65); // shelf
+
+			buildCube("url(http://www.keithclark.co.uk/labs/3dcss/demo/desk.jpg)", 190, 50, 10, -340, 345, 30); // shelf
+
+
+			// artwork
+
+			world.addPlane( new Plane("url(http://www.keithclark.co.uk/labs/3dcss/demo/art.png)", 424, 174, -398,-240,-300,90,90,0));
+
+
+			viewport.camera.position.x=-250;
+
+			viewport.camera.position.y=180;
+
+			viewport.camera.position.z=150;
+
+			viewport.camera.rotation.x=270;
+
+			viewport.camera.rotation.y=0;
+			viewport.camera.rotation.z=-60;
+
+
+			viewport.camera.update();
+
+
+
+			window.addEventListener("devicemotion", function(ev) {
+
+				keyState.forward = ev.accelerationIncludingGravity.z<-6;
+
+				keyState.backward = ev.accelerationIncludingGravity.z>3;
+
+			}, false);
+
+			
+
+			document.addEventListener("touchstart", function(ev) {
+
+				pointer.x = ev.targetTouches[0].pageX;
+
+				pointer.y = ev.targetTouches[0].pageY;
+
+				ev.preventDefault();
+
+			}, false);
+
+			
+
+			document.addEventListener("touchmove", function(ev) {
+
+				viewport.camera.rotation.x -= (ev.targetTouches[0].pageY - pointer.y)/2;
+
+				viewport.camera.rotation.z += (ev.targetTouches[0].pageX - pointer.x)/2;
+
+				pointer.x = ev.targetTouches[0].pageX;
+
+				pointer.y = ev.targetTouches[0].pageY;
+
+				ev.preventDefault();
+
+			}, false);
+
+
+
+			document.addEventListener("mouseover", function(ev) {
+
+				pointer.x = ev.pageX;
+
+				pointer.y = ev.pageY;	
+
+				document.removeEventListener("mouseover", arguments.callee)
+
+			}, false);
+
+			
+			
+			// Game Loop
+			var threedeeMouseDown = 0;
+			document.body.onmousedown = function() { 
+				threedeeMouseDown = 1;
+			
+			}
+			document.body.onmouseup = function() {
+				threedeeMouseDown = 0;
+			}
+			
+
+			document.addEventListener("mousemove", function(ev) {
+
+			if (threedeeMouseDown) {
+				viewport.camera.rotation.x -= (ev.pageY - pointer.y)/2;
+
+				viewport.camera.rotation.z += (ev.pageX - pointer.x)/2;
+
+
+				}
+				pointer.x = ev.pageX;
+
+				pointer.y = ev.pageY;
+
+
+
+				//viewport.camera.rotation.x = -ev.pageY/2;
+
+				//viewport.camera.rotation.z = ev.pageX/2;
+
+			}, false);
+
+
+
+
+
+			document.addEventListener("keydown", function(e) {
+
+				//console.log(e.keyCode);
+
+				switch (e.keyCode) {
+
+					case 87:
+
+						keyState.forward = true;
+
+						break;	
+
+					case 83:
+
+						keyState.backward = true;
+
+						break;	
+
+				}
+
+			}, false);
+
+
+
+			document.addEventListener("keyup", function(e) {
+
+				switch (e.keyCode) {
+
+					case 87:
+
+						keyState.forward = false;
+
+						break;	
+
+					case 83:
+
+						keyState.backward = false;
+
+						break;
+
+				}
+
+			}, false);
+
+			
+
+			
+
+							
+
+	
+
+			(function() {
+
+				if (keyState.backward) {
+
+					if (speed > -maxSpeed) speed -= accel;
+
+				} else if (keyState.forward) {
+
+					if (speed < maxSpeed) speed += accel;
+
+				} else if (speed > 0) {
+
+					speed = Math.max( speed - accel, 0);
+
+				} else if (speed < 0) {
+
+					speed = Math.max( speed + accel, 0);
+
+				} else {
+
+					speed = 0;
+
+				}
+
+				var xo = Math.sin(viewport.camera.rotation.z * 0.0174532925); 
+
+				var yo = Math.cos(viewport.camera.rotation.z * 0.0174532925);
+				
+				var zo = Math.tan((270-viewport.camera.rotation.x) * 0.0174532925);
+				
+				var unit= 1/Math.sqrt(xo*xo + yo*yo+ zo*zo);
+				xo*=unit;
+				yo*=unit;
+				zo*=unit;
+
+				viewport.camera.position.x -= xo * speed;
+
+				viewport.camera.position.y -= yo * speed;
+				
+				viewport.camera.position.z -= zo * speed;
+				
+
+				viewport.camera.update();
+
+				
+
+				setTimeout( arguments.callee, 15);
+
+
+
+			})();
+
+		}
+
+	</script>
+
+</head>
+
+<body>
+
+	<!--<div id="gun"></div>-->
+
+	<div id="viewporthud"></div>
+	<div id="about">
+
+		<p>Use <kbd>W</kbd> + <kbd>S</kbd> to move</p>
+
+		<p>Testing the feasibility of creating 3D environments using HTML and
+
+		webkit's 3D CSS3 transforms. 
+
+		A <a href="http://www.keithclark.co.uk/labs/">Keith Clark</a> experiment</p>
+
+	</div>
+
+
+
+
+</body>
+
+</html>

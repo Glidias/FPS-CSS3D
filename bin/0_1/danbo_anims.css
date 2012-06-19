@@ -1,0 +1,16 @@
+.danbot .danSktL .plane {
+	adisplay:none;
+	-webkit-backface-visibility:hidden;
+}
+.danbot .danSktR .plane {
+	adisplay:none;
+	-webkit-backface-visibility:hidden;
+}
+.danbot .danSktF .plane {
+	adisplay:none;
+	-webkit-backface-visibility:hidden;
+}
+.danbot .danSktB .plane {
+	adisplay:none;
+	-webkit-backface-visibility:hidden;
+}

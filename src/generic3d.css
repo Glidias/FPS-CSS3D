@@ -1,0 +1,22 @@
+.viewport .plane {
+	-webkit-transform-origin:left top;
+	-webkit-transform-style: preserve-3d;
+	-webkit-backface-visibility:visible;
+	position: absolute;
+}
+.viewport .Mesh>* {
+	-webkit-transform-origin:left top;
+	-webkit-transform-style: preserve-3d;
+	-webkit-backface-visibility:hidden;
+	position: absolute;
+}
+.viewport  .Object3D {
+	-webkit-transform-origin:right bottom;
+	-webkit-transform-style: preserve-3d;
+	-webkit-backface-visibility:hidden;
+	position: absolute;
+}
+
+.viewport .root {
+	-webkit-transform:matrix3d(-1,0,0,0,0,0,-1,0,0,1,0,0,0,0,0,1);
+}
