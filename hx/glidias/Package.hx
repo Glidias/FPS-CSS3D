@@ -3,7 +3,7 @@ package glidias;
 import js.Lib;
 
 
-// Customise your package dependencies as you see fit!
+// Customise your package dependencies as you see fit! Comment/uncomment modules accordingly.
 import glidias.RoomFiller;
 
 /**

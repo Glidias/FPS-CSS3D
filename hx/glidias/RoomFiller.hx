@@ -1,6 +1,10 @@
 package glidias;
 	import glidias.TypeDefs;
+	import haxe.io.Error;
 
+	/**
+	 * Haxe port of http://wonderfl.net/c/57nZ . Useful to create random aabb dungoen rooms to fill up any given aabb space.
+	 */
     class RoomFiller
     {
         // Size
@@ -8,9 +12,14 @@ package glidias;
          static inline var  ROWS:Int = 80;
         // Types
          static inline var  DIRT:Int = 0;
-         static inline var  FLOOR:Int = 1;
-         static inline var  WALL:Int = 2;
-         static inline var  DOOR:Int = 3;
+         static inline var  WALL:Int = 1;
+         static inline var  DOOR:Int = 2;
+		 static inline var  CORRIDOOR:Int = 3;
+		 static inline var  FLOOR:Int = 4;  
+		 
+		 // anything higher or equal to the above FLOOR value indicates a FLOOR type value. Higher FLOOR values can be used to indicates different levels/sectors
+		 
+		 
         // Consts
         static inline var  FEATURES:Int = 50;
         static inline var  NEW_FEATURE_TRIES:Int = 200;
@@ -20,7 +29,6 @@ package glidias;
 
         static inline var  MIN_ROOM:Int = 6;
         static inline var  MAX_ROOM:Int = 14;
-
 
         // Dungeon container
         public var grid:Array<Array<Int>>;
@@ -66,15 +74,114 @@ package glidias;
 		  }
         }
 		
+		
+		/**
+		 * Javascript method to generate CSSPlanes definitnation 
+		 * @param	map
+		 */
+		public function getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null):String {
+			if (floorMat == null) floorMat = wallMat;
+			if (ceilingMat == null) ceilingMat = floorMat;
+			
+			// go through all sectors
+			
+			// For each sector:
+			// create sector node
+			// for all portal walls...AABBPortalPlane.getHTML(sector.rect, gridSize) , flag out direction
+			// for all remaining walls with direction, AABBSector.getWallHTML(dir,mat).  Finally,  AABBSector.getCeilingHTML(mat), getFloorHTML(mat)
+			// add all collected walls to sector node
+			
+			return null;
+		}
+		
+		
+		/**
+		 * Get list of sectors and their interconnected portals
+		 * @param	gridSize
+		 * @param	minRoomHeight
+		 * @param	possibleRoomHeightAdd
+		 * @param	groundPos
+		 * @return
+		 */
+		public function getSectorMap(gridSize:Float, minRoomHeight:Float, possibleRoomHeightAdd:Float=0, groundPos:Float=0):Array<AABBSector> {
+			var map:Array<AABBSector> = new Array<AABBSector>();
+			var wallMask:Int; 
+			var len:Int;
+			var door:Int4;
+			var doorType:Int;
+			var sector:AABBSector;
+			var rect:Rectangle;
+			var portal:AABBPortal;
+			var portalPlane:AABBPortalPlane;
+			
+			len = rooms.length;
+			for (i in 0...len) {
+				rect = rooms[i];
+				sector = new AABBSector();
+				sector.setup(rect, gridSize, minRoomHeight + Math.round(Math.random() * possibleRoomHeightAdd), 0);
+				map.push( sector );
+			}
+			
+			len = doors.length;
+			var target:Int;
+			var direction:Int;
+			for (i in 0...len) {
+				door = doors[i];
+				
+				// create coridoor sector for door
+				sector = new AABBSector();
+				rect = new Rectangle(door.x - (door.z < 0 ? 1 : 0), door.y - (door.w < 0 ? 1 : 0), door.z != 0 ? 2 : 1, door.w!=0 ? 2: 1 );
+				sector.setup(rect, gridSize, gridSize, groundPos);
+				map.push(sector);
+				
+				doorType = getDoorType(door);
+				if (doorType >= FLOOR) { // indoors!
+					target = grid[door.x - door.z][door.y - door.w] - FLOOR; 
+				}
+				else if (doorType == DIRT) { // outdoors!
+					target = -1;
+				}
+				else {
+					trace("Could not resolve door type");
+					continue;
+				}
+				
+				portal = new AABBPortal();
+				direction = portal.setup((target>=0 ? map[target] : null ), door, gridSize, gridSize, gridSize, groundPos);
+				
+				if ( (portalPlane= getPortalPlane(sector.portalWalls, direction) ) == null ) {
+					portalPlane = new AABBPortalPlane();
+					portalPlane.direction = direction;
+					sector.addPortalPlane(portalPlane);
+				}
+				portalPlane.addPortal(portal);
+			}
+			
+			return map;
+		}
+		
+		private inline function abs(w:Int):Float
+		{
+			return w < 0 ? -w : w;
+		}
+		
+		private  function getPortalPlane(arr:Array<AABBPortalPlane>, direction:Int):AABBPortalPlane {
+			var len:Int = arr.length;
+			for (i in 0...len) {
+				if (arr[i].direction == direction) return arr[i];
+			}
+			return null;
+		}
+		
 		/**
 		 * Useful to check if corridoor is facing outdoors(dirt) or facing another room(floor) or facing a wall!
 		 * @param	door
 		 * @return	The door type
 		 */
 		public function getDoorType(door:Int4):Int {
-			var xer = door.x * -door.z;
+			var xer = door.x  -door.z;
 			if (xer < 0 || xer >= COLS) return DIRT;
-			var yer = door.y * -door.w;
+			var yer = door.y  -door.w;
 			if (yer < 0 || yer >= ROWS) return DIRT;
 			return grid[xer][yer];
 		}
@@ -98,15 +205,15 @@ package glidias;
                         case DIRT:
                           //  screen.fillRect( drawTile, 0x000000 );
                             break;
-                        case FLOOR:
-                          //  screen.fillRect( drawTile, 0x2B2121 );
-                            break;
                         case WALL:
                          //   screen.fillRect( drawTile, 0x3D3C37 );
                             break;
                         case DOOR:
                           //  screen.fillRect( drawTile, 0x733F12 );
                             break;
+						default:   // ASSUMED FLOOR!
+							
+							break;
                     }
                 }
             }
@@ -322,23 +429,24 @@ package glidias;
                     {
                         grid[ tx ][ ty ] = DOOR;
 						
+						// for doors, values z and w indicate direction towards coridoor from door position x,y
                         switch(dir)
                         {
                             case 0:
-                                grid[tx][ty + 1] = FLOOR;
-								doors.push( new Int4(tx, ty, 0, 1) );
+                                grid[tx][ty + 1] = CORRIDOOR;
+								doors.push( new Int4(tx, ty, 0, 1) );  // south
                                 break;
                             case 1:
-                                grid[tx][ty - 1] = FLOOR;
-								doors.push( new Int4(tx, ty, 0, -1) );
+                                grid[tx][ty - 1] = CORRIDOOR;
+								doors.push( new Int4(tx, ty, 0, -1) );  // north
                                 break;
                             case 2:
-                                grid[tx + 1][ty] = FLOOR;
-								doors.push( new Int4(tx, ty, 1, 0) );
+                                grid[tx + 1][ty] = CORRIDOOR;
+								doors.push( new Int4(tx, ty, 1, 0) );  // east
                                 break;
                             case 3:
-                                grid[tx - 1][ty] = FLOOR;
-								doors.push( new Int4(tx, ty, -1, 0) );
+                                grid[tx - 1][ty] = CORRIDOOR;
+								doors.push( new Int4(tx, ty, -1, 0) ); //west
                                 break;
                         }
                         break;
@@ -352,6 +460,7 @@ package glidias;
         {
             w += s;
             h += e;
+			var roomLen:Int = rooms.length;
             if ( checkArea( s, e, w, h ) && (s != w && e != h))
             {
                 for ( i in s...(w+1) )
@@ -361,7 +470,7 @@ package glidias;
                         if ( i == s || i == w || j == e || j == h )
                             grid[ i ][ j ] = WALL;
                         else
-                            grid[ i ][ j ] = FLOOR;
+                            grid[ i ][ j ] = FLOOR + roomLen;
                     }
                 }
 				rooms.push( new Rectangle(s, e, w+1, h+1) );
@@ -383,6 +492,9 @@ package glidias;
             }
             return true;
         }
+		
+
+		
     }
 
 

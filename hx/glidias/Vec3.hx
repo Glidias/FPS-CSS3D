@@ -21,4 +21,16 @@ class Vec3
 		this.w = w;
 	}
 	
+	public inline function getReverse():Vec3 {
+		return new Vec3( -x, -y, -z, w);
+	}
+	
+	public inline function clone():Vec3 {
+		return new Vec3(x, y, z, w);
+	}
+	public inline function scaleBy(amt:Float):Void {
+		x *= amt;
+		y *= amt;
+		z *= amt;
+	}
 }
