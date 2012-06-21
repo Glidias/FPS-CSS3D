@@ -5,7 +5,7 @@ package glidias;
 
 	/**
 	 * Haxe port of http://wonderfl.net/c/57nZ . Useful to create random aabb dungoen rooms to fill up any given aabb space.
-		 Provides optimized room-by-room information for optimized 3d environments.
+		 Provides optimized room-by-room/doorway information to facilitiate optimized 2d/3d environments and faster room-to-room pathfinding.
 	 */
     class RoomFiller
     {
