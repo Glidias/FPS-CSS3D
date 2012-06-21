@@ -10,6 +10,17 @@ class AABBUtils
 {
 	public static inline var MAX_VALUE:Float = 1.7976931348623157e+308;
 	
+	
+	public static function match(aabb:IAABB, refAABB:IAABB):Void {
+		aabb.minX = refAABB.minX;
+		aabb.minY = refAABB.minY;
+		aabb.minZ = refAABB.minZ;
+		
+		aabb.maxX = refAABB.maxX;
+		aabb.maxY = refAABB.maxY;
+		aabb.maxZ = refAABB.maxZ;
+	}
+	
 	public static inline function reset(aabb:IAABB):Void {
 		aabb.minX = MAX_VALUE;
 		aabb.minY = MAX_VALUE;

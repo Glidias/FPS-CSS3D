@@ -50,14 +50,10 @@ class AABBSector implements IAABB
 		var y:Float;
 		var z:Float;
 		
-		// transform x,y,z by matrics
-		//var pos:Vec3;
+
 		var a:Float;
 		var b:Float;
 		var c:Float;
-		
-		//pos = east.scaleBy(x).add( south.scaleBy(y) ).add(up.scaleBy(z));
-		//AABBUtils.expand(pos.x, pos.y, pos.z, this);
 		
 		// start bottom 4
 		
@@ -198,9 +194,24 @@ class AABBSector implements IAABB
 		return AABBPortalPlane.getPlaneResult(AABBPortalPlane.UP, this, gridSize).getHTML(mat);
 	}
 	
+	public  function getPortalPlane(direction:Int):AABBPortalPlane {
+			var len:Int = portalWalls.length;
+			for (i in 0...len) {
+				if (portalWalls[i].direction == direction) return portalWalls[i];
+			}
+			return null;
+		}
 	
+	public function addPortal(portal:AABBPortal, direction:Int):Void {
+		var portalPlane:AABBPortalPlane;
+		if ( (portalPlane = getPortalPlane(direction))==null ) {
+			portalPlane= new AABBPortalPlane();
+			portalPlane.direction = direction;
+			addPortalPlane(portalPlane);
+		}
+		portalPlane.addPortal(portal);
+	}
 	public inline function addPortalPlane(plane:AABBPortalPlane):Void {  
-		
 		portalWalls.push(plane);
 	}
 

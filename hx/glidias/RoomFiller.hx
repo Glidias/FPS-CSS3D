@@ -1,9 +1,9 @@
 package glidias;
 	import glidias.TypeDefs;
-	import haxe.io.Error;
 
 	/**
 	 * Haxe port of http://wonderfl.net/c/57nZ . Useful to create random aabb dungoen rooms to fill up any given aabb space.
+		 Provides optimized room-by-room information for optimized 3d environments.
 	 */
     class RoomFiller
     {
@@ -16,6 +16,7 @@ package glidias;
          static inline var  DOOR:Int = 2;
 		 static inline var  CORRIDOOR:Int = 3;
 		 static inline var  FLOOR:Int = 4;  
+		 
 		 
 		 // anything higher or equal to the above FLOOR value indicates a FLOOR type value. Higher FLOOR values can be used to indicates different levels/sectors
 		 
@@ -76,7 +77,7 @@ package glidias;
 		
 		
 		/**
-		 * Javascript method to generate CSSPlanes definitnation 
+		 * Javascript method to generate CSSPlanes definitnation from sector map
 		 * @param	map
 		 */
 		public function getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null):String {
@@ -125,53 +126,80 @@ package glidias;
 			len = doors.length;
 			var target:Int;
 			var direction:Int;
+			//var gotCoridoor:Bool;
 			for (i in 0...len) {
 				door = doors[i];
 				
-				// create coridoor sector for door
 				sector = new AABBSector();
-				rect = new Rectangle(door.x - (door.z < 0 ? 1 : 0), door.y - (door.w < 0 ? 1 : 0), door.z != 0 ? 2 : 1, door.w!=0 ? 2: 1 );
+				rect = new Rectangle(door.x - (door.z < 0 ? 1 : 0), door.y - (door.w < 0 ? 1 : 0), door.z != 0 ? 2 : 1, door.w != 0 ? 2: 1 );		
 				sector.setup(rect, gridSize, gridSize, groundPos);
 				map.push(sector);
+			
 				
 				doorType = getDoorType(door);
 				if (doorType >= FLOOR) { // indoors!
-					target = grid[door.x - door.z][door.y - door.w] - FLOOR; 
+					target = getSectorIndexAt(door.x - door.z, door.y - door.w); 
+					
 				}
 				else if (doorType == DIRT) { // outdoors!
 					target = -1;
+					//continue;   // allow possibility for outdoor
 				}
 				else {
 					trace("Could not resolve door type");
 					continue;
 				}
 				
+				
+				// create portal that faces target 
 				portal = new AABBPortal();
 				direction = portal.setup((target>=0 ? map[target] : null ), door, gridSize, gridSize, gridSize, groundPos);
+				sector.addPortal(portal, direction);
 				
-				if ( (portalPlane= getPortalPlane(sector.portalWalls, direction) ) == null ) {
-					portalPlane = new AABBPortalPlane();
-					portalPlane.direction = direction;
-					sector.addPortalPlane(portalPlane);
+				
+				direction = AABBPortalPlane.getReverse(direction);  // flip direction
+				
+				// create portal from target to corridoor in revesesed direction
+				if (target != -1) {
+					map[target].addPortal( portal.getReverse(sector), direction );
 				}
-				portalPlane.addPortal(portal);
+			
+				
+				// craete portal on other side of coridoor (ie. towards opposite sector at other side).
+				target = getSectorIndexAt( door.x + door.z * 2, door.y + door.w * 2 );  // assumed door.z and door.w is a value of 1!
+				if (target < 0) trace("SHOULD NOT BE, coridoor direction of doorway SHOULD have a sector!");
+				portal = portal.getOppositePortal(gridSize, map[target], door );
+				sector.addPortal(portal, direction);
+				
+	
+				direction = AABBPortalPlane.getReverse(direction);   // flip direction
+				
+				//  create portal from opposite sector to corridoor in reversed direction
+				map[target].addPortal(portal.getReverse(sector), direction );
+				
 			}
 			
 			return map;
 		}
+		
+		/**
+		 * Gets sector index at tile coordinate (assumed valid in range)
+		 * @param	tx
+		 * @param	ty
+		 * @return	Negative values indicate non-sectors.
+		 */
+		public inline function getSectorIndexAt(tx:Int, ty:Int):Int {
+			return grid[tx][ty] - FLOOR;
+		}
+		
+		
 		
 		private inline function abs(w:Int):Float
 		{
 			return w < 0 ? -w : w;
 		}
 		
-		private  function getPortalPlane(arr:Array<AABBPortalPlane>, direction:Int):AABBPortalPlane {
-			var len:Int = arr.length;
-			for (i in 0...len) {
-				if (arr[i].direction == direction) return arr[i];
-			}
-			return null;
-		}
+		
 		
 		/**
 		 * Useful to check if corridoor is facing outdoors(dirt) or facing another room(floor) or facing a wall!

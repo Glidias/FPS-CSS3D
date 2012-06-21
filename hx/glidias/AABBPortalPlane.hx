@@ -8,7 +8,7 @@ import glidias.Int4;
 
 class AABBPortalPlane implements IAABB
 {
-	// backface plane reject lookup index
+	// backface plane reject lookup index for normal direction
 	public var direction:Int;
 	
 	// bound reject for space occupied by all portals
@@ -27,6 +27,9 @@ class AABBPortalPlane implements IAABB
 		AABBUtils.reset(this);
 		portals = new Array<AABBPortal>();
 	}
+	
+
+	// -- Procedural generation helper methods
 	
 	public inline function addPortal(portal:AABBPortal):Void {
 		AABBUtils.expand2(this, portal);
@@ -77,6 +80,7 @@ class AABBPortalPlane implements IAABB
 		// add spacings if possible
 		// door wall spacing rect = (right vector offset - baseOffset, aboveDoorwayHeight, spacignWidth, doorwayHeight)
 		
+		// validate that all portals lie on the same plane using points of portal
 		
 		// close html
 		
@@ -94,18 +98,40 @@ class AABBPortalPlane implements IAABB
 		new Vec3(0, -1, 0),
 		new Vec3(-1, 0, 0),
 		new Vec3(0, 1, 0),
-		new Vec3(1, 1,0)
+		new Vec3(1, 0,0)
 	];
 	// adjust up vector
 	public static var UP:Vec3 = new Vec3(0, 0, 1);
 	
 	
+	/**
+	 * Gets normal facing door direction from doorway (ie. indoor facing door direction towards corridoor tile ).
+	 * @param	door
+	 * @return Returns the normal door direction , ie. inward facing normal direction).
+	 */
 	static public inline function getDoorDir(door:Int4):Int
 	{
 		var dir:Int = 0;
-		dir |= door.x != 0 ? 1 : 0;  // first bit - is door horizontal?
-		dir |= ( door.x != 0 ? door.x > 0 : door.y > 0 ) ? 2 : 0;  // second bit - positive or negative? 
+		dir |= isDoorHorizontal(door) ? 1 : 0;  // first bit - is door horizontal?
+		dir |= ( door.z != 0 ? door.z > 0 : door.w > 0 ) ? 2 : 0;  // second bit - positive or negative? 
 		return dir;
+	}
+	
+	static public inline function isDoorHorizontal(door:Int4):Bool {
+		 return door.x != 0;
+	}
+	static public inline function isDoorValHorizontal(val:Int):Bool { // first bit is door horizontal
+		return (val & 1) !=0;
+	}
+	
+	static public inline function getReverse(direction:Int):Int
+	{
+		return direction ^= 2;
+	}
+	
+	static public inline function isReversed(dir:Int):Bool
+	{
+		return dir == AABBPortalPlane.NORTH || dir == AABBPortalPlane.WEST;
 	}
 	
 	

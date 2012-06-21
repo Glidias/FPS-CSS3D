@@ -28,8 +28,75 @@ class AABBPortal implements IAABB
 	}
 	
 	
+	// -- Procedural generation helper methods
+	
+	public function getReverse(newTarget:AABBSector):AABBPortal {
+		var meNew:AABBPortal = new AABBPortal();
+		AABBUtils.match(meNew, this);
+		meNew.points = points.concat(new Array<Float>());
+		meNew.points.reverse(); // reverse poitns so they face opposite direction
+		meNew.width = width;
+		meNew.height = height;
+		meNew.target = newTarget;
+		return meNew;
+	}
+	
+	
 	/**
-	 * Precalculates all necessary values based on a room definition and it's door.
+	 *
+	 * @return  Gets  opposite portal from other side of corridoor
+	 */
+	public function getOppositePortal(gridSize:Float, newTarget:AABBSector, door:Int4):AABBPortal
+	{
+		var portal:AABBPortal = getReverse(newTarget);
+		
+		// offset all points and bounds along reverse direction
+		var direction:Int = AABBPortalPlane.getDoorDir(door
+		);
+		var ox:Float = 0;
+		var oy:Float = 0;
+	
+		if (AABBPortalPlane.isDoorValHorizontal(direction)) {
+			ox = 2 * gridSize * ( AABBPortalPlane.isReversed(direction) ? -1 : 1);
+		}
+		else {
+			oy = 2 * gridSize * ( AABBPortalPlane.isReversed(direction) ? -1 : 1);
+		}
+		var south = AABBPortalPlane.DIRECTIONS[AABBPortalPlane.SOUTH];
+		var east = AABBPortalPlane.DIRECTIONS[AABBPortalPlane.EAST];
+		
+		var x:Float;
+		var y:Float;
+		var z:Float;
+		
+		x = ox * east.x;
+		y = ox * east.y;
+		z = ox * east.z;
+	
+		x+=oy * south.x;
+		y+=oy * south.y;
+		z += oy * south.z;
+		
+		minX += x;
+		minY += y;
+		minZ += z;
+		maxX += x;
+		maxY += y;
+		maxZ += z;
+		
+		var offsets = [x,y,z];
+		
+		direction = points.length;
+		var ind:Int;
+		for (i in 0...direction) {
+			points[i]+= offsets[i % 3];
+		}
+		
+		return portal;
+	}
+	
+	/**
+	 * Precalculates all necessary values based on a room definition and it's door. This is for otuward facing doors only.
 	 * @param	room
 	 * @param	door
 	 * @param	gridSize
@@ -48,33 +115,120 @@ class AABBPortal implements IAABB
 		var east =  AABBPortalPlane.DIRECTIONS[AABBPortalPlane.EAST];
 		var up = AABBPortalPlane.UP;
 		
+		var dir:Int = AABBPortalPlane.getDoorDir(door);
+	
+		// Door tile position
+		var sx = door.x;
+		var sy = door.y;
+		var reverse:Bool = AABBPortalPlane.isReversed(dir);
+		
+		if (reverse) {
+			if (dir == AABBPortalPlane.WEST) {
+				sx += 1;
+			}
+			else { // NORTH
+				sy += 1;
+			}
+		}
+		
+		// Anti-clockwise from top-left of door
+		
 		// top left
-		var sx= south.x* door.y * gridSize;
-		var sy = east.y * door.x * gridSize;
-		var sz = up.z * (groundPos + doorHeight);
 		var px;
 		var py;
 		var pz;
-		points.push(sx);
-		points.push(sy);
-		points.push(sz);
-		// set bounds to above start poitn and expand outward by height and width in antoclockwise direction
-		minX = maxX = sx;
-		minY = maxY = sy;
-		minZ = maxZ = sz;
+		var p;
+		p =  sy* gridSize;
+		px = south.x * p;
+		py = south.y * p;
+		pz = south.z * p;
+		p = sx * gridSize;
+		px += east.x * p;
+		py += east.y * p;
+		pz += east.z * p;
+		p = groundPos + doorHeight;
+		px += up.x  * p;
+		py += up.y  * p;
+		pz += up.z  * p;
+		points.push(px);
+		points.push(py);
+		points.push(pz);
+
+		// set bounds to above top-left and expand outward by height and width in antoclockwise direction
+		minX = maxX = px;
+		minY = maxY = py;
+		minZ = maxZ = pz;
 		
 		// bottom left
-		px = sx;
-		py = sy;
-		pz = up.z * (groundPos + doorHeight);
+		p = sy * gridSize;
+		px = south.x * p;
+		py = south.y * p;
+		pz = south.z * p;
+		p = sx * gridSize;
+		px += east.x * p;
+		py += east.y * p;
+		pz += east.z * p;
+		p = groundPos;
+		px += up.x  * p;
+		py += up.y  * p;
+		pz += up.z  * p;
+		points.push(px);
+		points.push(py);
+		points.push(pz);
 		AABBUtils.expand(px, py, pz, this);
 		
+		
+		// shift over to right
+		
+		if ( AABBPortalPlane.isDoorValHorizontal(dir) ) {
+			sy += 1;
+		}
+		else {
+			sy += 1;
+		}
+		
+		// repeat process in reverse vertical direction
+		
 		// bottom right
+		p =  sy* gridSize;
+		px = south.x * p;
+		py = south.y * p;
+		pz = south.z * p;
+		p = sx * gridSize;
+		px += east.x * p;
+		py += east.y * p;
+		pz += east.z * p;
+		p = groundPos + doorHeight;
+		px += up.x  * p;
+		py += up.y  * p;
+		pz += up.z  * p;
+		points.push(px);
+		points.push(py);
+		points.push(pz);
+		AABBUtils.expand(px, py, pz, this);
+		
 		
 		// top right
+		p =  sy* gridSize;
+		px = south.x * p;
+		py = south.y * p;
+		pz = south.z * p;
+		p = sx * gridSize;
+		px += east.x * p;
+		py += east.y * p;
+		pz += east.z * p;
+		p = groundPos + doorHeight;
+		px += up.x  * p;
+		py += up.y  * p;
+		pz += up.z  * p;
+		points.push(px);
+		points.push(py);
+		points.push(pz);
+		AABBUtils.expand(px, py, pz, this);
 		
 		
-		return AABBPortalPlane.getDoorDir(door);
+		return dir;
 	}
+
 	
 }
