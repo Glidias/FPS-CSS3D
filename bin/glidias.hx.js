@@ -274,6 +274,10 @@ glidias.Rectangle.prototype.x = null;
 glidias.Rectangle.prototype.y = null;
 glidias.Rectangle.prototype.width = null;
 glidias.Rectangle.prototype.height = null;
+glidias.Rectangle.prototype.toHTML = function(mat,scale) {
+	if(scale == null) scale = 1;
+	return "<div style=\"position:absolute;top:" + this.y * scale + "px;left:" + this.x * scale + "px;width:" + this.width * scale + "px;height:" + this.height * scale + "px;" + mat + "\"></div>";
+}
 glidias.Rectangle.prototype.__class__ = glidias.Rectangle;
 glidias.PM_PRNG = function(_seed) { if( _seed === $_ ) return; {
 	if(_seed == null) _seed = 1;
@@ -312,6 +316,7 @@ haxe.Log.prototype.__class__ = haxe.Log;
 glidias.RoomFiller = function(async) { if( async === $_ ) return; {
 	if(async == null) async = 0;
 	this.async = async;
+	this.roomInterv = -1;
 	this.drawTile = new glidias.Rectangle(0,0,10,10);
 	this.grid = new Array();
 	this.doors = new Array();
@@ -331,9 +336,6 @@ glidias.RoomFiller = function(async) { if( async === $_ ) return; {
 		}
 	}
 	this.random = new glidias.PM_PRNG(12345);
-	this.createFirstRoom();
-	if(async == 0) null;
-	else null;
 }}
 glidias.RoomFiller.__name__ = ["glidias","RoomFiller"];
 glidias.RoomFiller.prototype.grid = null;
@@ -344,6 +346,14 @@ glidias.RoomFiller.prototype.roomInterv = null;
 glidias.RoomFiller.prototype.currFeature = null;
 glidias.RoomFiller.prototype.drawTile = null;
 glidias.RoomFiller.prototype.async = null;
+glidias.RoomFiller.prototype._onComplete = null;
+glidias.RoomFiller.prototype.run = function(onComplete) {
+	this._onComplete = onComplete;
+	haxe.Log.trace("RUNNING...",{ fileName : "RoomFiller.hx", lineNumber : 75, className : "glidias.RoomFiller", methodName : "run"});
+	this.createFirstRoom();
+	if(this.async == 0) null;
+	else null;
+}
 glidias.RoomFiller.prototype.getHTMLFromSectors = function(map,gridSize,wallMat,floorMat,ceilingMat) {
 	if(floorMat == null) floorMat = wallMat;
 	if(ceilingMat == null) ceilingMat = floorMat;
@@ -392,7 +402,7 @@ glidias.RoomFiller.prototype.getSectorMap = function(gridSize,minRoomHeight,poss
 				target = -1;
 			}
 			else {
-				haxe.Log.trace("Could not resolve door type",{ fileName : "RoomFiller.hx", lineNumber : 149, className : "glidias.RoomFiller", methodName : "getSectorMap"});
+				haxe.Log.trace("Could not resolve door type",{ fileName : "RoomFiller.hx", lineNumber : 161, className : "glidias.RoomFiller", methodName : "getSectorMap"});
 				continue;
 			}
 			portal = new glidias.AABBPortal();
@@ -403,7 +413,7 @@ glidias.RoomFiller.prototype.getSectorMap = function(gridSize,minRoomHeight,poss
 				map[target].addPortal(portal.getReverse(sector),direction);
 			}
 			target = this.grid[door.x + door.z * 2][door.y + door.w * 2] - 4;
-			if(target < 0) haxe.Log.trace("SHOULD NOT BE, coridoor direction of doorway SHOULD have a sector!",{ fileName : "RoomFiller.hx", lineNumber : 170, className : "glidias.RoomFiller", methodName : "getSectorMap"});
+			if(target < 0) haxe.Log.trace("SHOULD NOT BE, coridoor direction of doorway SHOULD have a sector!",{ fileName : "RoomFiller.hx", lineNumber : 182, className : "glidias.RoomFiller", methodName : "getSectorMap"});
 			portal = portal.getOppositePortal(gridSize,map[target],door);
 			sector.addPortal(portal,direction);
 			direction = glidias.AABBPortalPlane.getReverse(direction);
@@ -425,33 +435,32 @@ glidias.RoomFiller.prototype.getDoorType = function(door) {
 	if(yer < 0 || yer >= 80) return 0;
 	return this.grid[xer][yer];
 }
-glidias.RoomFiller.prototype.update = function() {
+glidias.RoomFiller.prototype.testUpdate = function(callbacker,gridSize) {
+	if(gridSize == null) gridSize = 5;
 	var _g = 0;
 	while(_g < 80) {
 		var i = _g++;
 		{
 			var _g1 = 0;
-			try {
-				while(_g1 < 80) {
-					var j = _g1++;
-					this.drawTile.x = i * 5;
-					this.drawTile.y = j * 5;
-					switch(this.grid[i][j]) {
-					case 0:{
-						throw "__break__";
-					}break;
-					case 1:{
-						throw "__break__";
-					}break;
-					case 2:{
-						throw "__break__";
-					}break;
-					default:{
-						throw "__break__";
-					}break;
-					}
+			while(_g1 < 80) {
+				var j = _g1++;
+				this.drawTile.x = i * gridSize;
+				this.drawTile.y = j * gridSize;
+				switch(this.grid[i][j]) {
+				case 0:{
+					callbacker(this.drawTile.toHTML("background-color:#000000",null));
+				}break;
+				case 1:{
+					callbacker(this.drawTile.toHTML("background-color:#3D3C37",null));
+				}break;
+				case 2:{
+					callbacker(this.drawTile.toHTML("background-color:#733F12",null));
+				}break;
+				default:{
+					callbacker(this.drawTile.toHTML("background-color:#CCCCCC",null));
+				}break;
 				}
-			} catch( e ) { if( e != "__break__" ) throw e; }
+			}
 		}
 	}
 }
@@ -465,6 +474,10 @@ glidias.RoomFiller.prototype.createFirstRoom = function() {
 	this.currFeature = 50;
 	if(this.async == 0) {
 		while(this.createFeature()) null;
+		if(this._onComplete) {
+			this._onComplete();
+			return;
+		}
 	}
 	else {
 		this.roomInterv = 0;
@@ -478,7 +491,8 @@ glidias.RoomFiller.prototype.setInterval = function(target,timeMs) {
 }
 glidias.RoomFiller.prototype.createFeature = function() {
 	if(this.currFeature-- == 0) {
-		null;
+		if(this.roomInterv != -1) null;
+		haxe.Log.trace("Done.",{ fileName : "RoomFiller.hx", lineNumber : 309, className : "glidias.RoomFiller", methodName : "createFeature"});
 		return false;
 	}
 	var i, j;
@@ -490,7 +504,6 @@ glidias.RoomFiller.prototype.createFeature = function() {
 	do {
 		i = this.random.nextIntRange(2,78);
 		j = this.random.nextIntRange(2,78);
-		haxe.Log.trace(i,{ fileName : "RoomFiller.hx", lineNumber : 301, className : "glidias.RoomFiller", methodName : "createFeature", customParams : [j]});
 		if(this.grid[i][j] == 1) {
 			tt = this.grid[i][j - 1];
 			tb = this.grid[i][j + 1];
@@ -519,105 +532,99 @@ glidias.RoomFiller.prototype.createFeature = function() {
 		}
 	} while(dir == -1 && giveUp++ < 200);
 	if(dir != -1) {
-		try {
-			do {
-				var w, h;
-				var sx, sy;
-				var feature = Math.random();
-				if(feature < .3) {
-					{
-						if(dir == 0 || dir == 1) {
-							sx = tx - 1;
-							w = 3;
-							h = this.random.nextIntRange(10,20);
-							if(dir == 0) {
-								sy = ty - h;
-								if(sy < 1) continue;
-							}
-							else {
-								sy = ty + 1;
-								if(ty + h > 79) continue;
-							}
+		do {
+			var w, h;
+			var sx, sy;
+			var feature = Math.random();
+			if(feature < .3) {
+				{
+					if(dir == 0 || dir == 1) {
+						sx = tx - 1;
+						w = 3;
+						h = this.random.nextIntRange(10,20);
+						if(dir == 0) {
+							sy = ty - h;
+							if(sy < 1) continue;
 						}
 						else {
-							sy = ty - 1;
-							w = this.random.nextIntRange(10,20);
-							h = 3;
-							if(dir == 2) {
-								sx = tx - w;
-								if(sx < 1) continue;
-							}
-							else {
-								sx = tx + 1;
-								if(tx + w > 79) continue;
-							}
+							sy = ty + 1;
+							if(ty + h > 79) continue;
 						}
 					}
-				}
-				else {
-					{
-						if(dir == 0 || dir == 1) {
-							w = this.random.nextIntRange(6,14);
-							h = this.random.nextIntRange(6,14);
-							sx = tx - Math.floor(w * .5);
-							if(sx < 1 || sx + w > 79) continue;
-							if(dir == 0) {
-								sy = ty - h;
-								if(sy < 1) continue;
-							}
-							else {
-								sy = ty + 1;
-								if(ty + h > 79) continue;
-							}
+					else {
+						sy = ty - 1;
+						w = this.random.nextIntRange(10,20);
+						h = 3;
+						if(dir == 2) {
+							sx = tx - w;
+							if(sx < 1) continue;
 						}
 						else {
-							w = this.random.nextIntRange(6,14);
-							h = this.random.nextIntRange(6,14);
-							sy = ty - Math.floor(h * .5);
-							if(sy < 1 || sy + h > 79) return true;
-							if(dir == 2) {
-								sx = tx - w;
-								if(sx < 1) continue;
-							}
-							else {
-								sx = tx + 1;
-								if(tx + w > 79) continue;
-							}
+							sx = tx + 1;
+							if(tx + w > 79) continue;
 						}
 					}
 				}
-				if(sx < 1) sx = 2;
-				if(sx + w > 78) w = sx - 80 - 2;
-				if(sy < 1) sy = 1;
-				if(sy + h > 78) h = sy - 80 - 2;
-				if(this.createRoom(sx,sy,w,h)) {
-					this.grid[tx][ty] = 2;
-					switch(dir) {
-					case 0:{
-						this.grid[tx][ty + 1] = 3;
-						this.doors.push(new glidias.Int4(tx,ty,0,1));
-						throw "__break__";
-					}break;
-					case 1:{
-						this.grid[tx][ty - 1] = 3;
-						this.doors.push(new glidias.Int4(tx,ty,0,-1));
-						throw "__break__";
-					}break;
-					case 2:{
-						this.grid[tx + 1][ty] = 3;
-						this.doors.push(new glidias.Int4(tx,ty,1,0));
-						throw "__break__";
-					}break;
-					case 3:{
-						this.grid[tx - 1][ty] = 3;
-						this.doors.push(new glidias.Int4(tx,ty,-1,0));
-						throw "__break__";
-					}break;
+			}
+			else {
+				{
+					if(dir == 0 || dir == 1) {
+						w = this.random.nextIntRange(6,14);
+						h = this.random.nextIntRange(6,14);
+						sx = tx - Math.floor(w * .5);
+						if(sx < 1 || sx + w > 79) continue;
+						if(dir == 0) {
+							sy = ty - h;
+							if(sy < 1) continue;
+						}
+						else {
+							sy = ty + 1;
+							if(ty + h > 79) continue;
+						}
 					}
-					throw "__break__";
+					else {
+						w = this.random.nextIntRange(6,14);
+						h = this.random.nextIntRange(6,14);
+						sy = ty - Math.floor(h * .5);
+						if(sy < 1 || sy + h > 79) return true;
+						if(dir == 2) {
+							sx = tx - w;
+							if(sx < 1) continue;
+						}
+						else {
+							sx = tx + 1;
+							if(tx + w > 79) continue;
+						}
+					}
 				}
-			} while(giveUp++ < 200);
-		} catch( e ) { if( e != "__break__" ) throw e; }
+			}
+			if(sx < 1) sx = 2;
+			if(sx + w > 78) w = sx - 80 - 2;
+			if(sy < 1) sy = 1;
+			if(sy + h > 78) h = sy - 80 - 2;
+			if(this.createRoom(sx,sy,w,h)) {
+				this.grid[tx][ty] = 2;
+				switch(dir) {
+				case 0:{
+					this.grid[tx][ty + 1] = 3;
+					this.doors.push(new glidias.Int4(tx,ty,0,1));
+				}break;
+				case 1:{
+					this.grid[tx][ty - 1] = 3;
+					this.doors.push(new glidias.Int4(tx,ty,0,-1));
+				}break;
+				case 2:{
+					this.grid[tx + 1][ty] = 3;
+					this.doors.push(new glidias.Int4(tx,ty,1,0));
+				}break;
+				case 3:{
+					this.grid[tx - 1][ty] = 3;
+					this.doors.push(new glidias.Int4(tx,ty,-1,0));
+				}break;
+				}
+				break;
+			}
+		} while(giveUp++ < 200);
 	}
 	return true;
 }
@@ -640,7 +647,7 @@ glidias.RoomFiller.prototype.createRoom = function(s,e,w,h) {
 				}
 			}
 		}
-		this.rooms.push(new glidias.Rectangle(s,e,w + 1,h + 1));
+		this.rooms.push(new glidias.Rectangle(s + 1,e + 1,w - s - 1,h - e - 1));
 		return true;
 	}
 	return false;

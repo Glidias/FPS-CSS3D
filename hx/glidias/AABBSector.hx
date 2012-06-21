@@ -28,9 +28,7 @@ class AABBSector implements IAABB
 
 	public function new() 
 	{
-		
-		renderId = -999999999;
-		
+		renderId = -999999999;	
 	}
 	
 	public inline function setup(rect:Rectangle, gridSize:Float, height:Float, groundPos:Float = 0):Void {  
@@ -193,6 +191,7 @@ class AABBSector implements IAABB
 	public inline function getFloorHTML(mat:String, gridSize:Float):String {
 		return AABBPortalPlane.getPlaneResult(AABBPortalPlane.UP, this, gridSize).getHTML(mat);
 	}
+	
 	
 	public  function getPortalPlane(direction:Int):AABBPortalPlane {
 			var len:Int = portalWalls.length;

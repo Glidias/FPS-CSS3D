@@ -37,7 +37,7 @@ package glidias;
 		public var rooms:Array<Rectangle>;
 		
         private var random:PM_PRNG;
-        private var roomInterv:UInt;
+        private var roomInterv:Int;
         private var currFeature:Int;
 
        // private var screen:BitmapData;
@@ -48,6 +48,7 @@ package glidias;
         public function new(async:Int=0)
         {
 			this.async = async;
+			roomInterv = -1;
 			drawTile = new Rectangle( 0, 0, 10, 10 );
             grid = new Array<Array<Int>>();
 			doors = new Array<Int4>();
@@ -64,16 +65,27 @@ package glidias;
            // screen = new BitmapData( 400, 400, false, 0x000000 );
             //addChild( new Bitmap( screen ));
 
-            createFirstRoom();
+           
+        }
+		
+		private var _onComplete:Dynamic;
+		
+		public function run(onComplete:Dynamic=null):Void {
+			_onComplete = onComplete;
+			 trace("RUNNING...");
+			 
+			 createFirstRoom();
 
           
-		  if (async == 0) {
-			  // do nothing
-		  }
-		  else {  // todo: asynchrounous update of room state
-			   //stage.addEventListener( Event.ENTER_FRAME, update );
-		  }
-        }
+			  if (this.async == 0) {
+				  // do nothing
+			  }
+			  else {  // todo: asynchrounous update of room state
+				   //stage.addEventListener( Event.ENTER_FRAME, update );
+			  }
+			  
+			 
+		}
 		
 		
 		/**
@@ -216,32 +228,37 @@ package glidias;
 
 
 
-        private function update( ):Void
+        private function testUpdate(callbacker:Dynamic, gridSize:Float=5 ):Void
         {
            // screen.lock();
           //  screen.fillRect( screen.rect, 0x000000 );
-		  
+		 
             // Draw tiles            
             for ( i in 0...COLS )
             {
+				
                 for (j in 0...ROWS )
                 {
-                    drawTile.x = i * 5;
-                    drawTile.y = j * 5;
+                    drawTile.x = i * gridSize;
+                    drawTile.y = j * gridSize;
                     switch ( grid[ i ][ j ])
                     {
                         case DIRT:
+							
                           //  screen.fillRect( drawTile, 0x000000 );
-                            break;
+						  callbacker( drawTile.toHTML("background-color:#000000") );
+                            
                         case WALL:
                          //   screen.fillRect( drawTile, 0x3D3C37 );
-                            break;
+							 callbacker( drawTile.toHTML("background-color:#3D3C37") );
+                            
                         case DOOR:
                           //  screen.fillRect( drawTile, 0x733F12 );
-                            break;
+						    callbacker( drawTile.toHTML("background-color:#733F12") );
+                            
 						default:   // ASSUMED FLOOR!
+							callbacker( drawTile.toHTML("background-color:#CCCCCC") );
 							
-							break;
                     }
                 }
             }
@@ -265,10 +282,15 @@ package glidias;
             
 		    if (async == 0) {
 			  while ( createFeature() ) { };
+			  if (_onComplete) {
+				  _onComplete();
+				  return;
+			  }
 			}
 			else {  
 				roomInterv = setInterval( createFeature, async );
 			}   
+			
         }
 		
 		private inline function clearInterval(ier:Int):Void {
@@ -283,7 +305,9 @@ package glidias;
 			//trace( currFeature );
             if ( currFeature-- == 0 )
             {
-               clearInterval( roomInterv );
+               if (roomInterv != -1) clearInterval( roomInterv );
+			   trace("Done.");
+			   
                 return false;
             }
 
@@ -298,7 +322,7 @@ package glidias;
                 i = random.nextIntRange( 2, COLS - 2 );
                 j = random.nextIntRange( 2, ROWS - 2 );
 
-                trace( i, j );
+              //  trace( i, j );
                 if ( grid[ i ][ j ] == WALL )
                 {
                     tt = grid[ i ][ j - 1 ];
@@ -463,19 +487,19 @@ package glidias;
                             case 0:
                                 grid[tx][ty + 1] = CORRIDOOR;
 								doors.push( new Int4(tx, ty, 0, 1) );  // south
-                                break;
+                              
                             case 1:
                                 grid[tx][ty - 1] = CORRIDOOR;
 								doors.push( new Int4(tx, ty, 0, -1) );  // north
-                                break;
+                              
                             case 2:
                                 grid[tx + 1][ty] = CORRIDOOR;
 								doors.push( new Int4(tx, ty, 1, 0) );  // east
-                                break;
+                               
                             case 3:
                                 grid[tx - 1][ty] = CORRIDOOR;
 								doors.push( new Int4(tx, ty, -1, 0) ); //west
-                                break;
+                                
                         }
                         break;
                     }
@@ -501,7 +525,7 @@ package glidias;
                             grid[ i ][ j ] = FLOOR + roomLen;
                     }
                 }
-				rooms.push( new Rectangle(s, e, w+1, h+1) );
+				rooms.push( new Rectangle(s+1, e+1, w - s -1, h - e-1) );
                 return true;
             }
 

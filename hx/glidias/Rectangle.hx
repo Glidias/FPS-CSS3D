@@ -20,4 +20,9 @@ class Rectangle
 		this.height = height;
 	}
 	
+	public inline function toHTML(mat:String, scale:Float=1):String {
+		return '<div style="position:absolute;top:'+(y*scale)+'px;left:'+(x*scale)+'px;width:'+(width*scale)+'px;height:'+(height*scale)+'px;'+mat+'"></div>';
+		
+	}
+	
 }
