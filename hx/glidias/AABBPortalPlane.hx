@@ -103,6 +103,14 @@ class AABBPortalPlane implements IAABB
 	// adjust up vector
 	public static var UP:Vec3 = new Vec3(0, 0, 1);
 	
+	public static function setEastSouthUp(east:Vec3, south:Vec3, up:Vec3 ):Void {
+		DIRECTIONS[EAST].copy(east);
+		DIRECTIONS[SOUTH].copy(south);
+		UP.copy(up);
+		DIRECTIONS[WEST].copyReverse(east);
+		DIRECTIONS[SOUTH].copyReverse(south);
+	}
+	
 	
 	/**
 	 * Gets normal facing door direction from doorway (ie. indoor facing door direction towards corridoor tile ).
@@ -113,12 +121,12 @@ class AABBPortalPlane implements IAABB
 	{
 		var dir:Int = 0;
 		dir |= isDoorHorizontal(door) ? 1 : 0;  // first bit - is door horizontal?
-		dir |= ( door.z != 0 ? door.z > 0 : door.w > 0 ) ? 2 : 0;  // second bit - positive or negative? 
+		dir |= ( isDoorHorizontal(door) ? door.z > 0 : door.w > 0 ) ? 2 : 0;  // second bit - positive or negative? 
 		return dir;
 	}
 	
 	static public inline function isDoorHorizontal(door:Int4):Bool {
-		 return door.x != 0;
+		 return door.z != 0;
 	}
 	static public inline function isDoorValHorizontal(val:Int):Bool { // first bit is door horizontal
 		return (val & 1) !=0;
@@ -133,6 +141,14 @@ class AABBPortalPlane implements IAABB
 	{
 		return dir == AABBPortalPlane.NORTH || dir == AABBPortalPlane.WEST;
 	}
+	
+	static public inline function getMagnitudeOffset(door:Int4):Int {
+		return isDoorHorizontal(door) ? abs(door.z) : abs(door.w);
+	}
+	static public inline function abs(val:Int):Int {
+		return val < 0 ? -val : val;
+	}
+	
 	
 	
 }

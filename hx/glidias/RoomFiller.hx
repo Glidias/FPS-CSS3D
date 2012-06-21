@@ -1,5 +1,7 @@
 package glidias;
 	import glidias.TypeDefs;
+	import js.Dom;
+	import js.Lib;
 
 	/**
 	 * Haxe port of http://wonderfl.net/c/57nZ . Useful to create random aabb dungoen rooms to fill up any given aabb space.
@@ -109,14 +111,16 @@ package glidias;
 		
 		
 		/**
-		 * Get list of sectors and their interconnected portals
+		 * Get list of sectors and their interconnected portals. 
+		 * Also attempts to drill through walls to the next sector if the door opens towards a dead-end wall, effectively 
+		 * increasing the length of a corridoor. 
 		 * @param	gridSize
 		 * @param	minRoomHeight
 		 * @param	possibleRoomHeightAdd
 		 * @param	groundPos
 		 * @return
 		 */
-		public function getSectorMap(gridSize:Float, minRoomHeight:Float, possibleRoomHeightAdd:Float=0, groundPos:Float=0):Array<AABBSector> {
+		public function getSectors(gridSize:Float, minRoomHeight:Float, possibleRoomHeightAdd:Float=0, groundPos:Float=0):Array<AABBSector> {
 			var map:Array<AABBSector> = new Array<AABBSector>();
 			var wallMask:Int; 
 			var len:Int;
@@ -138,29 +142,91 @@ package glidias;
 			len = doors.length;
 			var target:Int;
 			var direction:Int;
+			var d:Int;
+			var c:Int;
 			//var gotCoridoor:Bool;
 			for (i in 0...len) {
 				door = doors[i];
 				
-				sector = new AABBSector();
-				rect = new Rectangle(door.x - (door.z < 0 ? 1 : 0), door.y - (door.w < 0 ? 1 : 0), door.z != 0 ? 2 : 1, door.w != 0 ? 2: 1 );		
-				sector.setup(rect, gridSize, gridSize, groundPos);
-				map.push(sector);
-			
-				
 				doorType = getDoorType(door);
 				if (doorType >= FLOOR) { // indoors!
-					target = getSectorIndexAt(door.x - door.z, door.y - door.w); 
-					
+					target = getSectorIndexAt(door.x - door.z, door.y - door.w);  // get key target sector index of corridoor
+					trace("indoors!"+ [door.x,door.y]+" : "+[door.z, door.w]);
 				}
 				else if (doorType == DIRT) { // outdoors!
 					target = -1;
+					trace("Outdoors!");
 					//continue;   // allow possibility for outdoor
 				}
+				else if (doorType == WALL) {
+					//trace("Could not resolve door type. Need to drill deeper:" + doorType + ":" + [door.x, door.y] + ": " + [door.z, door.w]);
+					//continue;
+					grid[door.x][door.y] = CORRIDOOR;
+					if (AABBPortalPlane.isDoorHorizontal(door)) {
+						d = normalize(door.z);
+						///*
+						door.z += d;
+						door.x -= d;
+						while (true) {
+							c = door.x - d;
+							if (c < 0 || c >= COLS) {
+								trace("out of bounds..");
+								continue;
+							} 
+							
+							if (grid[c-d][door.y] >= FLOOR) {
+								// form new door
+								grid[door.x][door.y] = DOOR;
+								break;
+							}
+							
+							door.z += d;
+							door.x = c;
+							grid[c][door.y] = CORRIDOOR;
+							
+							d++;
+						}
+						//*/
+					}
+					else {
+						///*
+						d = normalize(door.w);
+						door.w += d;
+						door.y -= d;
+						
+						while (true) {
+							c = door.y - d;
+							if (c < 0 || c >= ROWS) {
+								trace("out of bounds..");
+								continue;
+							}
+							
+							if (grid[door.x][c-d] >= FLOOR) {
+								// form new door
+								grid[door.x][door.y] = DOOR;
+								break;
+							}
+							door.w += d;
+							door.y = c;
+							grid[door.x][c] = CORRIDOOR;
+							
+							d++;
+						}
+						//*/
+					}
+					target = getSectorIndexAt(door.x - door.z, door.y - door.w);   // get key target sector index of corridoor
+					//continue;  // comment when done. to trace only
+				}
 				else {
-					trace("Could not resolve door type");
+					trace("Could not resolve door type. " + doorType + ". " + [door.x, door.y] + ": " + [door.z, door.w]);
 					continue;
 				}
+				
+				// create corridoor sector
+				sector = new AABBSector();
+				rect = new Rectangle(door.x - (door.z < 0 ? 1 : 0), door.y - (door.w < 0 ? 1 : 0), door.z != 0 ? abs(door.z)+1 : 1, door.w != 0 ? abs(door.w)+1: 1 );		
+				sector.setup(rect, gridSize, gridSize, groundPos);
+				map.push(sector);
 				
 				
 				// create portal that faces target 
@@ -178,8 +244,11 @@ package glidias;
 			
 				
 				// craete portal on other side of coridoor (ie. towards opposite sector at other side).
-				target = getSectorIndexAt( door.x + door.z * 2, door.y + door.w * 2 );  // assumed door.z and door.w is a value of 1!
-				if (target < 0) trace("SHOULD NOT BE, coridoor direction of doorway SHOULD have a sector!");
+				target = getSectorIndexAt( door.x + door.z + normalize(door.z), door.y + door.w + normalize(door.w) );
+				if (target < 0) {
+					trace("SHOULD NOT BE, coridoor direction of doorway SHOULD have a sector!" + [door.x, door.y, door.z, door.w] );
+					continue;
+				}
 				portal = portal.getOppositePortal(gridSize, map[target], door );
 				sector.addPortal(portal, direction);
 				
@@ -192,6 +261,10 @@ package glidias;
 			}
 			
 			return map;
+		}
+		
+		private inline function normalize(val:Int):Int {
+			return ( val < 0 ? -1 : 1 );
 		}
 		
 		/**
@@ -219,9 +292,9 @@ package glidias;
 		 * @return	The door type
 		 */
 		public function getDoorType(door:Int4):Int {
-			var xer = door.x  -door.z;
+			var xer:Int = door.x - door.z;
 			if (xer < 0 || xer >= COLS) return DIRT;
-			var yer = door.y  -door.w;
+			var yer:Int = door.y - door.w;
 			if (yer < 0 || yer >= ROWS) return DIRT;
 			return grid[xer][yer];
 		}
@@ -233,6 +306,8 @@ package glidias;
            // screen.lock();
           //  screen.fillRect( screen.rect, 0x000000 );
 		 
+		  drawTile.width = gridSize;
+		  drawTile.height = gridSize;
             // Draw tiles            
             for ( i in 0...COLS )
             {
@@ -244,24 +319,40 @@ package glidias;
                     switch ( grid[ i ][ j ])
                     {
                         case DIRT:
-							
-                          //  screen.fillRect( drawTile, 0x000000 );
-						  callbacker( drawTile.toHTML("background-color:#000000") );
-                            
+						  callbacker( drawTile.toHTML("background-color:#000000") );             
                         case WALL:
-                         //   screen.fillRect( drawTile, 0x3D3C37 );
 							 callbacker( drawTile.toHTML("background-color:#3D3C37") );
-                            
                         case DOOR:
-                          //  screen.fillRect( drawTile, 0x733F12 );
-						    callbacker( drawTile.toHTML("background-color:#733F12") );
-                            
+						    callbacker( drawTile.toHTML("background-color:#FF0000") );
+                          case CORRIDOOR:
+							  	callbacker( drawTile.toHTML("background-color:#733F12") );
 						default:   // ASSUMED FLOOR!
 							callbacker( drawTile.toHTML("background-color:#CCCCCC") );
 							
                     }
                 }
             }
+			
+			var i:Int = 0;
+			while ( i < COLS)
+            {
+				 drawTile.x = i * gridSize;
+                    drawTile.y =  0;
+					  	callbacker( drawTile.toHTML("background-color:#FF0000") );
+						
+						i += 10;
+			}
+			i = 0;
+			while ( i < ROWS)
+            {
+				 drawTile.x = 0;
+                   drawTile.y = i * gridSize;
+					callbacker( drawTile.toHTML("background-color:#FF0000") );
+					
+					i += 10;
+					
+			}
+			
            // screen.unlock();
         }
 		
@@ -519,6 +610,7 @@ package glidias;
                 {
                     for ( j in e...(h+1) )
                     {
+						if ( grid[ i ][ j ] == CORRIDOOR) trace("Covered corridoor exception!");
                         if ( i == s || i == w || j == e || j == h )
                             grid[ i ][ j ] = WALL;
                         else

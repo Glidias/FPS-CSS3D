@@ -1,4 +1,5 @@
 package glidias;
+import glidias.Vec3;
 
 /**
  * ...
@@ -20,6 +21,20 @@ class Vec3
 		this.z = z;
 		this.w = w;
 	}
+	public inline function copyReverse(ref:Vec3):Void
+	{
+		this.x = -ref.x;
+		this.y = -ref.y;
+		this.z = -ref.z;
+		this.w = ref.w;
+	}
+	
+	public inline function copy(ref:Vec3):Void {
+		this.x = ref.x;
+		this.y = ref.y;
+		this.z = ref.z;
+		this.w = ref.w;
+	}
 	
 	public inline function getReverse():Vec3 {
 		return new Vec3( -x, -y, -z, w);
@@ -33,4 +48,6 @@ class Vec3
 		y *= amt;
 		z *= amt;
 	}
+	
+
 }

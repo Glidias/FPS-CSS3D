@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<title>FPS_Css</title>
+	<meta name="description" content="" />
+	<script src="../js/jquery-1.7.2.min.js"></script>
+	
+	<script type="text/javascript">
+		$(document).ready( function() {
+		var roomFiller = new glidias.RoomFiller();
+			var GRID_SIZE = 5;
+			roomFiller.run(function() {
+			roomFiller.getSectors();
+				var arr = roomFiller.rooms;
+				var len = arr.length;
+				var i;
+				var htmlStr = "<div>";
+				var color;
+				
+				///*
+				roomFiller.testUpdate(function(result) {
+					htmlStr += result;
+				}, GRID_SIZE)
+				//*/
+				
+				/*
+				for (i=0; i< len; i++) {
+					color =  'rgb(' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ')';
+					htmlStr += arr[i].toHTML("background-color:"+color, GRID_SIZE);
+				}
+				*/
+				
+				htmlStr += "</div>";	
+				document.getElementById("testBed").innerHTML = htmlStr;
+				
+				
+				
+				
+				
+			
+			});
+		});
+	</script>
+</head>
+<body>
+	<div id="haxe:trace" style="position:absolute; z-index:99999; left:410px; color:#FF4499"></div>
+	<script src="../glidias.hx.js"></script>
+
+	<div id="testBed">
+		
+	</div>
+	
+	
+</body>
+</html>

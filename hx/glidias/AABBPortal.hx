@@ -57,10 +57,10 @@ class AABBPortal implements IAABB
 		var oy:Float = 0;
 	
 		if (AABBPortalPlane.isDoorValHorizontal(direction)) {
-			ox = 2 * gridSize * ( AABBPortalPlane.isReversed(direction) ? -1 : 1);
+			ox = 2 * gridSize * ( AABBPortalPlane.isReversed(direction) ? -AABBPortalPlane.getMagnitudeOffset(door) : AABBPortalPlane.getMagnitudeOffset(door) );
 		}
 		else {
-			oy = 2 * gridSize * ( AABBPortalPlane.isReversed(direction) ? -1 : 1);
+			oy = 2 * gridSize * ( AABBPortalPlane.isReversed(direction) ? -AABBPortalPlane.getMagnitudeOffset(door) : AABBPortalPlane.getMagnitudeOffset(door));
 		}
 		var south = AABBPortalPlane.DIRECTIONS[AABBPortalPlane.SOUTH];
 		var east = AABBPortalPlane.DIRECTIONS[AABBPortalPlane.EAST];
