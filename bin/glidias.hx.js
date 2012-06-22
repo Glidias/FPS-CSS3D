@@ -817,11 +817,12 @@ glidias.AABBPortal.prototype.getOppositePortal = function(gridSize,newTarget,doo
 	var direction = glidias.AABBPortalPlane.getDoorDir(door);
 	var ox = 0;
 	var oy = 0;
+	var reverse = direction == 0 || direction == 1;
 	if((direction & 1) != 0) {
-		ox = (door.z + glidias.AABBPortalPlane.norm(door.z)) * gridSize;
+		ox = (door.z + (reverse?glidias.AABBPortalPlane.norm(door.z):0)) * gridSize;
 	}
 	else {
-		oy = (door.w + glidias.AABBPortalPlane.norm(door.w)) * gridSize;
+		oy = (door.w + (reverse?glidias.AABBPortalPlane.norm(door.w):0)) * gridSize;
 	}
 	var south = glidias.AABBPortalPlane.DIRECTIONS[2];
 	var east = glidias.AABBPortalPlane.DIRECTIONS[3];
@@ -1290,6 +1291,20 @@ glidias.AABBPortalPlane.prototype.__class__ = glidias.AABBPortalPlane;
 glidias.AABBPortalPlane.__interfaces__ = [glidias.IAABB];
 glidias.AABBUtils = function() { }
 glidias.AABBUtils.__name__ = ["glidias","AABBUtils"];
+glidias.AABBUtils.getRect = function(aabb,threshold) {
+	if(threshold == null) threshold = .1;
+	return new glidias.Rectangle(aabb.minX,aabb.minY,glidias.AABBUtils.clampMagnitude(aabb.maxX - aabb.minX,threshold),glidias.AABBUtils.clampMagnitude(aabb.maxY - aabb.minY,threshold));
+}
+glidias.AABBUtils.clampMagnitude = function(mag,threshold) {
+	if(threshold == null) threshold = .1;
+	return mag < threshold?threshold:mag;
+}
+glidias.AABBUtils.abs = function(val) {
+	return val < 0?-val:val;
+}
+glidias.AABBUtils.norm = function(w) {
+	return w != 0?w < 0?-1:1:0;
+}
 glidias.AABBUtils.match = function(aabb,refAABB) {
 	aabb.minX = refAABB.minX;
 	aabb.minY = refAABB.minY;
@@ -1414,4 +1429,5 @@ glidias.AABBPortalPlane.EAST = 3;
 glidias.AABBPortalPlane.DIRECTIONS = [new glidias.Vec3(0,-1,0),new glidias.Vec3(-1,0,0),new glidias.Vec3(0,1,0),new glidias.Vec3(1,0,0)];
 glidias.AABBPortalPlane.UP = new glidias.Vec3(0,0,1);
 glidias.AABBUtils.MAX_VALUE = 1.7976931348623157e+308;
+glidias.AABBUtils.THRESHOLD = .1;
 glidias.Package.main()

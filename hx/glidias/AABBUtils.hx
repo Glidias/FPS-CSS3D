@@ -9,7 +9,23 @@ package glidias;
 class AABBUtils 
 {
 	public static inline var MAX_VALUE:Float = 1.7976931348623157e+308;
+	public static inline var THRESHOLD:Float = .1;
 	
+	public static inline function getRect(aabb:IAABB, threshold:Float=THRESHOLD):Rectangle {
+		return new Rectangle(aabb.minX, aabb.minY, clampMagnitude(aabb.maxX - aabb.minX, threshold), clampMagnitude(aabb.maxY - aabb.minY, threshold) );
+	
+	}
+	public static inline function clampMagnitude(mag:Float, threshold:Float=THRESHOLD):Float {
+		return mag <  threshold ?  threshold : mag;
+	}
+
+	private static inline function abs(val:Float):Float {
+		return val < 0 ? -val : val;
+	}
+	private static function norm(w:Int):Int 
+	{
+		return w != 0 ?  w < 0 ? -1 : 1 : 0;
+	}
 	
 	public static function match(aabb:IAABB, refAABB:IAABB):Void {
 		aabb.minX = refAABB.minX;

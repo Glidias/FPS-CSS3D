@@ -51,16 +51,16 @@ class AABBPortal implements IAABB
 		var portal:AABBPortal = getReverse(newTarget);
 		
 		// offset all points and bounds along reverse direction
-		var direction:Int = AABBPortalPlane.getDoorDir(door
-		);
+		var direction:Int = AABBPortalPlane.getDoorDir(door);
 		var ox:Float = 0;
 		var oy:Float = 0;
 	
+		var reverse:Bool = AABBPortalPlane.isReversed(direction);
 		if (AABBPortalPlane.isDoorValHorizontal(direction)) {
-			ox = (door.z + AABBPortalPlane.norm(door.z) ) * gridSize;
+			ox = (door.z + (reverse ? AABBPortalPlane.norm(door.z) : 0)) * gridSize;
 		}
 		else {
-			oy = (door.w + AABBPortalPlane.norm(door.w) ) * gridSize;
+			oy = (door.w+ (reverse ? AABBPortalPlane.norm(door.w) : 0))  * gridSize;
 		}
 		var south = AABBPortalPlane.DIRECTIONS[AABBPortalPlane.SOUTH];
 		var east = AABBPortalPlane.DIRECTIONS[AABBPortalPlane.EAST];
