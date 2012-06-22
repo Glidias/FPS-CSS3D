@@ -36,6 +36,13 @@ class AABBPortalPlane implements IAABB
 		portals.push(portal);
 	}
 	
+		
+	public static function norm(w:Int):Int 
+	{
+		return w != 0 ?  w < 0 ? -1 : 1 : 0;
+	}
+	
+	
 	
 
 	public static inline function getPlaneResult(dir:Vec3, sector:AABBSector, gridSize:Float):PlaneResult {

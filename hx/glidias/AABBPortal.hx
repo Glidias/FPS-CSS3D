@@ -57,10 +57,10 @@ class AABBPortal implements IAABB
 		var oy:Float = 0;
 	
 		if (AABBPortalPlane.isDoorValHorizontal(direction)) {
-			ox = 2 * gridSize * ( AABBPortalPlane.isReversed(direction) ? -AABBPortalPlane.getMagnitudeOffset(door) : AABBPortalPlane.getMagnitudeOffset(door) );
+			ox = (door.z + AABBPortalPlane.norm(door.z) ) * gridSize;
 		}
 		else {
-			oy = 2 * gridSize * ( AABBPortalPlane.isReversed(direction) ? -AABBPortalPlane.getMagnitudeOffset(door) : AABBPortalPlane.getMagnitudeOffset(door));
+			oy = (door.w + AABBPortalPlane.norm(door.w) ) * gridSize;
 		}
 		var south = AABBPortalPlane.DIRECTIONS[AABBPortalPlane.SOUTH];
 		var east = AABBPortalPlane.DIRECTIONS[AABBPortalPlane.EAST];
@@ -94,6 +94,7 @@ class AABBPortal implements IAABB
 		
 		return portal;
 	}
+
 	
 	/**
 	 * Precalculates all necessary values based on a room definition and it's door. This is for otuward facing doors only.

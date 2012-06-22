@@ -163,7 +163,7 @@ package glidias;
 					//continue;
 					grid[door.x][door.y] = CORRIDOOR;
 					if (AABBPortalPlane.isDoorHorizontal(door)) {
-						d = normalize(door.z);
+						d = AABBPortalPlane.norm(door.z);
 						///*
 						door.z += d;
 						door.x -= d;
@@ -190,7 +190,7 @@ package glidias;
 					}
 					else {
 						///*
-						d = normalize(door.w);
+						d = AABBPortalPlane.norm(door.w);
 						door.w += d;
 						door.y -= d;
 						
@@ -212,6 +212,7 @@ package glidias;
 							
 							d++;
 						}
+					
 						//*/
 					}
 					target = getSectorIndexAt(door.x - door.z, door.y - door.w);   // get key target sector index of corridoor
@@ -238,15 +239,14 @@ package glidias;
 				direction = AABBPortalPlane.getReverse(direction);  // flip direction
 				
 				// create portal from target to corridoor in revesesed direction
-				if (target != -1) {
+				if (target >= 0) {
 					map[target].addPortal( portal.getReverse(sector), direction );
 				}
 			
-				
 				// craete portal on other side of coridoor (ie. towards opposite sector at other side).
-				target = getSectorIndexAt( door.x + door.z + normalize(door.z), door.y + door.w + normalize(door.w) );
+				target = getSectorIndexAt( door.x + door.z + AABBPortalPlane.norm(door.z), door.y + door.w + AABBPortalPlane.norm(door.w) );
 				if (target < 0) {
-					trace("SHOULD NOT BE, coridoor direction of doorway SHOULD have a sector!" + [door.x, door.y, door.z, door.w] );
+					// trace("Dead end.");  // next time, can consider not having dead ends but finding path to nearest sector
 					continue;
 				}
 				portal = portal.getOppositePortal(gridSize, map[target], door );
@@ -263,9 +263,7 @@ package glidias;
 			return map;
 		}
 		
-		private inline function normalize(val:Int):Int {
-			return ( val < 0 ? -1 : 1 );
-		}
+		
 		
 		/**
 		 * Gets sector index at tile coordinate (assumed valid in range)
@@ -274,6 +272,8 @@ package glidias;
 		 * @return	Negative values indicate non-sectors.
 		 */
 		public inline function getSectorIndexAt(tx:Int, ty:Int):Int {
+			if (tx < 0 || tx >= COLS || ty < 0 || ty >= ROWS) trace("out of bound getSectorIndexAt");
+
 			return grid[tx][ty] - FLOOR;
 		}
 		
@@ -327,6 +327,8 @@ package glidias;
                           case CORRIDOOR:
 							  	callbacker( drawTile.toHTML("background-color:#733F12") );
 						default:   // ASSUMED FLOOR!
+							// check assumption
+							//if (grid[ i ][ j ] < FLOOR) trace("Default FLOOR assumption failed!");
 							callbacker( drawTile.toHTML("background-color:#CCCCCC") );
 							
                     }
@@ -338,7 +340,7 @@ package glidias;
             {
 				 drawTile.x = i * gridSize;
                     drawTile.y =  0;
-					  	callbacker( drawTile.toHTML("background-color:#FF0000") );
+					  	callbacker( drawTile.toHTML("background-color:#FFFF00") );
 						
 						i += 10;
 			}
@@ -347,7 +349,7 @@ package glidias;
             {
 				 drawTile.x = 0;
                    drawTile.y = i * gridSize;
-					callbacker( drawTile.toHTML("background-color:#FF0000") );
+					callbacker( drawTile.toHTML("background-color:#FFFF00") );
 					
 					i += 10;
 					

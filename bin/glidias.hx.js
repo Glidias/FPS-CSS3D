@@ -406,7 +406,7 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 			door = this.doors[i];
 			doorType = this.getDoorType(door);
 			if(doorType >= 4) {
-				target = this.grid[door.x - door.z][door.y - door.w] - 4;
+				target = this.getSectorIndexAt(door.x - door.z,door.y - door.w);
 				haxe.Log.trace("indoors!" + [door.x,door.y] + " : " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 154, className : "glidias.RoomFiller", methodName : "getSectors"});
 			}
 			else if(doorType == 0) {
@@ -416,7 +416,7 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 			else if(doorType == 1) {
 				this.grid[door.x][door.y] = 3;
 				if(door.z != 0) {
-					d = door.z < 0?-1:1;
+					d = glidias.AABBPortalPlane.norm(door.z);
 					door.z += d;
 					door.x -= d;
 					while(true) {
@@ -436,7 +436,7 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 					}
 				}
 				else {
-					d = door.w < 0?-1:1;
+					d = glidias.AABBPortalPlane.norm(door.w);
 					door.w += d;
 					door.y -= d;
 					while(true) {
@@ -455,10 +455,10 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 						d++;
 					}
 				}
-				target = this.grid[door.x - door.z][door.y - door.w] - 4;
+				target = this.getSectorIndexAt(door.x - door.z,door.y - door.w);
 			}
 			else {
-				haxe.Log.trace("Could not resolve door type. " + doorType + ". " + [door.x,door.y] + ": " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 221, className : "glidias.RoomFiller", methodName : "getSectors"});
+				haxe.Log.trace("Could not resolve door type. " + doorType + ". " + [door.x,door.y] + ": " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 222, className : "glidias.RoomFiller", methodName : "getSectors"});
 				continue;
 			}
 			sector = new glidias.AABBSector();
@@ -469,12 +469,11 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 			direction = portal.setup(target >= 0?map[target]:null,door,gridSize,gridSize,gridSize,groundPos);
 			sector.addPortal(portal,direction);
 			direction = glidias.AABBPortalPlane.getReverse(direction);
-			if(target != -1) {
+			if(target >= 0) {
 				map[target].addPortal(portal.getReverse(sector),direction);
 			}
-			target = this.grid[door.x + door.z + (door.z < 0?-1:1)][door.y + door.w + (door.w < 0?-1:1)] - 4;
+			target = this.getSectorIndexAt(door.x + door.z + glidias.AABBPortalPlane.norm(door.z),door.y + door.w + glidias.AABBPortalPlane.norm(door.w));
 			if(target < 0) {
-				haxe.Log.trace("SHOULD NOT BE, coridoor direction of doorway SHOULD have a sector!" + [door.x,door.y,door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 249, className : "glidias.RoomFiller", methodName : "getSectors"});
 				continue;
 			}
 			portal = portal.getOppositePortal(gridSize,map[target],door);
@@ -485,10 +484,8 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 	}
 	return map;
 }
-glidias.RoomFiller.prototype.normalize = function(val) {
-	return val < 0?-1:1;
-}
 glidias.RoomFiller.prototype.getSectorIndexAt = function(tx,ty) {
+	if(tx < 0 || tx >= 80 || ty < 0 || ty >= 80) haxe.Log.trace("out of bound getSectorIndexAt",{ fileName : "RoomFiller.hx", lineNumber : 275, className : "glidias.RoomFiller", methodName : "getSectorIndexAt"});
 	return this.grid[tx][ty] - 4;
 }
 glidias.RoomFiller.prototype.abs = function(w) {
@@ -540,14 +537,14 @@ glidias.RoomFiller.prototype.testUpdate = function(callbacker,gridSize) {
 	while(i < 80) {
 		this.drawTile.x = i * gridSize;
 		this.drawTile.y = 0;
-		callbacker(this.drawTile.toHTML("background-color:#FF0000",null));
+		callbacker(this.drawTile.toHTML("background-color:#FFFF00",null));
 		i += 10;
 	}
 	i = 0;
 	while(i < 80) {
 		this.drawTile.x = 0;
 		this.drawTile.y = i * gridSize;
-		callbacker(this.drawTile.toHTML("background-color:#FF0000",null));
+		callbacker(this.drawTile.toHTML("background-color:#FFFF00",null));
 		i += 10;
 	}
 }
@@ -579,7 +576,7 @@ glidias.RoomFiller.prototype.setInterval = function(target,timeMs) {
 glidias.RoomFiller.prototype.createFeature = function() {
 	if(this.currFeature-- == 0) {
 		if(this.roomInterv != -1) null;
-		haxe.Log.trace("Done.",{ fileName : "RoomFiller.hx", lineNumber : 400, className : "glidias.RoomFiller", methodName : "createFeature"});
+		haxe.Log.trace("Done.",{ fileName : "RoomFiller.hx", lineNumber : 402, className : "glidias.RoomFiller", methodName : "createFeature"});
 		return false;
 	}
 	var i, j;
@@ -728,7 +725,7 @@ glidias.RoomFiller.prototype.createRoom = function(s,e,w,h) {
 					var _g3 = e, _g2 = h + 1;
 					while(_g3 < _g2) {
 						var j = _g3++;
-						if(this.grid[i][j] == 3) haxe.Log.trace("Covered corridoor exception!",{ fileName : "RoomFiller.hx", lineNumber : 613, className : "glidias.RoomFiller", methodName : "createRoom"});
+						if(this.grid[i][j] == 3) haxe.Log.trace("Covered corridoor exception!",{ fileName : "RoomFiller.hx", lineNumber : 615, className : "glidias.RoomFiller", methodName : "createRoom"});
 						if(i == s || i == w || j == e || j == h) this.grid[i][j] = 1;
 						else this.grid[i][j] = 4 + roomLen;
 					}
@@ -821,10 +818,10 @@ glidias.AABBPortal.prototype.getOppositePortal = function(gridSize,newTarget,doo
 	var ox = 0;
 	var oy = 0;
 	if((direction & 1) != 0) {
-		ox = 2 * gridSize * (direction == 0 || direction == 1?-door.z != 0?glidias.AABBPortalPlane.abs(door.z):glidias.AABBPortalPlane.abs(door.w):door.z != 0?glidias.AABBPortalPlane.abs(door.z):glidias.AABBPortalPlane.abs(door.w));
+		ox = (door.z + glidias.AABBPortalPlane.norm(door.z)) * gridSize;
 	}
 	else {
-		oy = 2 * gridSize * (direction == 0 || direction == 1?-door.z != 0?glidias.AABBPortalPlane.abs(door.z):glidias.AABBPortalPlane.abs(door.w):door.z != 0?glidias.AABBPortalPlane.abs(door.z):glidias.AABBPortalPlane.abs(door.w));
+		oy = (door.w + glidias.AABBPortalPlane.norm(door.w)) * gridSize;
 	}
 	var south = glidias.AABBPortalPlane.DIRECTIONS[2];
 	var east = glidias.AABBPortalPlane.DIRECTIONS[3];
@@ -1229,6 +1226,9 @@ glidias.AABBPortalPlane = function(p) { if( p === $_ ) return; {
 	this.portals = new Array();
 }}
 glidias.AABBPortalPlane.__name__ = ["glidias","AABBPortalPlane"];
+glidias.AABBPortalPlane.norm = function(w) {
+	return w != 0?w < 0?-1:1:0;
+}
 glidias.AABBPortalPlane.getPlaneResult = function(dir,sector,gridSize) {
 	var rect = sector.rect;
 	var planeResult = new glidias.PlaneResult();
