@@ -16,7 +16,7 @@ class AABBUtils
 	
 	}
 	public static inline function clampMagnitude(mag:Float, threshold:Float=THRESHOLD):Float {
-		return mag <  threshold ?  threshold : mag;
+		return mag < 0 ? threshold : mag <  threshold ?  threshold : mag;
 	}
 
 	private static inline function abs(val:Float):Float {
@@ -63,6 +63,14 @@ class AABBUtils
 		if (x > aabb.maxX) aabb.maxX = x;
 		if (y > aabb.maxY) aabb.maxY = y;
 		if (z > aabb.maxZ) aabb.maxZ = z;
+	}
+	public static inline function expandWithPoint(vec:Vec3, aabb:IAABB):Void {
+		if (vec.x < aabb.minX) aabb.minX = vec.x;
+		if (vec.y < aabb.minY) aabb.minY = vec.y;
+		if (vec.z < aabb.minZ) aabb.minZ = vec.z;
+		if (vec.x > aabb.maxX) aabb.maxX = vec.x;
+		if (vec.y > aabb.maxY) aabb.maxY = vec.y;
+		if (vec.z > aabb.maxZ) aabb.maxZ = vec.z;
 	}
 	
 }

@@ -156,6 +156,19 @@ class AABBSector implements IAABB
 	public inline function addPortalPlane(plane:AABBPortalPlane):Void {  
 		portalWalls.push(plane);
 	}
+	
+	public function getPortalList():Array<AABBPortal> {
+		var arr:Array<AABBPortal> = [];
+		for (i in 0...portalWalls.length) {
+			var portalPlane:AABBPortalPlane = portalWalls[i];
+			var portals:Array<AABBPortal> = portalPlane.portals;
+			for (u in 0...portals.length) {
+			
+				arr.push(portals[u]);
+			}
+		}
+		return arr;
+	}
 
 	
 	

@@ -21,6 +21,12 @@ class Vec3
 		this.z = z;
 		this.w = w;
 	}
+	
+	public inline function add3(x:Float, y:Float, z:Float):Void {
+		this.x += x;
+		this.y += y;
+		this.z += z;
+	}
 	public inline function copyReverse(ref:Vec3):Void
 	{
 		this.x = -ref.x;

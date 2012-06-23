@@ -211,6 +211,11 @@ glidias.Vec3.prototype.x = null;
 glidias.Vec3.prototype.y = null;
 glidias.Vec3.prototype.z = null;
 glidias.Vec3.prototype.w = null;
+glidias.Vec3.prototype.add3 = function(x,y,z) {
+	this.x += x;
+	this.y += y;
+	this.z += z;
+}
 glidias.Vec3.prototype.copyReverse = function(ref) {
 	this.x = -ref.x;
 	this.y = -ref.y;
@@ -309,6 +314,7 @@ glidias.RoomFiller = function(async) {
 	if(async == null) async = 0;
 	this.wallColor = "#3d3c37";
 	this.enableOutdoors = true;
+	this.doorHeight = 13;
 	this.async = async;
 	this.roomInterv = -1;
 	this.drawTile = new glidias.Rectangle(0,0,10,10);
@@ -337,11 +343,12 @@ glidias.RoomFiller.prototype.currFeature = null;
 glidias.RoomFiller.prototype.drawTile = null;
 glidias.RoomFiller.prototype.wallColor = null;
 glidias.RoomFiller.prototype.enableOutdoors = null;
+glidias.RoomFiller.prototype.doorHeight = null;
 glidias.RoomFiller.prototype.async = null;
 glidias.RoomFiller.prototype._onComplete = null;
 glidias.RoomFiller.prototype.run = function(onComplete) {
 	this._onComplete = onComplete;
-	haxe.Log.trace("RUNNING...",{ fileName : "RoomFiller.hx", lineNumber : 84, className : "glidias.RoomFiller", methodName : "run"});
+	haxe.Log.trace("RUNNING...",{ fileName : "RoomFiller.hx", lineNumber : 88, className : "glidias.RoomFiller", methodName : "run"});
 	this.createFirstRoom();
 	if(this.async == 0) {
 	} else {
@@ -379,7 +386,7 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 			while(_g2 < vLen) {
 				var v = _g2++;
 				if(this.grid[u][v] < 4) {
-					haxe.Log.trace("NOn floor detected over room!  " + i,{ fileName : "RoomFiller.hx", lineNumber : 150, className : "glidias.RoomFiller", methodName : "getSectors"});
+					haxe.Log.trace("NOn floor detected over room!  " + i,{ fileName : "RoomFiller.hx", lineNumber : 154, className : "glidias.RoomFiller", methodName : "getSectors"});
 					invalid = true;
 					break;
 				}
@@ -403,11 +410,11 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 		doorType = this.getDoorType(door);
 		if(doorType >= 4) {
 			target = this.getSectorIndexAt(door.x - door.z,door.y - door.w);
-			haxe.Log.trace("indoors!" + [door.x,door.y] + " : " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 177, className : "glidias.RoomFiller", methodName : "getSectors"});
+			haxe.Log.trace("indoors!" + [door.x,door.y] + " : " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 181, className : "glidias.RoomFiller", methodName : "getSectors"});
 		} else if(doorType == 0) {
 			target = -1;
 			if(!this.enableOutdoors) continue;
-			haxe.Log.trace("Outdoors!",{ fileName : "RoomFiller.hx", lineNumber : 182, className : "glidias.RoomFiller", methodName : "getSectors"});
+			haxe.Log.trace("Outdoors!",{ fileName : "RoomFiller.hx", lineNumber : 186, className : "glidias.RoomFiller", methodName : "getSectors"});
 		} else if(doorType == 1) {
 			this.grid[door.x][door.y] = 3;
 			if(door.z != 0) {
@@ -449,7 +456,7 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 			}
 			target = !exit?this.getSectorIndexAt(door.x - door.z,door.y - door.w):-1;
 		} else {
-			haxe.Log.trace("Could not resolve door type. " + doorType + ". " + [door.x,door.y] + ": " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 246, className : "glidias.RoomFiller", methodName : "getSectors"});
+			haxe.Log.trace("Could not resolve door type. " + doorType + ". " + [door.x,door.y] + ": " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 250, className : "glidias.RoomFiller", methodName : "getSectors"});
 			continue;
 		}
 		sector = new glidias.AABBSector();
@@ -458,21 +465,33 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 		sector.setup(rect,gridSize,gridSize,groundPos);
 		map.push(sector);
 		portal = new glidias.AABBPortal();
-		direction = portal.setup(target >= 0?map[target]:null,door,gridSize,gridSize,gridSize,groundPos);
+		portal.id = "c_s";
+		direction = portal.setup(target >= 0?map[target]:null,door,gridSize,gridSize,this.doorHeight,groundPos);
 		sector.addPortal(portal,direction);
 		direction = glidias.AABBPortalPlane.getReverse(direction);
-		if(target >= 0) map[target].addPortal(portal.getReverse(sector),direction);
+		var p;
+		if(target >= 0) {
+			p = portal.getReverse(sector,direction);
+			p.id = "s_c";
+			map[target].addPortal(p,direction);
+		}
 		target = this.getSectorIndexAt(door.x + door.z + glidias.AABBPortalPlane.norm(door.z),door.y + door.w + glidias.AABBPortalPlane.norm(door.w));
-		if(target < 0) continue;
-		portal = portal.getOppositePortal(gridSize,map[target],door);
+		if(target < 0) {
+			haxe.Log.trace("Dead end.",{ fileName : "RoomFiller.hx", lineNumber : 297, className : "glidias.RoomFiller", methodName : "getSectors"});
+			continue;
+		}
+		portal = new glidias.AABBPortal();
+		portal.id = "c_s2";
+		portal.setup(map[target],new glidias.Int4(door.x + door.z,door.y + door.w,-door.z,-door.w),gridSize,gridSize,this.doorHeight,groundPos);
 		sector.addPortal(portal,direction);
-		direction = glidias.AABBPortalPlane.getReverse(direction);
-		map[target].addPortal(portal.getReverse(sector),direction);
+		p = portal.getReverse(sector,direction,true);
+		p.id = "s_c2";
+		map[target].addPortal(p,direction);
 	}
 	return map;
 }
 glidias.RoomFiller.prototype.getSectorIndexAt = function(tx,ty) {
-	if(tx < 0 || tx >= 80 || ty < 0 || ty >= 80) haxe.Log.trace("out of bound getSectorIndexAt",{ fileName : "RoomFiller.hx", lineNumber : 318, className : "glidias.RoomFiller", methodName : "getSectorIndexAt"});
+	if(tx < 0 || tx >= 80 || ty < 0 || ty >= 80) haxe.Log.trace("out of bound getSectorIndexAt",{ fileName : "RoomFiller.hx", lineNumber : 330, className : "glidias.RoomFiller", methodName : "getSectorIndexAt"});
 	return this.grid[tx][ty] - 4;
 }
 glidias.RoomFiller.prototype.abs = function(w) {
@@ -555,7 +574,7 @@ glidias.RoomFiller.prototype.setInterval = function(target,timeMs) {
 glidias.RoomFiller.prototype.createFeature = function() {
 	if(this.currFeature-- == 0) {
 		if(this.roomInterv != -1) null;
-		haxe.Log.trace("Done.",{ fileName : "RoomFiller.hx", lineNumber : 446, className : "glidias.RoomFiller", methodName : "createFeature"});
+		haxe.Log.trace("Done.",{ fileName : "RoomFiller.hx", lineNumber : 458, className : "glidias.RoomFiller", methodName : "createFeature"});
 		return false;
 	}
 	var i, j;
@@ -684,7 +703,7 @@ glidias.RoomFiller.prototype.createRoom = function(s,e,w,h) {
 			var _g3 = e, _g2 = h + 1;
 			while(_g3 < _g2) {
 				var j = _g3++;
-				if(this.grid[i][j] == 3) haxe.Log.trace("Covered corridoor exception!",{ fileName : "RoomFiller.hx", lineNumber : 659, className : "glidias.RoomFiller", methodName : "createRoom"});
+				if(this.grid[i][j] == 3) haxe.Log.trace("Covered corridoor exception!",{ fileName : "RoomFiller.hx", lineNumber : 671, className : "glidias.RoomFiller", methodName : "createRoom"});
 				if(i == s || i == w || j == e || j == h) this.grid[i][j] = 1; else this.grid[i][j] = 4 + roomLen;
 			}
 		}
@@ -758,49 +777,22 @@ glidias.AABBPortal.prototype.points = null;
 glidias.AABBPortal.prototype.width = null;
 glidias.AABBPortal.prototype.height = null;
 glidias.AABBPortal.prototype.target = null;
-glidias.AABBPortal.prototype.getReverse = function(newTarget) {
+glidias.AABBPortal.prototype.id = null;
+glidias.AABBPortal.prototype.getReverse = function(newTarget,direction,version2) {
+	if(version2 == null) version2 = false;
 	var meNew = new glidias.AABBPortal();
 	glidias.AABBUtils.match(meNew,this);
-	meNew.points = this.points.concat(new Array());
-	meNew.points.reverse();
+	if(!version2) {
+		if(direction == 1) meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]]; else if(direction == 0) meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]]; else if(direction == 2) meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]]; else meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]];
+	} else if(direction == 1) meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]]; else if(direction == 0) meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]]; else if(direction == 2) meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]]; else meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]];
 	meNew.width = this.width;
 	meNew.height = this.height;
 	meNew.target = newTarget;
 	return meNew;
 }
-glidias.AABBPortal.prototype.getOppositePortal = function(gridSize,newTarget,door) {
-	var portal = this.getReverse(newTarget);
-	var direction = glidias.AABBPortalPlane.getDoorDir(door);
-	var ox = 0;
-	var oy = 0;
-	var reverse = direction == 0 || direction == 1;
-	if((direction & 1) != 0) ox = (door.z + (reverse?glidias.AABBPortalPlane.norm(door.z):0)) * gridSize; else oy = (door.w + (reverse?glidias.AABBPortalPlane.norm(door.w):0)) * gridSize;
-	var south = glidias.AABBPortalPlane.DIRECTIONS[2];
-	var east = glidias.AABBPortalPlane.DIRECTIONS[3];
-	var x;
-	var y;
-	var z;
-	x = ox * east.x;
-	y = ox * east.y;
-	z = ox * east.z;
-	x += oy * south.x;
-	y += oy * south.y;
-	z += oy * south.z;
-	this.minX += x;
-	this.minY += y;
-	this.minZ += z;
-	this.maxX += x;
-	this.maxY += y;
-	this.maxZ += z;
-	var offsets = [x,y,z];
-	direction = this.points.length;
-	var ind;
-	var _g = 0;
-	while(_g < direction) {
-		var i = _g++;
-		this.points[i] += offsets[i % 3];
-	}
-	return portal;
+glidias.AABBPortal.prototype.traceValid = function() {
+	if(this.points[0].z <= 0) haxe.Log.trace("Invalid first point z!" + this.points[0].z,{ fileName : "AABBPortal.hx", lineNumber : 99, className : "glidias.AABBPortal", methodName : "traceValid"});
+	if(this.points[0].z == this.points[2].z) haxe.Log.trace("Invalid first point z 2222!",{ fileName : "AABBPortal.hx", lineNumber : 100, className : "glidias.AABBPortal", methodName : "traceValid"});
 }
 glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doorHeight,groundPos) {
 	this.target = target;
@@ -815,6 +807,14 @@ glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doo
 	var reverse = dir == 0 || dir == 1;
 	if(reverse) {
 		if(dir == 1) sx += 1; else sy += 1;
+	}
+	{
+		this.minX = 1.7976931348623157e+308;
+		this.minY = 1.7976931348623157e+308;
+		this.minZ = 1.7976931348623157e+308;
+		this.maxX = -1.7976931348623157e+308;
+		this.maxY = -1.7976931348623157e+308;
+		this.maxZ = -1.7976931348623157e+308;
 	}
 	var px;
 	var py;
@@ -832,12 +832,7 @@ glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doo
 	px += up.x * p;
 	py += up.y * p;
 	pz += up.z * p;
-	this.points.push(px);
-	this.points.push(py);
-	this.points.push(pz);
-	this.minX = this.maxX = px;
-	this.minY = this.maxY = py;
-	this.minZ = this.maxZ = pz;
+	this.points.push(new glidias.Vec3(px,py,pz,1));
 	p = sy * gridSize;
 	px = south.x * p;
 	py = south.y * p;
@@ -850,18 +845,21 @@ glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doo
 	px += up.x * p;
 	py += up.y * p;
 	pz += up.z * p;
-	this.points.push(px);
-	this.points.push(py);
-	this.points.push(pz);
-	{
-		if(px < this.minX) this.minX = px;
-		if(py < this.minY) this.minY = py;
-		if(pz < this.minZ) this.minZ = pz;
-		if(px > this.maxX) this.maxX = px;
-		if(py > this.maxY) this.maxY = py;
-		if(pz > this.maxZ) this.maxZ = pz;
-	}
-	if((dir & 1) != 0) sy += 1; else sy += 1;
+	this.points.push(new glidias.Vec3(px,py,pz,1));
+	if((dir & 1) != 0) sy += 1; else sx += 1;
+	p = sy * gridSize;
+	px = south.x * p;
+	py = south.y * p;
+	pz = south.z * p;
+	p = sx * gridSize;
+	px += east.x * p;
+	py += east.y * p;
+	pz += east.z * p;
+	p = groundPos;
+	px += up.x * p;
+	py += up.y * p;
+	pz += up.z * p;
+	this.points.push(new glidias.Vec3(px,py,pz,1));
 	p = sy * gridSize;
 	px = south.x * p;
 	py = south.y * p;
@@ -874,40 +872,12 @@ glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doo
 	px += up.x * p;
 	py += up.y * p;
 	pz += up.z * p;
-	this.points.push(px);
-	this.points.push(py);
-	this.points.push(pz);
-	{
-		if(px < this.minX) this.minX = px;
-		if(py < this.minY) this.minY = py;
-		if(pz < this.minZ) this.minZ = pz;
-		if(px > this.maxX) this.maxX = px;
-		if(py > this.maxY) this.maxY = py;
-		if(pz > this.maxZ) this.maxZ = pz;
-	}
-	p = sy * gridSize;
-	px = south.x * p;
-	py = south.y * p;
-	pz = south.z * p;
-	p = sx * gridSize;
-	px += east.x * p;
-	py += east.y * p;
-	pz += east.z * p;
-	p = groundPos + doorHeight;
-	px += up.x * p;
-	py += up.y * p;
-	pz += up.z * p;
-	this.points.push(px);
-	this.points.push(py);
-	this.points.push(pz);
-	{
-		if(px < this.minX) this.minX = px;
-		if(py < this.minY) this.minY = py;
-		if(pz < this.minZ) this.minZ = pz;
-		if(px > this.maxX) this.maxX = px;
-		if(py > this.maxY) this.maxY = py;
-		if(pz > this.maxZ) this.maxZ = pz;
-	}
+	this.points.push(new glidias.Vec3(px,py,pz,1));
+	if((dir & 1) != 0) {
+		if(!reverse) this.points = [this.points[3],this.points[0],this.points[1],this.points[2]];
+	} else if(reverse) this.points = [this.points[3],this.points[0],this.points[1],this.points[2]];
+	glidias.AABBUtils.expandWithPoint(this.points[0],this);
+	glidias.AABBUtils.expandWithPoint(this.points[2],this);
 	return dir;
 }
 glidias.AABBPortal.prototype.__class__ = glidias.AABBPortal;
@@ -1065,6 +1035,21 @@ glidias.AABBSector.prototype.addPortal = function(portal,direction) {
 glidias.AABBSector.prototype.addPortalPlane = function(plane) {
 	this.portalWalls.push(plane);
 }
+glidias.AABBSector.prototype.getPortalList = function() {
+	var arr = [];
+	var _g1 = 0, _g = this.portalWalls.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		var portalPlane = this.portalWalls[i];
+		var portals = portalPlane.portals;
+		var _g3 = 0, _g2 = portals.length;
+		while(_g3 < _g2) {
+			var u = _g3++;
+			arr.push(portals[u]);
+		}
+	}
+	return arr;
+}
 glidias.AABBSector.prototype.__class__ = glidias.AABBSector;
 glidias.AABBSector.__interfaces__ = [glidias.IAABB];
 glidias.Package = function() { }
@@ -1104,7 +1089,7 @@ glidias.AABBPortalPlane.setEastSouthUp = function(east,south,up) {
 glidias.AABBPortalPlane.getDoorDir = function(door) {
 	var dir = 0;
 	dir |= door.z != 0?1:0;
-	dir |= door.z != 0?door.z > 0:door.w > 0?2:0;
+	dir |= door.z != 0?door.z > 0?2:0:door.w > 0?2:0;
 	return dir;
 }
 glidias.AABBPortalPlane.isDoorHorizontal = function(door) {
@@ -1143,6 +1128,7 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 	this.portals.sort(function(a,b) {
 		return 0;
 	});
+	html += "</div>";
 	return html;
 }
 glidias.AABBPortalPlane.prototype.__class__ = glidias.AABBPortalPlane;
@@ -1155,7 +1141,7 @@ glidias.AABBUtils.getRect = function(aabb,threshold) {
 }
 glidias.AABBUtils.clampMagnitude = function(mag,threshold) {
 	if(threshold == null) threshold = .1;
-	return mag < threshold?threshold:mag;
+	return mag < 0?threshold:mag < threshold?threshold:mag;
 }
 glidias.AABBUtils.abs = function(val) {
 	return val < 0?-val:val;
@@ -1194,6 +1180,14 @@ glidias.AABBUtils.expand = function(x,y,z,aabb) {
 	if(x > aabb.maxX) aabb.maxX = x;
 	if(y > aabb.maxY) aabb.maxY = y;
 	if(z > aabb.maxZ) aabb.maxZ = z;
+}
+glidias.AABBUtils.expandWithPoint = function(vec,aabb) {
+	if(vec.x < aabb.minX) aabb.minX = vec.x;
+	if(vec.y < aabb.minY) aabb.minY = vec.y;
+	if(vec.z < aabb.minZ) aabb.minZ = vec.z;
+	if(vec.x > aabb.maxX) aabb.maxX = vec.x;
+	if(vec.y > aabb.maxY) aabb.maxY = vec.y;
+	if(vec.z > aabb.maxZ) aabb.maxZ = vec.z;
 }
 glidias.AABBUtils.prototype.__class__ = glidias.AABBUtils;
 glidias.PlaneResult = function(p) {

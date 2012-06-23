@@ -23,7 +23,7 @@
 				
 				///*
 				roomFiller.testUpdate(function(result) {
-				//	htmlStr += result;
+			//		htmlStr += result;
 				}, GRID_SIZE)
 				//*/
 				
@@ -44,9 +44,18 @@
 				
 				
 				len = sectors.length; 
+				var u;
+				var uLen;
 				// roomFiller.rooms.length
 				for (i=0 ;  i< len; i++) {
-					htmlStr +=glidias.AABBUtils.getRect(sectors[i],1).toHTML("background-color:#00ff00;"+[sectors[i].rect.x, sectors[i].rect.y, sectors[i].rect.width, sectors[i].rect.height], 1);
+					
+					htmlStr +=glidias.AABBUtils.getRect(sectors[i],1).toHTML("background-color:#00ff00;", 1);
+					var portalList = sectors[i].getPortalList();
+					uLen = portalList.length;
+					for (u=0;u<uLen; u++) {
+					//	portalList[u].traceValid();
+						htmlStr +=glidias.AABBUtils.getRect(portalList[u],1).toHTML("background-color:#ff0000; z-index:1", 1);
+					}
 				
 				}
 				htmlStr += "</div>";

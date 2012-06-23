@@ -47,6 +47,8 @@ package glidias;
 		public var wallColor:String;
 		public var enableOutdoors:Bool;
 		
+		public var doorHeight:Float;
+		
 
 
 		private var async:Int;
@@ -55,6 +57,8 @@ package glidias;
         {
 			wallColor = "#3d3c37";
 			enableOutdoors = true;
+			
+			doorHeight = 13;
 			
 			this.async = async;
 			roomInterv = -1;
@@ -264,41 +268,49 @@ package glidias;
 				*/
 				var tarOffset = target >= 0 ? 2 : 1; // somehow outdoor target < 0 start position settings seem different..
 				rect = new Rectangle(door.x - (door.z < 0 ? tarOffset : 0), door.y - (door.w < 0 ? tarOffset : 0), door.z != 0 ? abs(door.z)+1 : 1, door.w != 0 ? abs(door.w)+1: 1 );		
-				//if (target < 0) {  // outdoor coridoors to be shortened!
-					//rect.width -= door.z != 0 ? 1 : 0;
-				//	rect.height -= door.w != 0 ? 1 : 0;
-			//	}
+	
 				sector.setup(rect, gridSize, gridSize, groundPos);
 				map.push(sector);
 				
 				
 				// create portal that faces target 
 				portal = new AABBPortal();
-				direction = portal.setup((target>=0 ? map[target] : null ), door, gridSize, gridSize, gridSize, groundPos);
+				portal.id = "c_s"; 
+				direction = portal.setup((target >= 0 ? map[target] : null ), door, gridSize, gridSize, doorHeight, groundPos);
 				sector.addPortal(portal, direction);
 				
 				
 				direction = AABBPortalPlane.getReverse(direction);  // flip direction
-				
+				var p;
 				// create portal from target to corridoor in revesesed direction
 				if (target >= 0) {
-					map[target].addPortal( portal.getReverse(sector), direction );
+					p = portal.getReverse(sector, direction);
+					p.id  = "s_c";
+					map[target].addPortal( p, direction );
 				}
 			
+				
+				
 				// craete portal on other side of coridoor (ie. towards opposite sector at other side).
 				target = getSectorIndexAt( door.x + door.z + AABBPortalPlane.norm(door.z), door.y + door.w + AABBPortalPlane.norm(door.w) );
 				if (target < 0) {
-					// trace("Dead end.");  // next time, can consider not having dead ends but finding path to nearest sector
+					 trace("Dead end.");  // next time, can consider not having dead ends but finding curve path to nearest sector
 					continue;
 				}
-				portal = portal.getOppositePortal(gridSize, map[target], door );
+				
+				
+				portal =  new AABBPortal();
+				portal.id  = "c_s2";
+				portal.setup(map[target], new Int4(door.x + door.z, door.y + door.w, -door.z, -door.w), gridSize, gridSize, doorHeight, groundPos); 
 				sector.addPortal(portal, direction);
 				
-	
-				direction = AABBPortalPlane.getReverse(direction);   // flip direction
+		
+				//direction = AABBPortalPlane.getReverse(direction);   // flip direction
 				
 				//  create portal from opposite sector to corridoor in reversed direction
-				map[target].addPortal(portal.getReverse(sector), direction );
+				p = portal.getReverse(sector, direction, true);
+				p.id = "s_c2";
+				map[target].addPortal(p, direction );
 				
 			}
 			
@@ -618,7 +630,7 @@ package glidias;
                     {
                         grid[ tx ][ ty ] = DOOR;
 						
-						// for doors, values z and w indicate direction towards coridoor from door position x,y
+						// for doors, values z and w indicate direction towards coridoor from door position x,y 
                         switch(dir)
                         {
                             case 0:

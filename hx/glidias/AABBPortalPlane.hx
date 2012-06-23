@@ -90,6 +90,7 @@ class AABBPortalPlane implements IAABB
 		// validate that all portals lie on the same plane using points of portal
 		
 		// close html
+		html += "</div>";
 		
 		return html;
 	}
@@ -128,7 +129,7 @@ class AABBPortalPlane implements IAABB
 	{
 		var dir:Int = 0;
 		dir |= isDoorHorizontal(door) ? 1 : 0;  // first bit - is door horizontal?
-		dir |= ( isDoorHorizontal(door) ? door.z > 0 : door.w > 0 ) ? 2 : 0;  // second bit - positive or negative? 
+		dir |= isDoorHorizontal(door) ? door.z > 0 ? 2:0 : door.w > 0  ? 2:0;  // second bit - positive or negative? 
 		return dir;
 	}
 	

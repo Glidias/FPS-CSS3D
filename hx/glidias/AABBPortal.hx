@@ -16,84 +16,93 @@ class AABBPortal implements IAABB
 	public var maxY:Float;
 	public var maxZ:Float;
 	
-	public var points:Array<Float>;  // clip points in anticlockwise order in world space to form new portal in world spacw
+	public var points:Array<Vec3>;  // clip points in anticlockwise order in world space to form new portal in world spacw
 	
 	public var width:Float;
 	public var height:Float;
 	public var target:AABBSector;
 	
+	public var id:Dynamic;
+	
 	public function new() 
 	{
-		points = new Array<Float>();
+		points = new Array<Vec3>();
 	}
 	
 	
 	// -- Procedural generation helper methods
 	
-	public function getReverse(newTarget:AABBSector):AABBPortal {
+	
+	
+	/**
+	 * 
+	 * @param	newTarget	THe new target to assign to
+	 * @param	direction	The reversed direction indicator
+	 * @return
+	 */
+	public function getReverse(newTarget:AABBSector, direction:Int, version2:Bool=false):AABBPortal {
 		var meNew:AABBPortal = new AABBPortal();
 		AABBUtils.match(meNew, this);
-		meNew.points = points.concat(new Array<Float>());
-		meNew.points.reverse(); // reverse poitns so they face opposite direction
+		
+		if (!version2) {
+			if (direction == AABBPortalPlane.WEST) {
+				meNew.points = [points[1], points[2], points[3], points[0]  ];
+			}
+			else if (direction == AABBPortalPlane.NORTH) {
+				meNew.points = [   points[3], points[2], points[1], points[0]  ];  
+			}
+			else if (direction == AABBPortalPlane.SOUTH) {
+				meNew.points = [  points[1], points[2], points[3], points[0]  ];
+			}
+			else {
+				meNew.points = [ points[3], points[2], points[1], points[0] ];  
+			
+			}
+			
+		}
+		else {
+			// Same as above version, but fLip logic gah!
+			if (direction == AABBPortalPlane.WEST) {
+					meNew.points = [ points[3], points[2], points[1], points[0] ];  
+					
+			}
+			else if (direction == AABBPortalPlane.NORTH) {
+					meNew.points = [  points[1], points[2], points[3], points[0]  ];
+			}
+			else if (direction == AABBPortalPlane.SOUTH) {
+			
+				meNew.points = [   points[3], points[2], points[1], points[0]  ];  
+			}
+			else {
+			
+				meNew.points = [points[1], points[2], points[3], points[0]  ];
+			
+			}
+			
+		}
+//
+
+//meNew.points.reverse(); // reverse poitns so they face opposite direction
+		//AABBUtils.reset(meNew);
+		//AABBUtils.expandWithPoint(meNew.points[0], meNew);
+		//AABBUtils.expandWithPoint(meNew.points[2], meNew); 
+		//AABBUtils.expandWithPoint(meNew.points[3], meNew); 
+		//AABBUtils.expandWithPoint(meNew.points[1], meNew); 
+		
 		meNew.width = width;
 		meNew.height = height;
 		meNew.target = newTarget;
 		return meNew;
 	}
 	
-	
-	/**
-	 *
-	 * @return  Gets  opposite portal from other side of corridoor
-	 */
-	public function getOppositePortal(gridSize:Float, newTarget:AABBSector, door:Int4):AABBPortal
-	{
-		var portal:AABBPortal = getReverse(newTarget);
-		
-		// offset all points and bounds along reverse direction
-		var direction:Int = AABBPortalPlane.getDoorDir(door);
-		var ox:Float = 0;
-		var oy:Float = 0;
-	
-		var reverse:Bool = AABBPortalPlane.isReversed(direction);
-		if (AABBPortalPlane.isDoorValHorizontal(direction)) {
-			ox = (door.z + (reverse ? AABBPortalPlane.norm(door.z) : 0)) * gridSize;
-		}
-		else {
-			oy = (door.w+ (reverse ? AABBPortalPlane.norm(door.w) : 0))  * gridSize;
-		}
-		var south = AABBPortalPlane.DIRECTIONS[AABBPortalPlane.SOUTH];
-		var east = AABBPortalPlane.DIRECTIONS[AABBPortalPlane.EAST];
-		
-		var x:Float;
-		var y:Float;
-		var z:Float;
-		
-		x = ox * east.x;
-		y = ox * east.y;
-		z = ox * east.z;
-	
-		x+=oy * south.x;
-		y+=oy * south.y;
-		z += oy * south.z;
-		
-		minX += x;
-		minY += y;
-		minZ += z;
-		maxX += x;
-		maxY += y;
-		maxZ += z;
-		
-		var offsets = [x,y,z];
-		
-		direction = points.length;
-		var ind:Int;
-		for (i in 0...direction) {
-			points[i]+= offsets[i % 3];
-		}
-		
-		return portal;
+	public function traceValid():Void {  // to depeciate: temporary method to  test for above ground zero case and diagonal
+		if (points[0].z <= 0) trace("Invalid first point z!" + points[0].z);
+		if (points[0].z == points[2].z) trace("Invalid first point z 2222!");
 	}
+	
+	
+	
+
 
 	
 	/**
@@ -123,7 +132,7 @@ class AABBPortal implements IAABB
 		var sy = door.y;
 		var reverse:Bool = AABBPortalPlane.isReversed(dir);
 		
-		if (reverse) {
+		if (reverse) {  // door edge offset
 			if (dir == AABBPortalPlane.WEST) {
 				sx += 1;
 			}
@@ -131,8 +140,11 @@ class AABBPortal implements IAABB
 				sy += 1;
 			}
 		}
+	
 		
 		// Anti-clockwise from top-left of door
+		AABBUtils.reset(this);
+		
 		
 		// top left
 		var px;
@@ -151,14 +163,11 @@ class AABBPortal implements IAABB
 		px += up.x  * p;
 		py += up.y  * p;
 		pz += up.z  * p;
-		points.push(px);
-		points.push(py);
-		points.push(pz);
-
+		points.push(new Vec3(px, py, pz, 1));
+		
+		//AABBUtils.expand(px, py, pz, this);
 		// set bounds to above top-left and expand outward by height and width in antoclockwise direction
-		minX = maxX = px;
-		minY = maxY = py;
-		minZ = maxZ = pz;
+		
 		
 		// bottom left
 		p = sy * gridSize;
@@ -173,10 +182,8 @@ class AABBPortal implements IAABB
 		px += up.x  * p;
 		py += up.y  * p;
 		pz += up.z  * p;
-		points.push(px);
-		points.push(py);
-		points.push(pz);
-		AABBUtils.expand(px, py, pz, this);
+		points.push(new Vec3(px, py, pz, 1));
+		
 		
 		
 		// shift over to right
@@ -185,7 +192,7 @@ class AABBPortal implements IAABB
 			sy += 1;
 		}
 		else {
-			sy += 1;
+			sx += 1;
 		}
 		
 		// repeat process in reverse vertical direction
@@ -199,14 +206,12 @@ class AABBPortal implements IAABB
 		px += east.x * p;
 		py += east.y * p;
 		pz += east.z * p;
-		p = groundPos + doorHeight;
+		p = groundPos;
 		px += up.x  * p;
 		py += up.y  * p;
 		pz += up.z  * p;
-		points.push(px);
-		points.push(py);
-		points.push(pz);
-		AABBUtils.expand(px, py, pz, this);
+		points.push(new Vec3(px, py, pz, 1));
+		//AABBUtils.expand(px, py, pz, this);
 		
 		
 		// top right
@@ -222,14 +227,27 @@ class AABBPortal implements IAABB
 		px += up.x  * p;
 		py += up.y  * p;
 		pz += up.z  * p;
-		points.push(px);
-		points.push(py);
-		points.push(pz);
-		AABBUtils.expand(px, py, pz, this);
+		points.push(new Vec3(px, py, pz, 1));
 		
+		
+		// Ensure that point starts anti-clockwise at the top-left hand corner from door-facing.
+		// This sucks, harccoded cross product conditional...vicey versa swappey logic
+		if (AABBPortalPlane.isDoorValHorizontal(dir)) {  // use 3012 instead order instead
+			if (!reverse) points = [ points[3], points[0], points[1], points[2]  ];
+		}
+		else {
+			if (reverse) points = [ points[3], points[0], points[1], points[2]  ];
+		}
+		
+		// Form bounds by crossing diagonal line
+		AABBUtils.expandWithPoint(points[0], this);
+		AABBUtils.expandWithPoint(points[2], this); 
+		//traceValid();
 		
 		return dir;
 	}
+	
+
 
 	
 }
