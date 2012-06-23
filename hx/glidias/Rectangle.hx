@@ -20,9 +20,14 @@ class Rectangle
 		this.height = height;
 	}
 	
-	public inline function toHTML(mat:String, scale:Float=1):String {
-		return '<div style="position:absolute;top:'+(y*scale)+'px;left:'+(x*scale)+'px;width:'+(width*scale)+'px;height:'+(height*scale)+'px;'+mat+'"></div>';
+	public inline function toHTML(mat:String, scale:Float = 1):String {
+		//if (Math.round(this.y * scale).toString().indexOf(".")>=0) alert( Math.round(this.y * scale) );
+		return '<div style="position:absolute;top:'+Math.round(y*scale)+'px;left:'+Math.round(x*scale)+'px;width:'+Math.round(width*scale)+'px;height:'+Math.round(height*scale)+'px;'+mat+'"></div>';
 		
+	}
+	
+	public function toString():String {
+		return "rect:" + [x, y, width, height];
 	}
 	
 }

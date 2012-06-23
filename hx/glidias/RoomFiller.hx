@@ -44,11 +44,18 @@ package glidias;
 
        // private var screen:BitmapData;
         private var drawTile:Rectangle;
+		public var wallColor:String;
+		public var enableOutdoors:Bool;
+		
+
 
 		private var async:Int;
 		
         public function new(async:Int=0)
         {
+			wallColor = "#3d3c37";
+			enableOutdoors = true;
+			
 			this.async = async;
 			roomInterv = -1;
 			drawTile = new Rectangle( 0, 0, 10, 10 );
@@ -134,6 +141,21 @@ package glidias;
 			len = rooms.length;
 			for (i in 0...len) {
 				rect = rooms[i];
+				var uLen = Std.int(rect.width);
+				var vLen = Std.int(rect.height);
+				var invalid:Bool = false;
+				for (u in Std.int(rect.x)...uLen) {
+					for (v in Std.int(rect.y)...vLen) {
+						if (grid[u][v] < FLOOR) {
+							trace("NOn floor detected over room!  " + i);
+							invalid = true;
+							break;
+						}
+						
+					}
+					if (invalid) break;
+					
+				}
 				sector = new AABBSector();
 				sector.setup(rect, gridSize, minRoomHeight + Math.round(Math.random() * possibleRoomHeightAdd), 0);
 				map.push( sector );
@@ -144,6 +166,7 @@ package glidias;
 			var direction:Int;
 			var d:Int;
 			var c:Int;
+			var exit:Bool = false;
 			//var gotCoridoor:Bool;
 			for (i in 0...len) {
 				door = doors[i];
@@ -155,12 +178,15 @@ package glidias;
 				}
 				else if (doorType == DIRT) { // outdoors!
 					target = -1;
+					if (!enableOutdoors) continue;
 					trace("Outdoors!");
+					
 					//continue;   // allow possibility for outdoor
 				}
 				else if (doorType == WALL) {
 					//trace("Could not resolve door type. Need to drill deeper:" + doorType + ":" + [door.x, door.y] + ": " + [door.z, door.w]);
 					//continue;
+					
 					grid[door.x][door.y] = CORRIDOOR;
 					if (AABBPortalPlane.isDoorHorizontal(door)) {
 						d = AABBPortalPlane.norm(door.z);
@@ -169,13 +195,12 @@ package glidias;
 						door.x -= d;
 						while (true) {
 							c = door.x - d;
-							if (c < 0 || c >= COLS) {
-								trace("out of bounds..");
-								continue;
-							} 
 							
-							if (grid[c-d][door.y] >= FLOOR) {
-								// form new door
+							exit = c < 0 || c >= COLS;
+							if (exit) break;
+							if ( grid[c-d][door.y] >= FLOOR) {
+								// form new door position
+								
 								grid[door.x][door.y] = DOOR;
 								break;
 							}
@@ -186,6 +211,7 @@ package glidias;
 							
 							d++;
 						}
+						if (exit) continue;
 						//*/
 					}
 					else {
@@ -196,12 +222,10 @@ package glidias;
 						
 						while (true) {
 							c = door.y - d;
-							if (c < 0 || c >= ROWS) {
-								trace("out of bounds..");
-								continue;
-							}
 							
-							if (grid[door.x][c-d] >= FLOOR) {
+							exit = c < 0 || c >= ROWS;
+							if (exit) break;
+							if ( grid[door.x][c-d] >= FLOOR) {
 								// form new door
 								grid[door.x][door.y] = DOOR;
 								break;
@@ -212,10 +236,10 @@ package glidias;
 							
 							d++;
 						}
-					
+						if (exit) continue;
 						//*/
 					}
-					target = getSectorIndexAt(door.x - door.z, door.y - door.w);   // get key target sector index of corridoor
+					target = !exit ? getSectorIndexAt(door.x - door.z, door.y - door.w) : -1;   // get key target sector index of corridoor
 					//continue;  // comment when done. to trace only
 				}
 				else {
@@ -225,7 +249,25 @@ package glidias;
 				
 				// create corridoor sector
 				sector = new AABBSector();
-				rect = new Rectangle(door.x - (door.z < 0 ? 1 : 0), door.y - (door.w < 0 ? 1 : 0), door.z != 0 ? abs(door.z)+1 : 1, door.w != 0 ? abs(door.w)+1: 1 );		
+				 // optional fix for outdoor corridoor to test later... shrink coridoor so it does't protrude out of building
+				/*
+				 if (target < 0) { 
+					grid[door.x][door.y] = DIRT;
+					
+					door.x += AABBPortalPlane.norm(door.z);
+					door.y += AABBPortalPlane.norm(door.w);
+					door.z = 0;// AABBPortalPlane.norm(door.z);
+					door.w = 0;// AABBPortalPlane.norm(door.w);
+					grid[door.x][door.y] = DOOR;
+					
+				}
+				*/
+				var tarOffset = target >= 0 ? 2 : 1; // somehow outdoor target < 0 start position settings seem different..
+				rect = new Rectangle(door.x - (door.z < 0 ? tarOffset : 0), door.y - (door.w < 0 ? tarOffset : 0), door.z != 0 ? abs(door.z)+1 : 1, door.w != 0 ? abs(door.w)+1: 1 );		
+				//if (target < 0) {  // outdoor coridoors to be shortened!
+					//rect.width -= door.z != 0 ? 1 : 0;
+				//	rect.height -= door.w != 0 ? 1 : 0;
+			//	}
 				sector.setup(rect, gridSize, gridSize, groundPos);
 				map.push(sector);
 				
@@ -272,7 +314,9 @@ package glidias;
 		 * @return	Negative values indicate non-sectors.
 		 */
 		public inline function getSectorIndexAt(tx:Int, ty:Int):Int {
-			if (tx < 0 || tx >= COLS || ty < 0 || ty >= ROWS) trace("out of bound getSectorIndexAt");
+			if (tx < 0 || tx >= COLS || ty < 0 || ty >= ROWS) {
+				trace("out of bound getSectorIndexAt");
+			}
 
 			return grid[tx][ty] - FLOOR;
 		}
@@ -321,7 +365,7 @@ package glidias;
                         case DIRT:
 						  callbacker( drawTile.toHTML("background-color:#000000") );             
                         case WALL:
-							 callbacker( drawTile.toHTML("background-color:#3D3C37") );
+							 callbacker( drawTile.toHTML("background-color:"+wallColor) );
                         case DOOR:
 						    callbacker( drawTile.toHTML("background-color:#FF0000") );
                           case CORRIDOOR:
@@ -619,7 +663,11 @@ package glidias;
                             grid[ i ][ j ] = FLOOR + roomLen;
                     }
                 }
-				rooms.push( new Rectangle(s+1, e+1, w - s -1, h - e-1) );
+				
+				w = w - s - 1;
+				h = h - e - 1;
+				if (w < 1 || h < 1) return true; // important fix! somehow there's zero length rect
+				rooms.push( new Rectangle(s+1, e+1,w, h) );
                 return true;
             }
 

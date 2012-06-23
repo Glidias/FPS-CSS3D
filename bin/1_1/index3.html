@@ -9,9 +9,12 @@
 	<script type="text/javascript">
 		$(document).ready( function() {
 		var roomFiller = new glidias.RoomFiller();
+		roomFiller.enableOutdoors = false;
+		roomFiller.wallColor = "#000000";
+		
 			var GRID_SIZE = 5;
 			roomFiller.run(function() {
-			var sectors = roomFiller.getSectors();
+			var sectors = roomFiller.getSectors(GRID_SIZE, 10);
 				var arr = roomFiller.rooms;
 				var len = arr.length;
 				var i;
@@ -20,7 +23,7 @@
 				
 				///*
 				roomFiller.testUpdate(function(result) {
-					htmlStr += result;
+				//	htmlStr += result;
 				}, GRID_SIZE)
 				//*/
 				
@@ -36,13 +39,19 @@
 				
 				
 				
-				i = sectors.length;
-				for (i=0; i< len; i++) {
-					
+				htmlStr = "<div>";
+				
+				
+				
+				len = sectors.length; 
+				// roomFiller.rooms.length
+				for (i=0 ;  i< len; i++) {
+					htmlStr +=glidias.AABBUtils.getRect(sectors[i],1).toHTML("background-color:#00ff00;"+[sectors[i].rect.x, sectors[i].rect.y, sectors[i].rect.width, sectors[i].rect.height], 1);
+				
 				}
+				htmlStr += "</div>";
 				
-				
-				
+				document.getElementById("testBed2").innerHTML = htmlStr;
 				
 			
 			});
@@ -53,7 +62,11 @@
 	<div id="haxe:trace" style="position:absolute; z-index:99999; left:410px; color:#FF4499"></div>
 	<script src="../glidias.hx.js"></script>
 
-	<div id="testBed">
+	<div id="testBed" style="position:absolute">
+		
+	</div>
+	
+	<div id="testBed2"  style="position:absolute">
 		
 	</div>
 	

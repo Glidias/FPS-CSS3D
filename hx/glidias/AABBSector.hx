@@ -86,41 +86,13 @@ class AABBSector implements IAABB
 		c += up.z * z;
 		AABBUtils.expand(a, b, c, this);
 		
-		x = gridSize * rect.x;
-		y = gridSize * (rect.y+rect.height);
-		z = groundPos;
-		// 
-		a = east.x * x;
-		b= east.y * x;
-		c = east.z * x;
-		a += south.x * y;
-		b += south.y * y;
-		c += south.z * y;
-		a += up.x * z;
-		b += up.y *z;
-		c += up.z * z;
-		AABBUtils.expand(a, b, c, this);
-		
-		x = gridSize * (rect.x+rect.width);
-		y = gridSize * rect.y;
-		z = groundPos;
-		// 
-		a = east.x * x;
-		b= east.y * x;
-		c = east.z * x;
-		a += south.x * y;
-		b += south.y * y;
-		c += south.z * y;
-		a += up.x * z;
-		b += up.y *z;
-		c += up.z * z;
-		AABBUtils.expand(a, b, c, this);
+
 		
 		// End bottom 4
 		
 		// now top 4
 		
-				x = gridSize * rect.x;
+		x = gridSize * rect.x;
 		y = gridSize * rect.y;
 		z = groundPos + height;
 		//
@@ -151,35 +123,6 @@ class AABBSector implements IAABB
 		c += up.z * z;
 		AABBUtils.expand(a, b, c, this);
 		
-		x = gridSize * rect.x;
-		y = gridSize * (rect.y+rect.height);
-		z = groundPos + height;
-		// 
-		a = east.x * x;
-		b= east.y * x;
-		c = east.z * x;
-		a += south.x * y;
-		b += south.y * y;
-		c += south.z * y;
-		a += up.x * z;
-		b += up.y *z;
-		c += up.z * z;
-		AABBUtils.expand(a, b, c, this);
-		
-		x = gridSize * (rect.x+rect.width);
-		y = gridSize * rect.y;
-		z = groundPos + height;
-		// 
-		a = east.x * x;
-		b= east.y * x;
-		c = east.z * x;
-		a += south.x * y;
-		b += south.y * y;
-		c += south.z * y;
-		a += up.x * z;
-		b += up.y *z;
-		c += up.z * z;
-		AABBUtils.expand(a, b, c, this);
 	}
 	
 	public inline function getWallHTML(direction:Int, mat:String, gridSize:Float):String {
