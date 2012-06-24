@@ -122,13 +122,14 @@ package glidias;
 			for (i in 0...len) {
 				sector = map[i];
 				str += '<div class="Mesh Object3D">';
-				//str += sector.getCeilingHTML(ceilingMat,gridSize);
+			//	str += sector.getCeilingHTML(ceilingMat,gridSize);
 				str += sector.getFloorHTML(floorMat,gridSize);
-				//str += sector.getWallHTML(AABBPortalPlane.NORTH,wallMat,gridSize);
+				str += sector.getWallHTML(AABBPortalPlane.NORTH,wallMat,gridSize);
 				//str += sector.getWallHTML(AABBPortalPlane.SOUTH,wallMat,gridSize);
 				//str += sector.getWallHTML(AABBPortalPlane.WEST,wallMat,gridSize);
 				//str += sector.getWallHTML(AABBPortalPlane.EAST,wallMat,gridSize);
 				str += '</div>';
+			//	break;
 			}
 			
 			

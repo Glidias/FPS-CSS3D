@@ -22,7 +22,8 @@ class PlaneResult {
 		return getOpenHTML(mat)+"</div>";
 	}
 	public inline function getOpenHTML(mat:String):String {
-		return '<div style='+(width != 0 ? '"width:'+Math.round(width)+'px;height:'+Math.round(height)+'px;' : '')+'-webkit-transform:matrix3d('+[right.x,right.y,right.z, 0,up.x,up.y,up.z, 0,  look.x,look.y,look.z, 0,pos.x,pos.y,pos.z,1].join(",")+');'+mat+'">';
+		// darn, not too sure why must use -right?
+		return '<div style='+(width != 0 ? '"width:'+Math.round(width)+'px;height:'+Math.round(height)+'px;' : '')+'-webkit-transform:matrix3d('+[-right.x,-right.y,-right.z, 0,up.x,up.y,up.z, 0,  look.x,look.y,look.z, 0,pos.x,pos.y,pos.z,1].join(",")+');'+mat+'">';
 	}
 	
 }

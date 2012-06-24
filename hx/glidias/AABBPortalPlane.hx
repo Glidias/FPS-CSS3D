@@ -65,6 +65,7 @@ class AABBPortalPlane implements IAABB
 		var dirId:Int;
 		if ((p=dir.dotProduct(south)) != 0) {  // vertical
 			dirId = p < 0 ? NORTH : SOUTH;
+			
 		}
 		else if ((p=dir.dotProduct(east)) != 0) {  // horizontal
 			dirId = p < 0 ? WEST: EAST;
@@ -72,18 +73,25 @@ class AABBPortalPlane implements IAABB
 		else {	// assumed floor/ceiling plane, where   dir.dotProduct(upwards) !=0
 			if ( !((p=dir.dotProduct(upwards)) != 0) ) trace("Assumption failed for final dot up/down");
 			dirId = p < 0 ? DOWNWARDS : UPWARDS;
+	
 		}
 		
 		var b:Int = OFFSET_BITMASKS[dirId];
 		
 		// get direction from right vector (using right-hand rule). THis can be precompiuted actually..
 		// if zero length vector, than it;s parallel! (either floor or ceiling case:: so right = dir.crossProduct(SOUTH))
-		//    																		 new Up = right.crossProduct(up);  // 
+		//    	
+		var up;
+
 		var right:Vec3 = AABBPortalPlane.UP.crossProduct(dir);  
 		if (right.lengthSquared() == 0) {
 			right = dir.crossProduct(AABBPortalPlane.DIRECTIONS[SOUTH]);
+				up = right.crossProduct(UP);
 		}
-		var up = right.crossProduct(UP);
+		else {
+			up = UP.clone();
+		}
+	
 		
 		planeResult.up = up;
 		planeResult.right = right;
@@ -106,17 +114,17 @@ class AABBPortalPlane implements IAABB
 		}
 		
 	
-		p = (rect.x + ( (b & 1) !=0 ? rect.width : 0 )) * gridSize;
+		p = (rect.x + ( (b & BIT_WIDTH) !=0 ? rect.width : 0 )) * gridSize;
 		x = east.x * p;
 		y = east.y * p;
 		z = east.z * p;
 		
-		p = (rect.y + ( (b & 2) !=0 ? rect.height : 0 )) * gridSize;
+		p = (rect.y + ( (b & BIT_HEIGHT) !=0 ? rect.height : 0 )) * gridSize;
 		x += south.x * p;
 		y += south.y * p;
 		z += south.z * p;
 		
-		p  = sector.groundPos + sector.ceilHeight - ( (b & 3) !=0 ? sector.ceilHeight : 0 ); 
+		p  = sector.groundPos + sector.ceilHeight - ( (b & BIT_CEILHEIGHT) !=0 ? sector.ceilHeight : 0 ); 
 		x += upwards.x * p;
 		y += upwards.y * p;
 		z += upwards.z * p;
@@ -169,6 +177,9 @@ class AABBPortalPlane implements IAABB
 	public static inline var UPWARDS:Int = 4;
 	public static inline var DOWNWARDS:Int = 5;
 	
+	public static inline var BIT_WIDTH:Int = 1;
+	public static inline var BIT_HEIGHT:Int = 2;
+	public static inline var BIT_CEILHEIGHT:Int = 4;
 
 	
 	public static var OFFSET_BITMASKS:Array<Int> = {  // a bit mask indicating whether to offset by width/height/ceilHeight respectively
@@ -176,11 +187,11 @@ class AABBPortalPlane implements IAABB
 		// 1 - width 
 		// 2 - height
 		// 4 - ceilHeight
-		arr[NORTH] = 1 | 2;
-		arr[WEST] = 1;
+		arr[NORTH] = BIT_WIDTH | BIT_HEIGHT;
+		arr[WEST] = BIT_WIDTH;
 		arr[SOUTH] = 0;
-		arr[EAST] = 2;
-		arr[UPWARDS] = 4;
+		arr[EAST] = BIT_HEIGHT;
+		arr[UPWARDS] = BIT_CEILHEIGHT;
 		arr[DOWNWARDS] = 0;
 		arr;
 	}
