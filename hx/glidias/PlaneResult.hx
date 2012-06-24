@@ -5,14 +5,14 @@ package glidias;
  */
 class PlaneResult {
 	
-	// othogaonal oreientation
-	var up:Vec3;
-	var right:Vec3;
-	var look:Vec3;
+	// othogaonal oreientation (for now, we use this conventions!)
+	public var up:Vec3; // - y
+	public var right:Vec3; // -x
+	public var look:Vec3; // -z
 	
-	var pos:Vec3;
-	var width:Float;
-	var height:Float;
+	public var pos:Vec3;
+	public var width:Float;
+	public var height:Float;
 	
 	public function new() {
 		
@@ -22,7 +22,7 @@ class PlaneResult {
 		return getOpenHTML(mat)+"</div>";
 	}
 	public inline function getOpenHTML(mat:String):String {
-		return "";
+		return '<div style='+(width != 0 ? '"width:'+Math.round(width)+'px;height:'+Math.round(height)+'px;' : '')+'-webkit-transform:matrix3d('+[right.x,right.y,right.z, 0,up.x,up.y,up.z, 0,  look.x,look.y,look.z, 0,pos.x,pos.y,pos.z,1].join(",")+');'+mat+'">';
 	}
 	
 }

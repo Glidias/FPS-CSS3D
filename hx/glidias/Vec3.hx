@@ -42,8 +42,20 @@ class Vec3
 		this.w = ref.w;
 	}
 	
+	public inline function crossProduct(b:Vec3):Vec3 {
+		return new Vec3((this.y * b.z) - (this.z * b.y), (this.z * b.x) - (this.x * b.z), (this.x * b.y) - (this.y * b.x));
+	}
+	
+	public inline function dotProduct(b:Vec3):Float  {
+		return x * b.x + y * b.y + z * b.z;
+	}
+	
 	public inline function getReverse():Vec3 {
 		return new Vec3( -x, -y, -z, w);
+	}
+	
+	public inline function lengthSquared():Float {
+		return x * x + y * y + z * z;
 	}
 	
 	public inline function clone():Vec3 {

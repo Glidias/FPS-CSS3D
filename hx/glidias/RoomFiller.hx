@@ -109,6 +109,33 @@ package glidias;
 			if (floorMat == null) floorMat = wallMat;
 			if (ceilingMat == null) ceilingMat = floorMat;
 			
+			// TODO:
+			// AABBPortalPlane.getPlaneResult(); // DONE
+			// PlaneResult.getOpenHTML();  // DONE - to test
+			//  AABBPortalPLane.getHTML();
+			
+			// test 1 sector only for now;
+			var str:String = "";
+			
+			var sector:AABBSector;
+			var len = map.length;
+			for (i in 0...len) {
+				sector = map[i];
+				str += '<div class="Mesh Object3D">';
+				//str += sector.getCeilingHTML(ceilingMat,gridSize);
+				str += sector.getFloorHTML(floorMat,gridSize);
+				//str += sector.getWallHTML(AABBPortalPlane.NORTH,wallMat,gridSize);
+				//str += sector.getWallHTML(AABBPortalPlane.SOUTH,wallMat,gridSize);
+				//str += sector.getWallHTML(AABBPortalPlane.WEST,wallMat,gridSize);
+				//str += sector.getWallHTML(AABBPortalPlane.EAST,wallMat,gridSize);
+				str += '</div>';
+			}
+			
+			
+			
+			// then wrap everything up below...
+			
+			
 			// go through all sectors
 			
 			// For each sector:
@@ -117,7 +144,7 @@ package glidias;
 			// for all remaining walls with direction, AABBSector.getWallHTML(dir,mat).  Finally,  AABBSector.getCeilingHTML(mat), getFloorHTML(mat)
 			// add all collected walls to sector node
 			
-			return null;
+			return str;
 		}
 		
 		
@@ -161,7 +188,7 @@ package glidias;
 					
 				}
 				sector = new AABBSector();
-				sector.setup(rect, gridSize, minRoomHeight + Math.round(Math.random() * possibleRoomHeightAdd), 0);
+				sector.setup(rect, gridSize, minRoomHeight + Math.round(Math.random() * possibleRoomHeightAdd), groundPos);
 				map.push( sector );
 			}
 			
@@ -253,6 +280,7 @@ package glidias;
 				
 				// create corridoor sector
 				sector = new AABBSector();
+				
 				 // optional fix for outdoor corridoor to test later... shrink coridoor so it does't protrude out of building
 				/*
 				 if (target < 0) { 
@@ -269,7 +297,7 @@ package glidias;
 				var tarOffset = target >= 0 ? 2 : 1; // somehow outdoor target < 0 start position settings seem different..
 				rect = new Rectangle(door.x - (door.z < 0 ? tarOffset : 0), door.y - (door.w < 0 ? tarOffset : 0), door.z != 0 ? abs(door.z)+1 : 1, door.w != 0 ? abs(door.w)+1: 1 );		
 	
-				sector.setup(rect, gridSize, gridSize, groundPos);
+				sector.setup(rect, gridSize, doorHeight, groundPos);
 				map.push(sector);
 				
 				
