@@ -5,7 +5,8 @@ package glidias;
 
 	/**
 	 * Haxe port of http://wonderfl.net/c/57nZ . Useful to create random aabb dungoen rooms to fill up any given aabb space.
-		 Provides optimized room-by-room/doorway information to facilitiate optimized 2d/3d environments, theme-based labeled rooms, and faster room-to-room pathfinding.
+		 Provides additional optimized room-by-room/doorway information to facilitiate optimized collision detection, depth-sorting
+		 theme-based labeled rooms, and faster room-to-room pathfinding.
 	 */
     class RoomFiller
     {
@@ -129,6 +130,7 @@ package glidias;
 				for (u in 0...uLen) {
 					p = pWalls[u];
 					str += p.getHTML(sector, gridSize, wallMat);
+		
 					mask |= (1 << p.direction);
 				}
 				if ( (mask & (1<< AABBPortalPlane.NORTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.NORTH,wallMat,gridSize);
@@ -328,7 +330,7 @@ package glidias;
 				sector.addPortal(portal, direction);
 				
 		
-				//direction = AABBPortalPlane.getReverse(direction);   // flip direction
+				direction = AABBPortalPlane.getReverse(direction);   // flip direction
 				
 				//  create portal from opposite sector to corridoor in reversed direction
 				p = portal.getReverse(sector, direction, true);

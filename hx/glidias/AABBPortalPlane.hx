@@ -154,9 +154,7 @@ class AABBPortalPlane implements IAABB
 			html += p.getHTML(mat);
 		}
 		
-		// temp return for now...test doorway assigmnets
-		html += "</div>";
-		return html;
+		
 		
 		var pos:Vec3 = planeResult.pos;
 		var right:Vec3 = planeResult.right.getReverse();  // REVERSE BUG: argh! need to get reverse for right
@@ -165,16 +163,19 @@ class AABBPortalPlane implements IAABB
 		
 		// re-arrange portals from left to right using squared dist from starting point or right vector offset). set up walls accordingly.
 		portals.sort( function(a, b):Int {
-			if (right.x * a.minX + right.y * a.minY + right.z * a.minZ < right.x * b.minX + right.y * b.minY + right.z * b.minZ) {
+			var a2 = right.x * a.minX + right.y * a.minY + right.z * a.minZ;
+			var b2 = right.x * b.minX + right.y * b.minY + right.z * b.minZ;
+			if (a2 < b2) {
 				return -1;
 			}
+			else if (a2 == b2) return 0;
 			return 1;
 		});
 		// add spacings if possible
 		var len:Int = portals.length;
 		var portal:AABBPortal;
 		var c:Float;
-		//var lastC:Float = -99999999;
+		var lastC:Float = -99999999;
 		var o:Float;
 		var m:Float = 0;
 		for (i in 0...len) {
@@ -183,12 +184,13 @@ class AABBPortalPlane implements IAABB
 			o = portal.maxX * right.x + portal.maxY * right.y + portal.maxZ * right.z;
 			if (o < c) c = o;  // get leftmost position for c variable
 			// c should be icnrementing
-			//if (lastC > c) trace("WRONG, shoudl be less!");
-			//lastC = c;
+			if (lastC > c) trace("WRONG, shoudl be less!");
+			lastC = c;
+
 			o = baseOffset < c ? c - baseOffset : baseOffset - c;
 			//if (o < 0) trace("Need to abs!");
 			p = PlaneResult.getIdentity();
-			p.pos.x = -m;
+			p.pos.x = m;
 			p.pos.y = aboveDoorwayHeight;
 			p.width =   o - m ;
 			p.height = portal.height;
@@ -197,6 +199,8 @@ class AABBPortalPlane implements IAABB
 			m = p.pos.x + p.width  + portal.width;
 			// door wall spacing rect = (right vector offset - baseOffset, aboveDoorwayHeight, spacignWidth, doorwayHeight)
 			// spacing before portal
+			
+		
 			
 		}
 		///*

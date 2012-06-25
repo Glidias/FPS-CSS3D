@@ -6,7 +6,13 @@
 function CSS3D() {
 
         var camera, scene;
-       
+		this.getCamera = function() {
+			return camera;
+		};
+		var _preRender= function() {};
+       this.preRender = function(val) {
+		  _preRender = val;
+	   }
         var controls;
          var clock = new THREE.Clock();
 		 
@@ -68,7 +74,7 @@ var ffindex2 = navigator.userAgent.indexOf('Firefox');
 			camera.matrixWorldInverse.getInverse( camera.matrixWorld );
         
 			
-		
+			_preRender();
             setCSSCamera(camera, fovValue);
         }
 		
