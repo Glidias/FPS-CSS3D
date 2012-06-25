@@ -191,7 +191,7 @@
 	<script type="text/javascript">
 		$(document).ready( function() {
 		var roomFiller = new glidias.RoomFiller();
-	//	glidias.AABBPortalPlane.setEastSouthUp(new glidias.Vec3(-1,0,0), new glidias.Vec3(0,0,1), new glidias.Vec3(0,1,0));
+		glidias.AABBPortalPlane.setEastSouthUp(new glidias.Vec3(1,0,0), new glidias.Vec3(0,0,1), new glidias.Vec3(0,-1,0));
 		roomFiller.enableOutdoors = false;
 		roomFiller.wallColor = "#000000";
 	
@@ -276,7 +276,7 @@
         <div id="css-container">
             <div id="css-world">
                 <div id="css-camera">
-					<div class="root Object3DContainer Object3D" id="scene" style="-webkit-transform:rotateX(-90deg) rotateY(180deg);">
+					<div class="root Object3DContainer Object3D" id="scene" style=""> <!-- -webkit-transform:rotateX(-90deg) rotateY(180deg);  -->
 						
 					</div>
 				</div>

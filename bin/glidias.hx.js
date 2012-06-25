@@ -1287,7 +1287,7 @@ glidias.AABBPortalPlane.setEastSouthUp = function(east,south,up) {
 	glidias.AABBPortalPlane.DIRECTIONS[2].copy(south);
 	glidias.AABBPortalPlane.UP.copy(up);
 	glidias.AABBPortalPlane.DIRECTIONS[1].copyReverse(east);
-	glidias.AABBPortalPlane.DIRECTIONS[2].copyReverse(south);
+	glidias.AABBPortalPlane.DIRECTIONS[0].copyReverse(south);
 }
 glidias.AABBPortalPlane.getDoorDir = function(door) {
 	var dir = 0;

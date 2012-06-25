@@ -213,7 +213,7 @@ class AABBPortalPlane implements IAABB
 		DIRECTIONS[SOUTH].copy(south);
 		UP.copy(up);
 		DIRECTIONS[WEST].copyReverse(east);
-		DIRECTIONS[SOUTH].copyReverse(south);
+		DIRECTIONS[NORTH].copyReverse(south);
 	}
 	
 	
