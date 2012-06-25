@@ -13,10 +13,10 @@ THREE.FirstPersonNavigationControls = function(object, domElement) {
 	this.firstPersonControls = new THREE.FirstPersonControls(this.object, this.domElement);
 	
 	//this.inverseDirection = false;
-	this.velocity = 2.8;
+	this.velocity = 35.8;
 	
 	// initialization of FirstPersonControls variables
-	this.firstPersonControls.movementSpeed = 125.0;
+	this.firstPersonControls.movementSpeed = 800.0;
 	this.firstPersonControls.lookSpeed = 0.2;
 	this.firstPersonControls.noFly = true;
 	this.firstPersonControls.activeLook = false;

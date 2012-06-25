@@ -191,14 +191,15 @@
 	<script type="text/javascript">
 		$(document).ready( function() {
 		var roomFiller = new glidias.RoomFiller();
-
+	//	glidias.AABBPortalPlane.setEastSouthUp(new glidias.Vec3(-1,0,0), new glidias.Vec3(0,0,1), new glidias.Vec3(0,1,0));
 		roomFiller.enableOutdoors = false;
 		roomFiller.wallColor = "#000000";
-		
-		
-			var GRID_SIZE = 5;
+	
+			var GRID_SIZE =128;
+			roomFiller.doorHeight = GRID_SIZE;
+			
 			roomFiller.run(function() {
-			var sectors = roomFiller.getSectors(GRID_SIZE, 30);
+			var sectors = roomFiller.getSectors(GRID_SIZE, GRID_SIZE*2);
 				var arr = roomFiller.rooms;
 				var len = arr.length;
 				var i;
@@ -235,13 +236,13 @@
 				for (i=0 ;  i< len; i++) {
 			//		col = i != 0 ? "background-color:#00ff00;" : "background-color:#ff0000;" ;
 					col = "background-color:#00ff00;";
-					htmlStr +=glidias.AABBUtils.getRect(sectors[i],1).toHTML(col, 1);
+					htmlStr +=sectors[i].rect.toHTML(col, 5);
 					var portalList = sectors[i].getPortalList();
 					uLen = portalList.length;
-					for (u=0;u<uLen; u++) {
+					//for (u=0;u<uLen; u++) {
 					//	portalList[u].traceValid();
-						htmlStr +=glidias.AABBUtils.getRect(portalList[u],1).toHTML("background-color:#ff0000; z-index:1", 1);
-					}
+						//htmlStr +=glidias.AABBUtils.getRect(portalList[u],1).toHTML("background-color:#ff0000; z-index:1;", .1);
+					//}
 				
 				}
 				htmlStr += "</div>";
@@ -251,7 +252,8 @@
 				startCSS3D();
 				
 				//getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null):String {
-				document.getElementById("scene").innerHTML =  roomFiller.getHTMLFromSectors(sectors, GRID_SIZE, "background-color:#ff0000;opacity:.45;", "background-color:#0f00f0;opacity:.45;");
+				//background-color:#0f00f0;opacity:1;background-image:url(../images/corner_piece.gif);background-repeat:no-repeat;
+				document.getElementById("scene").innerHTML =  roomFiller.getHTMLFromSectors(sectors, GRID_SIZE, "background-image:url(../images/wall.jpg);", "background-image:url(../images/wood.jpg);");
 				
 			
 			});
@@ -262,19 +264,19 @@
 	<div id="haxe:trace" style="position:absolute; z-index:99999; right:80px; font-size:11px; color:#FF4499"></div>
 	<script src="../glidias.hx.js"></script>
 
-	<div id="testBed" style="position:absolute">
+	<div id="testBed" style="position:absolute; z-index:2">
 		
 	</div>
 	
-	<div id="testBed2"  style="position:absolute">
+	<div id="testBed2"  style="position:absolute; z-index:3">
 		
 	</div>
 	
-	<div id="main-container">  <!-- todo: make less complex dom tree -->
+	<div id="main-container" style="position:relative; z-index:1">  <!-- todo: make less complex dom tree -->
         <div id="css-container">
             <div id="css-world">
                 <div id="css-camera">
-					<div class="root Object3DContainer Object3D" id="scene">
+					<div class="root Object3DContainer Object3D" id="scene" style="-webkit-transform:rotateX(-90deg) rotateY(180deg);">
 						
 					</div>
 				</div>

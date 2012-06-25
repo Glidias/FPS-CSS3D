@@ -89,7 +89,7 @@ class AABBPortalPlane implements IAABB
 				up = right.crossProduct(UP);
 		}
 		else {
-			up = UP.clone();
+			up = UP.getReverse();  // dunno why need to reverse... GAH!!
 		}
 	
 		
@@ -124,10 +124,12 @@ class AABBPortalPlane implements IAABB
 		y += south.y * p;
 		z += south.z * p;
 		
+		///*
 		p  = sector.groundPos + sector.ceilHeight - ( (b & BIT_CEILHEIGHT) !=0 ? sector.ceilHeight : 0 ); 
 		x += upwards.x * p;
 		y += upwards.y * p;
 		z += upwards.z * p;
+		//*/
 	
 		planeResult.pos = new Vec3(x , y, z);
 		
