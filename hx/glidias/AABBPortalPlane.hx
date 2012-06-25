@@ -43,7 +43,7 @@ class AABBPortalPlane implements IAABB
 	}
 	
 
-	public static inline function getPlaneResult(dir:Vec3, sector:AABBSector, gridSize:Float, noDimension:Bool=false):PlaneResult {
+	public static inline function getPlaneResult(dir:Vec3, sector:AABBSector, gridSize:Float):PlaneResult {
 
 		var south:Vec3 =  AABBPortalPlane.DIRECTIONS[AABBPortalPlane.SOUTH];
 		var east:Vec3 =  AABBPortalPlane.DIRECTIONS[AABBPortalPlane.EAST];
@@ -89,7 +89,7 @@ class AABBPortalPlane implements IAABB
 				up = right.crossProduct(UP);
 		}
 		else {
-			up = UP.getReverse();  // dunno why need to reverse... GAH!!
+			up = UP.getReverse();  // REVERSE BUG: dunno why need to reverse... GAH!!
 		}
 	
 		
@@ -97,20 +97,15 @@ class AABBPortalPlane implements IAABB
 		planeResult.right = right;
 		planeResult.look = dir;
 		
-		if (noDimension) {
-			planeResult.width = 0;
-			planeResult.height = 0;
-		}
-		else {
+	
 		
-			if (dirId == UPWARDS || dirId == DOWNWARDS) {
-				planeResult.width = rect.width * gridSize;  
-				planeResult.height = rect.height * gridSize;
-			}
-			else { // only east/west would use rect.height as width of wall,  ceiling/floor and north/south walls uses rect.width.
-				planeResult.width = dirId==EAST || dirId==WEST ?  rect.height * gridSize : rect.width * gridSize;  
-				planeResult.height = sector.ceilHeight;
-			}
+		if (dirId == UPWARDS || dirId == DOWNWARDS) {
+			planeResult.width = rect.width * gridSize;  
+			planeResult.height = rect.height * gridSize;
+		}
+		else { // only east/west would use rect.height as width of wall,  ceiling/floor and north/south walls uses rect.width.
+			planeResult.width = dirId==EAST || dirId==WEST ?  rect.height * gridSize : rect.width * gridSize;  
+			planeResult.height = sector.ceilHeight;
 		}
 		
 	
@@ -137,36 +132,95 @@ class AABBPortalPlane implements IAABB
 	}
 
 		
-	public function getHTML(sector:AABBSector, gridSize:Float, mat:String):String { // todo:
+	public function getHTML(sector:AABBSector, gridSize:Float, mat:String):String { // Gets html of aabb portal plane wall, ie. a wall with portal openings..
 		
-		var planeResult:PlaneResult = getPlaneResult( AABBPortalPlane.DIRECTIONS[direction], sector, gridSize, true);
-		var html:String = planeResult.getOpenHTML(mat);  // open html
+		var planeResult:PlaneResult = getPlaneResult( AABBPortalPlane.DIRECTIONS[direction], sector, gridSize);
+		var p:PlaneResult;
+		var html:String = planeResult.getOpenHTML(null);  // open html  , // no width, no height, no material, just a  planar container!
 		
+		var x:Float = 0;
+		var y:Float = 0;
+		var width:Float =  planeResult.width;
 		
-		// aboveDoorway x and y = (0,0)
-		// aboveDoorwayWidth =  roomRect.width * gridSize;
-		// doorwayHeight = portals[0].height;
-		// aboveDoorwayHeight = roomRect.y * gridSize + ceilHeight - doorwayHeight; 
+		var doorwayHeight:Float = portals[0].height;  // ASSUMPTION, all portals same height.., this might change later
+		var aboveDoorwayHeight:Float = planeResult.height - doorwayHeight;
 		
-		// add any wall above doorway if available
+		if (aboveDoorwayHeight > 0) {
+			p =  PlaneResult.getIdentity();
 		
+			p.width = planeResult.width;
+			p.height = aboveDoorwayHeight;
+			
+			html += p.getHTML(mat);
+		}
 		
-		// baseOffset = planeResult.pos.dotProduct(planeResult.right);
+		// temp return for now...test doorway assigmnets
+		html += "</div>";
+		return html;
+		
+		var pos:Vec3 = planeResult.pos;
+		var right:Vec3 = planeResult.right.getReverse();  // REVERSE BUG: argh! need to get reverse for right
+		var baseOffset:Float = pos.dotProduct(right);
+		var up:Vec3 = UP;
+		
 		// re-arrange portals from left to right using squared dist from starting point or right vector offset). set up walls accordingly.
 		portals.sort( function(a, b):Int {
-			
-			return 0;
+			if (right.x * a.minX + right.y * a.minY + right.z * a.minZ < right.x * b.minX + right.y * b.minY + right.z * b.minZ) {
+				return -1;
+			}
+			return 1;
 		});
 		// add spacings if possible
-		// door wall spacing rect = (right vector offset - baseOffset, aboveDoorwayHeight, spacignWidth, doorwayHeight)
+		var len:Int = portals.length;
+		var portal:AABBPortal;
+		var c:Float;
+		//var lastC:Float = -99999999;
+		var o:Float;
+		var m:Float = 0;
+		for (i in 0...len) {
+			portal = portals[i];
+			c = portal.minX * right.x + portal.minY * right.y + portal.minZ * right.z;
+			o = portal.maxX * right.x + portal.maxY * right.y + portal.maxZ * right.z;
+			if (o < c) c = o;  // get leftmost position for c variable
+			// c should be icnrementing
+			//if (lastC > c) trace("WRONG, shoudl be less!");
+			//lastC = c;
+			o = baseOffset < c ? c - baseOffset : baseOffset - c;
+			//if (o < 0) trace("Need to abs!");
+			p = PlaneResult.getIdentity();
+			p.pos.x = -m;
+			p.pos.y = aboveDoorwayHeight;
+			p.width =   o - m ;
+			p.height = portal.height;
+			html += p.getHTML(mat);
 		
+			m = p.pos.x + p.width  + portal.width;
+			// door wall spacing rect = (right vector offset - baseOffset, aboveDoorwayHeight, spacignWidth, doorwayHeight)
+			// spacing before portal
+			
+		}
+		///*
+		portal = portals[len -1];
+		
+			p = PlaneResult.getIdentity();
+			p.pos.x = m;
+			p.pos.y = aboveDoorwayHeight;
+			p.width =   planeResult.width - m;
+			p.height = portal.height;
+			html += p.getHTML(mat);
+		//*/
+		
+		// spacing after last portal
+				
 		// validate that all portals lie on the same plane using points of portal
 		
 		// close html
 		html += "</div>";
-		
+
 		return html;
 	}
+	
+
 	
 	// Static model
 	
@@ -194,7 +248,7 @@ class AABBPortalPlane implements IAABB
 		arr[SOUTH] = 0;
 		arr[EAST] = BIT_HEIGHT;
 		arr[UPWARDS] = BIT_CEILHEIGHT;
-		arr[DOWNWARDS] = 0;
+		arr[DOWNWARDS] = BIT_WIDTH | BIT_HEIGHT;
 		arr;
 	}
 	
@@ -251,6 +305,9 @@ class AABBPortalPlane implements IAABB
 		return isDoorHorizontal(door) ? abs(door.z) : abs(door.w);
 	}
 	static public inline function abs(val:Int):Int {
+		return val < 0 ? -val : val;
+	}
+		static public inline function absFloat(val:Float):Float {
 		return val < 0 ? -val : val;
 	}
 	

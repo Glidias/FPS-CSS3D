@@ -5,7 +5,7 @@ package glidias;
 
 	/**
 	 * Haxe port of http://wonderfl.net/c/57nZ . Useful to create random aabb dungoen rooms to fill up any given aabb space.
-		 Provides optimized room-by-room/doorway information to facilitiate optimized 2d/3d environments and faster room-to-room pathfinding.
+		 Provides optimized room-by-room/doorway information to facilitiate optimized 2d/3d environments, theme-based labeled rooms, and faster room-to-room pathfinding.
 	 */
     class RoomFiller
     {
@@ -109,41 +109,34 @@ package glidias;
 			if (floorMat == null) floorMat = wallMat;
 			if (ceilingMat == null) ceilingMat = floorMat;
 			
-			// TODO:
-			// AABBPortalPlane.getPlaneResult(); // DONE
-			// PlaneResult.getOpenHTML();  // DONE - to test
-			//  AABBPortalPLane.getHTML();
-			
-			// test 1 sector only for now;
 			var str:String = "";
+			var mask:Int;
 			
 			var sector:AABBSector;
+			var uLen:Int;
 			var len = map.length;
+			var pWalls;
+			var p:AABBPortalPlane;
 			for (i in 0...len) {
 				sector = map[i];
 				str += '<div class="Mesh Object3D">';
-			//	str += sector.getCeilingHTML(ceilingMat,gridSize);
-				str += sector.getFloorHTML(floorMat,gridSize);
-				str += sector.getWallHTML(AABBPortalPlane.NORTH,wallMat,gridSize);
-				str += sector.getWallHTML(AABBPortalPlane.SOUTH,wallMat,gridSize);
-				str += sector.getWallHTML(AABBPortalPlane.WEST,wallMat,gridSize);
-			str += sector.getWallHTML(AABBPortalPlane.EAST,wallMat,gridSize);
+				str += sector.getCeilingHTML(ceilingMat,gridSize);
+				str += sector.getFloorHTML(floorMat, gridSize);
+				
+				mask = 0;  // keeps track of portaled walls
+				pWalls = sector.portalWalls;
+				uLen = pWalls.length;
+				for (u in 0...uLen) {
+					p = pWalls[u];
+					str += p.getHTML(sector, gridSize, wallMat);
+					mask |= (1 << p.direction);
+				}
+				if ( (mask & (1<< AABBPortalPlane.NORTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.NORTH,wallMat,gridSize);
+				if ( (mask & (1<< AABBPortalPlane.SOUTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.SOUTH,wallMat,gridSize);
+				if ( (mask & (1<< AABBPortalPlane.WEST)) == 0) str += sector.getWallHTML(AABBPortalPlane.WEST,wallMat,gridSize);
+				if ( (mask & (1<< AABBPortalPlane.EAST)) == 0) str += sector.getWallHTML(AABBPortalPlane.EAST,wallMat,gridSize);
 				str += '</div>';
-			//	break;
 			}
-			
-			
-			
-			// then wrap everything up below...
-			
-			
-			// go through all sectors
-			
-			// For each sector:
-			// create sector node
-			// for all portal walls...AABBPortalPlane.getHTML(sector.rect, gridSize) , flag out direction
-			// for all remaining walls with direction, AABBSector.getWallHTML(dir,mat).  Finally,  AABBSector.getCeilingHTML(mat), getFloorHTML(mat)
-			// add all collected walls to sector node
 			
 			return str;
 		}
@@ -191,6 +184,7 @@ package glidias;
 				sector = new AABBSector();
 				sector.setup(rect, gridSize, minRoomHeight + Math.round(Math.random() * possibleRoomHeightAdd), groundPos);
 				map.push( sector );
+				
 			}
 			
 			len = doors.length;

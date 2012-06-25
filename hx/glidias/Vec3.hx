@@ -27,6 +27,11 @@ class Vec3
 		this.y += y;
 		this.z += z;
 	}
+	public inline function subtract3(x:Float, y:Float, z:Float):Void {
+		this.x -= x;
+		this.y -= y;
+		this.z -= z;
+	}
 	public inline function copyReverse(ref:Vec3):Void
 	{
 		this.x = -ref.x;
