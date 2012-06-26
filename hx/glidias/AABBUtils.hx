@@ -12,7 +12,7 @@ class AABBUtils
 	public static inline var THRESHOLD:Float = .1;
 	
 	public static inline function getRect(aabb:IAABB, threshold:Float=THRESHOLD):Rectangle {
-		return new Rectangle(aabb.minX, aabb.minY, clampMagnitude(aabb.maxX - aabb.minX, threshold), clampMagnitude(aabb.maxY - aabb.minY, threshold) );
+		return new Rectangle(aabb.minX, aabb.minZ, clampMagnitude(aabb.maxX - aabb.minX, threshold), clampMagnitude(aabb.maxZ - aabb.minZ, threshold) );
 	
 	}
 	public static inline function clampMagnitude(mag:Float, threshold:Float=THRESHOLD):Float {
@@ -26,6 +26,12 @@ class AABBUtils
 	{
 		return w != 0 ?  w < 0 ? -1 : 1 : 0;
 	}
+	
+	public static inline function getString(aabb:IAABB):String {
+		return "AABB: "+[aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ];
+	}
+	
+	
 	
 	public static function match(aabb:IAABB, refAABB:IAABB):Void {
 		aabb.minX = refAABB.minX;

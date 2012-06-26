@@ -86,8 +86,6 @@ class AABBSector implements IAABB
 		c += up.z * z;
 		AABBUtils.expand(a, b, c, this);
 		
-
-		
 		// End bottom 4
 		
 		// now top 4
@@ -123,6 +121,9 @@ class AABBSector implements IAABB
 		c += up.z * z;
 		AABBUtils.expand(a, b, c, this);
 		
+		//minY = 0;
+		//maxY = 256;
+	
 	}
 	
 	public inline function getWallHTML(direction:Int, mat:String, gridSize:Float):String {

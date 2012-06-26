@@ -22,6 +22,28 @@ class Vec3
 		this.w = w;
 	}
 	
+	public function toString():String {
+		return "[Vec3 "+x+","+y+","+z+"]";
+	}
+	
+	public inline function normalize():Void {
+		var mag = Math.sqrt( this.x*this.x + this.y*this.y + this.z*this.z );
+		if( mag != 0 && mag != 1)
+		{
+			mag = 1 / mag;
+			this.x *= mag;
+			this.y *= mag;
+			this.z *= mag;
+		}
+	}
+	
+	public inline function set(x:Float, y:Float, z:Float, w:Float=0):Void {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.w = w;
+	}
+	
 	public inline function add3(x:Float, y:Float, z:Float):Void {
 		this.x += x;
 		this.y += y;
@@ -66,11 +88,26 @@ class Vec3
 	public inline function clone():Vec3 {
 		return new Vec3(x, y, z, w);
 	}
+	public inline function divideScalar(amt:Float):Void {
+		x /= amt;
+		y /= amt;
+		z /= amt;
+	}
 	public inline function scaleBy(amt:Float):Void {
 		x *= amt;
 		y *= amt;
 		z *= amt;
 	}
+	
+	public inline function flip():Void
+	{
+		this.x = -x;
+		this.y = -y;
+		this.z = -z;
+		this.w = -w;
+	}
+	
+
 	
 
 }

@@ -34,11 +34,17 @@ function CSS3D() {
             render();
         }
 		this.start = start;
+		
+		this.getFrustum = function() {
+			return _frustum;
+		};
 
         function init() {
 
             screenWidth = 900;
             screenHeight = 600;
+			
+			_frustum =  glidias.Frustum.create6();
 
             scene = new THREE.Scene();
 
@@ -64,15 +70,56 @@ var ffindex2 = navigator.userAgent.indexOf('Firefox');
 		//	*/
 		}
 		
+
+		var _camWorldMatrix =  new Float32Array( 16 );
+		var _frustum;
+		
 		function render() {
 			requestAnimationFrame( render );
 			
 			var delta = clock.getDelta();
 			controls.update(delta);
 			
+			// required before rendering
 			camera.updateMatrixWorld();
 			camera.matrixWorldInverse.getInverse( camera.matrixWorld );
-        
+			
+			// calculate world frustum
+			camera.matrixWorld.flattenToArray( _camWorldMatrix);
+			//setup6FromWorldMatrix(te:Array<Float>, screenWhalf:Float, screenHhalf:Float, focalLength:Float, near:Float=0, far:Float=9999999999):Void {
+			
+			_frustum.setup6FromWorldMatrix( _camWorldMatrix, screenWhalf, screenHhalf, fovValue, 0, 99999999999 );
+				/*
+			var ax, ay, az, bx, by,bz,vx,vy,vz;
+			var te = _camWorldMatrix;
+		
+			vz = -fovValue;
+			vx = -screenWhalf;
+			vy = -screenHhalf;
+			ax = ( te[0] * vx + te[4] * vy + te[8] * vz  );
+			ay = ( te[1] * vx + te[5] * vy + te[9] * vz  );
+			az = ( te[2] * vx + te[6] * vy + te[10] * vz  );
+			
+			
+			vz = -fovValue;
+			vx =screenWhalf;
+			vy = -screenHhalf;
+			bx = ( te[0] * vx + te[4] * vy + te[8] * vz  );
+			by = ( te[1] * vx + te[5] * vy + te[9] * vz  );
+			bz = ( te[2] * vx + te[6] * vy + te[10] * vz  );
+			
+	
+		_frustum.planes[5].x = bx ;
+		_frustum.planes[5].y = by  ;
+		_frustum.planes[5].z = bz ;
+		
+		var vec = new glidias.Vec3(ax, ay, az);
+		vec = vec.crossProduct( new glidias.Vec3(bx,by,bz) );
+		//vec.normalize();
+		alert(vec + ", "+_frustum.planes[0]);
+		
+			*/
+
 			
 			_preRender();
             setCSSCamera(camera, fovValue);
