@@ -37,6 +37,12 @@ class Vec3
 		}
 	}
 	
+	public inline function normalizeAndCalcOffset(px:Float, py:Float, pz:Float):Void {
+		normalize();
+		w = x * px + py * y + pz* z;
+		
+	}
+	
 	public inline function set(x:Float, y:Float, z:Float, w:Float=0):Void {
 		this.x = x;
 		this.y = y;

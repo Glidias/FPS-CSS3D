@@ -250,6 +250,10 @@ glidias.Vec3.prototype.normalize = function() {
 		this.z *= mag;
 	}
 }
+glidias.Vec3.prototype.normalizeAndCalcOffset = function(px,py,pz) {
+	this.normalize();
+	this.w = this.x * px + py * this.y + pz * this.z;
+}
 glidias.Vec3.prototype.set = function(x,y,z,w) {
 	if(w == null) w = 0;
 	this.x = x;
@@ -1027,7 +1031,8 @@ glidias.Frustum.prototype.checkFrustumCulling = function(a,culling) {
 	var minZ = a.minZ;
 	var maxX = a.maxX;
 	var maxY = a.maxY;
-	var maxZ = a.maxX;
+	var maxZ = a.maxZ;
+	var rootCull = culling;
 	{
 		var _g = 0;
 		while(_g < len) {
@@ -1038,39 +1043,39 @@ glidias.Frustum.prototype.checkFrustumCulling = function(a,culling) {
 					if(plane.y >= 0) {
 						if(plane.z >= 0) {
 							if(maxX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return -1;
-							if(minX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= 63 & ~side;
+							if(minX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
 						}
 						else {
 							if(maxX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return -1;
-							if(minX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= 63 & ~side;
+							if(minX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
 						}
 					}
 					else if(plane.z >= 0) {
 						if(maxX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return -1;
-						if(minX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= 63 & ~side;
+						if(minX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
 					}
 					else {
 						if(maxX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return -1;
-						if(minX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= 63 & ~side;
+						if(minX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
 					}
 				}
 				else if(plane.y >= 0) {
 					if(plane.z >= 0) {
 						if(minX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return -1;
-						if(maxX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= 63 & ~side;
+						if(maxX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
 					}
 					else {
 						if(minX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return -1;
-						if(maxX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= 63 & ~side;
+						if(maxX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
 					}
 				}
 				else if(plane.z >= 0) {
 					if(minX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return -1;
-					if(maxX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= 63 & ~side;
+					if(maxX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
 				}
 				else {
 					if(minX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return -1;
-					if(maxX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= 63 & ~side;
+					if(maxX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
 				}
 			}
 			side <<= 1;
@@ -1232,6 +1237,85 @@ glidias.Frustum.prototype.setup6FromProjMatrix = function(me) {
 	plane.divideScalar(Math.sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z));
 	plane = planes[5];
 	plane.divideScalar(Math.sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z));
+}
+glidias.Frustum.prototype.calculateFrustum6 = function(me,screenWhalf,screenHhalf,focalLength,near,far) {
+	if(far == null) far = 9999999999;
+	if(near == null) near = 1;
+	var correctionX = screenWhalf / focalLength;
+	var correctionY = screenHhalf / focalLength;
+	var planes = this.planes;
+	var nearPlane = planes[4];
+	var farPlane = planes[5];
+	var leftPlane = planes[3];
+	var rightPlane = planes[1];
+	var topPlane = planes[0];
+	var bottomPlane = planes[2];
+	var a = me[0];
+	var b = me[1];
+	var c = me[2];
+	var d = me[3];
+	var e = me[4];
+	var f = me[5];
+	var g = me[6];
+	var h = me[7];
+	var i = me[8];
+	var j = me[9];
+	var k = me[10];
+	var l = me[11];
+	var fa = a * correctionX;
+	var fe = e * correctionX;
+	var fi = i * correctionX;
+	var fb = b * correctionY;
+	var ff = f * correctionY;
+	var fj = j * correctionY;
+	nearPlane.x = fj * fe - ff * fi;
+	nearPlane.y = fb * fi - fj * fa;
+	nearPlane.z = ff * fa - fb * fe;
+	nearPlane.w = (d + c * near) * nearPlane.x + (h + g * near) * nearPlane.y + (l + k * near) * nearPlane.z;
+	farPlane.x = -nearPlane.x;
+	farPlane.y = -nearPlane.y;
+	farPlane.z = -nearPlane.z;
+	farPlane.w = (d + c * far) * farPlane.x + (h + g * far) * farPlane.y + (l + k * far) * farPlane.z;
+	var ax = -fa - fb + c;
+	var ay = -fe - ff + g;
+	var az = -fi - fj + k;
+	var bx = fa - fb + c;
+	var by = fe - ff + g;
+	var bz = fi - fj + k;
+	topPlane.x = bz * ay - by * az;
+	topPlane.y = bx * az - bz * ax;
+	topPlane.z = by * ax - bx * ay;
+	topPlane.w = d * topPlane.x + h * topPlane.y + l * topPlane.z;
+	ax = bx;
+	ay = by;
+	az = bz;
+	bx = fa + fb + c;
+	by = fe + ff + g;
+	bz = fi + fj + k;
+	rightPlane.x = bz * ay - by * az;
+	rightPlane.y = bx * az - bz * ax;
+	rightPlane.z = by * ax - bx * ay;
+	rightPlane.w = d * rightPlane.x + h * rightPlane.y + l * rightPlane.z;
+	ax = bx;
+	ay = by;
+	az = bz;
+	bx = -fa + fb + c;
+	by = -fe + ff + g;
+	bz = -fi + fj + k;
+	bottomPlane.x = bz * ay - by * az;
+	bottomPlane.y = bx * az - bz * ax;
+	bottomPlane.z = by * ax - bx * ay;
+	bottomPlane.w = d * bottomPlane.x + h * bottomPlane.y + l * bottomPlane.z;
+	ax = bx;
+	ay = by;
+	az = bz;
+	bx = -fa - fb + c;
+	by = -fe - ff + g;
+	bz = -fi - fj + k;
+	leftPlane.x = bz * ay - by * az;
+	leftPlane.y = bx * az - bz * ax;
+	leftPlane.z = by * ax - bx * ay;
+	leftPlane.w = d * leftPlane.x + h * leftPlane.y + l * leftPlane.z;
 }
 glidias.Frustum.prototype.__class__ = glidias.Frustum;
 glidias.IAABB = function() { }

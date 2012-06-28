@@ -9,6 +9,7 @@ class Frustum
 {
 	public var planes:Array<Vec3>;
 
+
 	private function new() 
 	{
 		planes = new Array<Vec3>();
@@ -150,43 +151,46 @@ class Frustum
 		var minZ:Float = a.minZ;
 		var maxX:Float = a.maxX;
 		var maxY:Float = a.maxY;
-		var maxZ:Float = a.maxX;
+		var maxZ:Float = a.maxZ;
+		var rootCull = culling;
 		
 		for (i in 0...len) {
 			var plane:Vec3 = planes[i];
-			if ((culling & side)!=0) {     // GASP!! Arrow anti-pattern!
+			if ((culling & side) != 0) {     // GASP!! Arrow anti-pattern! Anyway, determine nearest determinatate corner to compare against plane.
+
 				if (plane.x >= 0)   
 				if (plane.y >= 0)
 				if (plane.z >= 0) {
 				if (maxX*plane.x + maxY*plane.y + maxZ*plane.z <= plane.w) return -1;
-				if (minX*plane.x + minY*plane.y + minZ*plane.z > plane.w) culling &= (63 & ~side);
+				if (minX*plane.x + minY*plane.y + minZ*plane.z > plane.w) culling &= (rootCull & ~side);
 				} else {
 				if (maxX*plane.x + maxY*plane.y + minZ*plane.z <= plane.w) return -1;
-				if (minX*plane.x + minY*plane.y + maxZ*plane.z > plane.w) culling &= (63 & ~side);
+				if (minX*plane.x + minY*plane.y + maxZ*plane.z > plane.w) culling &= (rootCull & ~side);
 				}
 				else
 				if (plane.z >= 0) {
 				if (maxX*plane.x + minY*plane.y + maxZ*plane.z <= plane.w) return -1;
-				if (minX*plane.x + maxY*plane.y + minZ*plane.z > plane.w) culling &= (63 & ~side);
+				if (minX*plane.x + maxY*plane.y + minZ*plane.z > plane.w) culling &= (rootCull & ~side);
 				} else {
 				if (maxX*plane.x + minY*plane.y + minZ*plane.z <= plane.w) return -1;
-				if (minX*plane.x + maxY*plane.y + maxZ*plane.z > plane.w) culling &= (63 & ~side);
+				if (minX*plane.x + maxY*plane.y + maxZ*plane.z > plane.w) culling &= (rootCull & ~side);
 				}
 				else if (plane.y >= 0)
 				if (plane.z >= 0) {
 				if (minX*plane.x + maxY*plane.y + maxZ*plane.z <= plane.w) return -1;
-				if (maxX*plane.x + minY*plane.y + minZ*plane.z > plane.w) culling &= (63 & ~side);
+				if (maxX*plane.x + minY*plane.y + minZ*plane.z > plane.w) culling &= (rootCull & ~side);
 				} else {
 				if (minX*plane.x + maxY*plane.y + minZ*plane.z <= plane.w) return -1;
-				if (maxX*plane.x + minY*plane.y + maxZ*plane.z > plane.w) culling &= (63 & ~side);
+				if (maxX*plane.x + minY*plane.y + maxZ*plane.z > plane.w) culling &= (rootCull & ~side);
 				}
 				else if (plane.z >= 0) {
 				if (minX*plane.x + minY*plane.y + maxZ*plane.z <= plane.w) return -1;
-				if (maxX*plane.x + maxY*plane.y + minZ*plane.z > plane.w) culling &= (63 & ~side);
+				if (maxX*plane.x + maxY*plane.y + minZ*plane.z > plane.w) culling &= (rootCull & ~side);
 				} else {
 				if (minX*plane.x + minY*plane.y + minZ*plane.z <= plane.w) return -1;
-				if (maxX*plane.x + maxY*plane.y + maxZ*plane.z > plane.w) culling &= (63 & ~side);
+				if (maxX*plane.x + maxY*plane.y + maxZ*plane.z > plane.w) culling &= (rootCull & ~side);
 				}
+				
 			}
 			side <<= 1;
 		}
@@ -205,6 +209,8 @@ class Frustum
 	public inline function setup6FromWorldMatrix(te:Array<Float>, screenWhalf:Float, screenHhalf:Float, focalLength:Float, near:Float=0, far:Float=9999999999):Void {
 		var planes:Array<Vec3> = this.planes;
 		var p:Vec3;
+		
+		
 	
 		var vx:Float;
 		var vy:Float;
@@ -220,6 +226,8 @@ class Frustum
 		var cx:Float = te[12];
 		var cy:Float = te[13];
 		var cz:Float = te[14];
+		
+		
 
 		
 		// fan out clockwise 
@@ -235,6 +243,7 @@ class Frustum
 		var tx:Float = ax;
 		var ty:Float = ay;
 		var tz:Float = az;
+
 		
 		vz = -focalLength;
 		vx = screenWhalf;
@@ -246,11 +255,12 @@ class Frustum
 		 vx = ay * bz - az* by;
 		 vy = az * bx - ax * bz;
 		 vz = ax * by - ay * bx;
-
+		
 		 p.x = vx;
 		 p.y = vy;
 		 p.z = vz;
 		 p.w = vx * cx + vy * cy + vz * cz;
+		// p.normalizeAndCalcOffset(cx,cy,cz);
 		p.flip();	 // BUG: need to flip vertical plane for CSS 
 		
 		ax = bx;
@@ -265,6 +275,7 @@ class Frustum
 		bx = ( te[0] * vx + te[4] * vy + te[8] * vz  );
 		by = ( te[1] * vx + te[5] * vy + te[9] * vz  );
 		bz = ( te[2] * vx + te[6] * vy + te[10] * vz  );
+		
 
 		 vx = ay * bz - az* by;
 		 vy = az * bx - ax * bz;
@@ -274,12 +285,13 @@ class Frustum
 		 p.y = vy;
 		 p.z = vz;
 		 p.w = vx * cx + vy * cy + vz * cz;
+		 // p.normalizeAndCalcOffset(cx,cy,cz);
 		 p.flip();	
+		 
 		
 		ax = bx;
 		ay = by;
 		az = bz;
-		
 		
 		// bottom
 		p = planes[2];
@@ -298,12 +310,12 @@ class Frustum
 		 p.y = vy;
 		 p.z = vz;
 		 p.w = vx * cx + vy * cy + vz * cz;
+		//  p.normalizeAndCalcOffset(cx,cy,cz);
 		p.flip();  // BUG: need to flip vertical plane for CSS 
 		
 		ax = bx;
 		ay = by;
 		az = bz;
-		
 		
 		// left
 		p = planes[3];
@@ -318,6 +330,7 @@ class Frustum
 		 p.y = vy;
 		 p.z = vz;
 		 p.w = vx * cx + vy * cy + vz * cz;
+	//	  p.normalizeAndCalcOffset(cx,cy,cz);
 		 p.flip(); // BUG: need to flip for left plane!!
 		
 		
@@ -395,29 +408,25 @@ class Frustum
 		@param 	correctionY = viewSizeY / focalLength;	// viewSizeY
 	 * @return
 	 */
-		/*
-		public function calculateFrustum6(me:Array<Float>, correctionX:Float, correctionY:Float ):Void {
+		///*
+		public function calculateFrustum6(me:Array<Float>, screenWhalf:Float, screenHhalf:Float, focalLength:Float, near:Float=1, far:Float=9999999999 ):Void {
 		
-			var planes:Array<Vec3> = this.planes;
-			var nearPlane:Vec3 = planes[0];
-			var farPlane:Vec3 = planes[1];
-			var leftPlane:Vec3 = planes[2];
-			var rightPlane:Vec3 = planes[3];
-			var topPlane:Vec3 = planes[4];
-			var bottomPlane:Vec3 = planes[5];
+
+			var  correctionX:Float = screenWhalf / focalLength;
+			var  correctionY:Float = screenHhalf / focalLength;
 			
-			var a:Float = me[0];
-			var b:Float = me[1];
-			var c:Float = me[2];
-			var d:Float = me[3];
-			var e:Float = me[4];
-			var f:Float = me[5];
-			var g:Float = me[6];
-			var h:Float = me[7];
-			var i:Float = me[8];
-			var j:Float = me[9];
-			var k:Float = me[10];
-			var l:Float = me[11];
+			
+			var planes:Array<Vec3> = this.planes;
+			var nearPlane:Vec3 = planes[4];
+			var farPlane:Vec3 = planes[5];
+			var leftPlane:Vec3 = planes[3];
+			var rightPlane:Vec3 = planes[1];
+			var topPlane:Vec3 = planes[0];
+			var bottomPlane:Vec3 = planes[2];
+			
+			var a:Float = me[0]; var b:Float = me[1]; var c:Float = me[2]; var d:Float = me[3];
+			var e:Float = me[4]; var f:Float = me[5]; var g:Float = me[6]; var h:Float = me[7];
+			var i:Float = me[8]; var j:Float = me[9]; var k:Float = me[10]; var l:Float = me[11];
 			
 			
 			var fa:Float = a * correctionX;
@@ -429,12 +438,12 @@ class Frustum
 			nearPlane.x = fj * fe - ff * fi;
 			nearPlane.y = fb * fi - fj * fa;
 			nearPlane.z = ff * fa - fb * fe;
-			nearPlane.offset = (d + c * nearClipping) * nearPlane.x + (h + g * nearClipping) * nearPlane.y + (l + k * nearClipping) * nearPlane.z;
+			nearPlane.w = (d + c * near) * nearPlane.x + (h + g * near) * nearPlane.y + (l + k * near) * nearPlane.z;
 
 			farPlane.x = -nearPlane.x;
 			farPlane.y = -nearPlane.y;
 			farPlane.z = -nearPlane.z;
-			farPlane.offset = (d + c * farClipping) * farPlane.x + (h + g * farClipping) * farPlane.y + (l + k * farClipping) * farPlane.z;
+			farPlane.w = (d + c * far) * farPlane.x + (h + g * far) * farPlane.y + (l + k * far) * farPlane.z;
 
 			var ax:Float = -fa - fb + c;
 			var ay:Float = -fe - ff + g;
@@ -445,7 +454,7 @@ class Frustum
 			topPlane.x = bz * ay - by * az;
 			topPlane.y = bx * az - bz * ax;
 			topPlane.z = by * ax - bx * ay;
-			topPlane.offset = d * topPlane.x + h * topPlane.y + l * topPlane.z;
+			topPlane.w = d * topPlane.x + h * topPlane.y + l * topPlane.z;
 			// Right plane.
 			ax = bx;
 			ay = by;
@@ -456,7 +465,7 @@ class Frustum
 			rightPlane.x = bz * ay - by * az;
 			rightPlane.y = bx * az - bz * ax;
 			rightPlane.z = by * ax - bx * ay;
-			rightPlane.offset = d * rightPlane.x + h * rightPlane.y + l * rightPlane.z;
+			rightPlane.w = d * rightPlane.x + h * rightPlane.y + l * rightPlane.z;
 			// Bottom plane.
 			ax = bx;
 			ay = by;
@@ -467,7 +476,7 @@ class Frustum
 			bottomPlane.x = bz*ay - by*az;
 			bottomPlane.y = bx*az - bz*ax;
 			bottomPlane.z = by*ax - bx*ay;
-			bottomPlane.offset = d*bottomPlane.x + h*bottomPlane.y + l*bottomPlane.z;
+			bottomPlane.w = d*bottomPlane.x + h*bottomPlane.y + l*bottomPlane.z;
 			// Left plane.
 			ax = bx;
 			ay = by;
@@ -478,10 +487,10 @@ class Frustum
 			leftPlane.x = bz*ay - by*az;
 			leftPlane.y = bx*az - bz*ax;
 			leftPlane.z = by*ax - bx*ay;
-			leftPlane.offset = d*leftPlane.x + h*leftPlane.y + l*leftPlane.z;
+			leftPlane.w = d*leftPlane.x + h*leftPlane.y + l*leftPlane.z;
 			
 		}
-		*/
+	//	*/
 	
 	
 	

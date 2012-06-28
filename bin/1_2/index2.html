@@ -292,32 +292,26 @@
 					var s;
 					var len = sectors.length;
 					
-					var p = frustum.planes[4];		
-					var n = frustum.planes[0];
-					
-					marker.style["-webkit-transform"] = "translate3d("+Math.round(camPos.x+p.x*focalLen-n.x*counter)+"px,"+Math.round(camPos.y+p.y*focalLen+n.y*counter)+"px,"+Math.round(camPos.z+p.z*focalLen+n.z*counter)+"px)";
+					s = sectors[0];
+					marker.style["-webkit-transform"] = "translate3d("+Math.round(s.minX)+"px,"+Math.round(s.minY)+"px,"+Math.round(s.minZ)+"px)";
 					//js.Boot.__trace(frustum);
 					for (i=0; i < len; i++) {
 					
 						s = sectors[i];
 						var culling;
-						if ( (culling=frustum.checkFrustumCulling(s, 1)) > 0) {
-							s.dom.style.opacity = ".75";
+						if ( (culling=frustum.checkFrustumCulling(s, 63)) >= 0) {
+							s.dom.style.display = "block";
 						}
 						else {
-							
-							s.dom.style.opacity = "1";
-							if (culling == -1) {
-								s.dom.style.opacity = .2;
-							}
+							s.dom.style.opacity = "none";
 						}
 						
-						s.dom.style.display = i==0 ? 'block' : 'none';
-						if (i==0) tracer.innerHTML = culling + ", "+frustum.planes;
+						//s.dom.style.display = i==0 ? 'block' : 'none';
+						if (i==0) tracer.innerHTML = culling + ", "+frustum.planes; // check first plane value
 						
 						
 					}
-					//tracer.innerHTML = [Math.round(camPos.x), Math.round(camPos.y), Math.round(camPos.z)];//glidias.AABBUtils.getString(sectors[0]);
+			//		tracer.innerHTML = [Math.round(camPos.x), Math.round(camPos.y), Math.round(camPos.z)] + " :: " + [css3D.getCamWorldMatrix()[12],css3D.getCamWorldMatrix()[13],css3D.getCamWorldMatrix()[14]];//glidias.AABBUtils.getString(sectors[0]);
 					
 				});
 			});

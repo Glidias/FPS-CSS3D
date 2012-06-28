@@ -9,6 +9,9 @@ function CSS3D() {
 		this.getCamera = function() {
 			return camera;
 		};
+		this.getCamWorldMatrix = function() {
+			return _camWorldMatrix;
+		}
 		var _preRender= function() {};
        this.preRender = function(val) {
 		  _preRender = val;
@@ -86,44 +89,33 @@ var ffindex2 = navigator.userAgent.indexOf('Firefox');
 			
 			// calculate world frustum
 			camera.matrixWorld.flattenToArray( _camWorldMatrix);
+			
+			
 			//setup6FromWorldMatrix(te:Array<Float>, screenWhalf:Float, screenHhalf:Float, focalLength:Float, near:Float=0, far:Float=9999999999):Void {
-			
-			_frustum.setup6FromWorldMatrix( _camWorldMatrix, screenWhalf, screenHhalf, fovValue, 0, 99999999999 );
-				/*
-			var ax, ay, az, bx, by,bz,vx,vy,vz;
-			var te = _camWorldMatrix;
-		
-			vz = -fovValue;
-			vx = -screenWhalf;
-			vy = -screenHhalf;
-			ax = ( te[0] * vx + te[4] * vy + te[8] * vz  );
-			ay = ( te[1] * vx + te[5] * vy + te[9] * vz  );
-			az = ( te[2] * vx + te[6] * vy + te[10] * vz  );
-			
-			
-			vz = -fovValue;
-			vx =screenWhalf;
-			vy = -screenHhalf;
-			bx = ( te[0] * vx + te[4] * vy + te[8] * vz  );
-			by = ( te[1] * vx + te[5] * vy + te[9] * vz  );
-			bz = ( te[2] * vx + te[6] * vy + te[10] * vz  );
-			
 	
-		_frustum.planes[5].x = bx ;
-		_frustum.planes[5].y = by  ;
-		_frustum.planes[5].z = bz ;
-		
-		var vec = new glidias.Vec3(ax, ay, az);
-		vec = vec.crossProduct( new glidias.Vec3(bx,by,bz) );
-		//vec.normalize();
-		alert(vec + ", "+_frustum.planes[0]);
-		
-			*/
+			//
+//var n11 = me[0], n12 = me[4], n13 = me[8], n14 = me[12];
+//var n21 = me[1], n22 = me[5], n23 = me[9], n24 = me[13];
+//var n31 = me[2], n32 = me[6], n33 = me[10], n34 = me[14];
+//var n41 = me[3], n42 = me[7], n43 = me[11], n44 = me[15];
 
+//21, 22, 23,24
+			//	f = [a.n11, -a.n21, a.n31, a.n41, a.n12, -a.n22, a.n32, a.n42, a.n13, -a.n23, a.n33, a.n43, a.n14, -a.n24, a.n34, a.n44, ]
+		//	_camWorldMatrix[1] = -_camWorldMatrix[1];
+		//	_camWorldMatrix[5] = -_camWorldMatrix[5];
+		//	_camWorldMatrix[9] = -_camWorldMatrix[9];
+			//_camWorldMatrix[13] = -_camWorldMatrix[13];
+			
+			
+			
+			_frustum.setup6FromWorldMatrix( _camWorldMatrix, screenWhalf, screenHhalf, fovValue, 1, 99999999999 );
+			//_frustum.calculateFrustum6( _camWorldMatrix, screenWhalf, screenHhalf, fovValue, 1, 99999999999 );
 			
 			_preRender();
             setCSSCamera(camera, fovValue);
         }
+		
+	
 		
 		
         /************************************************************************/
