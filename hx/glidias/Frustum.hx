@@ -10,7 +10,7 @@ class Frustum
 	public var planes:Array<Vec3>;
 
 
-	private function new() 
+	public function new() 
 	{
 		planes = new Array<Vec3>();
 	}
@@ -48,6 +48,8 @@ class Frustum
 		return me;
 	}
 	
+
+	
 	/**
 	 * Sets up 4 planes based on portal.
 	 * @param	camX
@@ -56,9 +58,10 @@ class Frustum
 	 * @param	pts
 	 * @param	o	Offset plane index to start assignign values from. Defaulted to 0.
 	 */
-	public inline function setup4FromPortal(camX:Float, camY:Float, camZ:Float, pts:Array<Vec3>, o:Int=0):Void {
+	public inline function setup4FromPortal(camX:Float, camY:Float, camZ:Float, pts:Array<Vec3>, o:Int=0):Frustum {
 		var a:Vec3;
 		var b:Vec3;
+		
 		
 		var ax:Float, ay:Float, az:Float;
 		var bx:Float, by:Float, bz:Float;
@@ -82,6 +85,9 @@ class Frustum
 		p.x = vx;
 		p.y = vy;
 		p.z = vz;
+		p.w = vx * camX + vy * camY + vz * camZ;
+	//	p.flip();	 // BUG: need to flip  plane for CSS 
+		
 		o++;
 		
 		p = planes[o];
@@ -99,6 +105,8 @@ class Frustum
 		p.x = vx;
 		p.y = vy;
 		p.z = vz;
+		p.w = vx * camX + vy * camY + vz * camZ;
+	//	p.flip();	 // BUG: need to flip  plane for CSS 
 		o++;
 		
 		p = planes[o];
@@ -116,11 +124,13 @@ class Frustum
 		p.x = vx;
 		p.y = vy;
 		p.z = vz;
+		p.w = vx * camX + vy * camY + vz * camZ;
+	//	p.flip();	 // BUG: need to flip  plane for CSS 
 		o++;
 		
 		p = planes[o];
 		a = pts[3];
-		b = pts[4];
+		b = pts[0];
 		ax =b.x - camX;
 		ay = b.y - camY;
 		az = b.z - camZ;
@@ -133,6 +143,10 @@ class Frustum
 		p.x = vx;
 		p.y = vy;
 		p.z = vz;
+		p.w = vx * camX + vy * camY + vz * camZ;
+	//	p.flip();	 // BUG: need to flip  plane for CSS 
+		
+		return this;
 		
 	}
 	
@@ -142,7 +156,7 @@ class Frustum
 	 * @param	culling	A culling bitmask for which planes to necessarily check.
 	 * @return	The culling bitmask
 	 */
-	public inline function checkFrustumCulling(a:IAABB, culling:Int):Int {
+	public  function checkFrustumCulling(a:IAABB, culling:Int):Int {
 		var side:Int = 1;
 		var planes = this.planes;
 		var len = planes.length;
@@ -358,12 +372,13 @@ class Frustum
 
 	}
 	
+	
 
 	/**
 	 * Ported from THREE.JS.  Doesn't seem to work though..Hmm...
 	 * @param	me
 	 */
-	///*
+	/*
 	public inline function setup6FromProjMatrix(me:Array<Float>):Void {
 		var plane:Vec3; 
 		var planes:Array<Vec3> = this.planes;
@@ -398,7 +413,7 @@ class Frustum
 		plane = planes[ 5 ];
 		plane.divideScalar( Math.sqrt( plane.x * plane.x + plane.y * plane.y + plane.z * plane.z ) );
 	}
-	//*/
+	*/
 	
 	
 	/**  
@@ -408,7 +423,7 @@ class Frustum
 		@param 	correctionY = viewSizeY / focalLength;	// viewSizeY
 	 * @return
 	 */
-		///*
+		/*
 		public function calculateFrustum6(me:Array<Float>, screenWhalf:Float, screenHhalf:Float, focalLength:Float, near:Float=1, far:Float=9999999999 ):Void {
 		
 
@@ -490,7 +505,7 @@ class Frustum
 			leftPlane.w = d*leftPlane.x + h*leftPlane.y + l*leftPlane.z;
 			
 		}
-	//	*/
+		*/
 	
 	
 	

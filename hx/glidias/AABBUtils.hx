@@ -31,6 +31,10 @@ class AABBUtils
 		return "AABB: "+[aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ];
 	}
 	
+	public static inline function pointInside(aabb:IAABB, pt:Vec3):Bool {
+		return !(pt.x < aabb.minX || pt.y < aabb.minY || pt.z < aabb.minZ || pt.x > aabb.maxX || pt.y > aabb.maxY || pt.z > aabb.maxZ);
+	}
+	
 	
 	
 	public static function match(aabb:IAABB, refAABB:IAABB):Void {

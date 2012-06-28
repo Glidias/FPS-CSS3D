@@ -25,11 +25,56 @@ class AABBSector implements IAABB
 	public var ceilHeight:Float;  // 3d ceiling height offset
 	public var groundPos:Float;   // 3d ground position offfset
 	
+	
+	public var dom:Dynamic;
+	public inline function setVis(val:Bool):Void {
+		dom.style.visibility = val ? "visible" : "hidden";
+	}
+	
 
 	public function new() 
 	{
 		renderId = -999999999;	
 	}
+	
+	
+	// conveneint recursive method
+	public  function checkVis(camPos:Vec3, buffer:AllocatorF<Frustum>, frus:Frustum, visibleSectors:ArrayBuffer<AABBSector>, culling:Int, renderId:Int):Void {
+		setVis(true);
+		this.renderId = renderId;  // prevent infinite render twice situations..
+		visibleSectors.push(this);
+		
+		var c:Int;
+		var p:AABBPortalPlane;
+		var ptl;
+		var pl:Int;
+		var cp:Int;
+		var portal:AABBPortal;
+		var len = portalWalls.length;
+		var port:AABBSector;
+	
+		for (i in 0...len) {
+			p = portalWalls[i];
+			if ( (c = frus.checkFrustumCulling(p, culling)) >= 0) {
+				ptl = p.portals;
+				pl = ptl.length;
+				for (u in 0...pl) {
+					portal = ptl[u];
+					if ((cp = frus.checkFrustumCulling(portal, c)) >= 0) {
+						port = portal.target;
+						if (port == null) continue;
+						visibleSectors.push(port);
+						if (port.renderId != renderId) port.checkVis(camPos, buffer, buffer.get().setup4FromPortal(camPos.x, camPos.y, camPos.z, portal.points, 0), visibleSectors, cp, renderId);
+					}
+				}
+			};
+		}
+	
+	}
+	
+
+	
+	
 	
 	public inline function setup(rect:Rectangle, gridSize:Float, height:Float, groundPos:Float = 0):Void {  
 		AABBUtils.reset(this);
@@ -125,6 +170,8 @@ class AABBSector implements IAABB
 		//maxY = 256;
 	
 	}
+	
+	
 	
 	public inline function getWallHTML(direction:Int, mat:String, gridSize:Float):String {
 		return AABBPortalPlane.getPlaneResult(AABBPortalPlane.DIRECTIONS[direction], this, gridSize).getHTML(mat);

@@ -1,386 +1,478 @@
 $estr = function() { return js.Boot.__string_rec(this,''); }
-if(typeof js=='undefined') js = {}
-js.Boot = function() { }
-js.Boot.__name__ = ["js","Boot"];
-js.Boot.__unhtml = function(s) {
-	return s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
+if(typeof glidias=='undefined') glidias = {}
+glidias.Frustum = function(p) { if( p === $_ ) return; {
+	this.planes = new Array();
+}}
+glidias.Frustum.__name__ = ["glidias","Frustum"];
+glidias.Frustum.create6 = function() {
+	var me = new glidias.Frustum();
+	var planes = me.planes;
+	planes[0] = new glidias.Vec3(0,0,0,0);
+	planes[1] = new glidias.Vec3(0,0,0,0);
+	planes[2] = new glidias.Vec3(0,0,0,0);
+	planes[3] = new glidias.Vec3(0,0,0,0);
+	planes[4] = new glidias.Vec3(0,0,0,0);
+	planes[5] = new glidias.Vec3(0,0,0,0);
+	return me;
 }
-js.Boot.__trace = function(v,i) {
-	var msg = i != null?i.fileName + ":" + i.lineNumber + ": ":"";
-	msg += js.Boot.__unhtml(js.Boot.__string_rec(v,"")) + "<br/>";
-	var d = document.getElementById("haxe:trace");
-	if(d == null) alert("No haxe:trace element defined\n" + msg);
-	else d.innerHTML += msg;
+glidias.Frustum.create4 = function() {
+	var me = new glidias.Frustum();
+	var planes = me.planes;
+	planes[0] = new glidias.Vec3(0,0,0,0);
+	planes[1] = new glidias.Vec3(0,0,0,0);
+	planes[2] = new glidias.Vec3(0,0,0,0);
+	planes[3] = new glidias.Vec3(0,0,0,0);
+	return me;
 }
-js.Boot.__clear_trace = function() {
-	var d = document.getElementById("haxe:trace");
-	if(d != null) d.innerHTML = "";
-	else null;
+glidias.Frustum.prototype.planes = null;
+glidias.Frustum.prototype.toString = function() {
+	return "[[Frustum]" + this.planes + "]]";
 }
-js.Boot.__closure = function(o,f) {
-	var m = o[f];
-	if(m == null) return null;
-	var f1 = function() {
-		return m.apply(o,arguments);
+glidias.Frustum.prototype.fillNewPlanes = function() {
+	var len = this.planes.length;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			this.planes[i] = new glidias.Vec3(0,0,0,0);
+		}
 	}
-	f1.scope = o;
-	f1.method = m;
-	return f1;
 }
-js.Boot.__string_rec = function(o,s) {
-	if(o == null) return "null";
-	if(s.length >= 5) return "<...>";
-	var t = typeof(o);
-	if(t == "function" && (o.__name__ != null || o.__ename__ != null)) t = "object";
-	switch(t) {
-	case "object":{
-		if(o instanceof Array) {
-			if(o.__enum__ != null) {
-				if(o.length == 2) return o[0];
-				var str = o[0] + "(";
-				s += "\t";
-				{
-					var _g1 = 2, _g = o.length;
-					while(_g1 < _g) {
-						var i = _g1++;
-						if(i != 2) str += "," + js.Boot.__string_rec(o[i],s);
-						else str += js.Boot.__string_rec(o[i],s);
+glidias.Frustum.prototype.setup4FromPortal = function(camX,camY,camZ,pts,o) {
+	if(o == null) o = 0;
+	var a;
+	var b;
+	var ax, ay, az;
+	var bx, by, bz;
+	var vx, vy, vz;
+	var p;
+	var planes = this.planes;
+	p = planes[o];
+	a = pts[0];
+	b = pts[1];
+	ax = b.x - camX;
+	ay = b.y - camY;
+	az = b.z - camZ;
+	bx = a.x - camX;
+	by = a.y - camY;
+	bz = a.z - camZ;
+	vx = ay * bz - az * by;
+	vy = az * bx - ax * bz;
+	vz = ax * by - ay * bx;
+	p.x = vx;
+	p.y = vy;
+	p.z = vz;
+	p.w = vx * camX + vy * camY + vz * camZ;
+	o++;
+	p = planes[o];
+	a = pts[1];
+	b = pts[2];
+	ax = b.x - camX;
+	ay = b.y - camY;
+	az = b.z - camZ;
+	bx = a.x - camX;
+	by = a.y - camY;
+	bz = a.z - camZ;
+	vx = ay * bz - az * by;
+	vy = az * bx - ax * bz;
+	vz = ax * by - ay * bx;
+	p.x = vx;
+	p.y = vy;
+	p.z = vz;
+	p.w = vx * camX + vy * camY + vz * camZ;
+	o++;
+	p = planes[o];
+	a = pts[2];
+	b = pts[3];
+	ax = b.x - camX;
+	ay = b.y - camY;
+	az = b.z - camZ;
+	bx = a.x - camX;
+	by = a.y - camY;
+	bz = a.z - camZ;
+	vx = ay * bz - az * by;
+	vy = az * bx - ax * bz;
+	vz = ax * by - ay * bx;
+	p.x = vx;
+	p.y = vy;
+	p.z = vz;
+	p.w = vx * camX + vy * camY + vz * camZ;
+	o++;
+	p = planes[o];
+	a = pts[3];
+	b = pts[0];
+	ax = b.x - camX;
+	ay = b.y - camY;
+	az = b.z - camZ;
+	bx = a.x - camX;
+	by = a.y - camY;
+	bz = a.z - camZ;
+	vx = ay * bz - az * by;
+	vy = az * bx - ax * bz;
+	vz = ax * by - ay * bx;
+	p.x = vx;
+	p.y = vy;
+	p.z = vz;
+	p.w = vx * camX + vy * camY + vz * camZ;
+	return this;
+}
+glidias.Frustum.prototype.checkFrustumCulling = function(a,culling) {
+	var side = 1;
+	var planes = this.planes;
+	var len = planes.length;
+	var minX = a.minX;
+	var minY = a.minY;
+	var minZ = a.minZ;
+	var maxX = a.maxX;
+	var maxY = a.maxY;
+	var maxZ = a.maxZ;
+	var rootCull = culling;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			var plane = planes[i];
+			if((culling & side) != 0) {
+				if(plane.x >= 0) {
+					if(plane.y >= 0) {
+						if(plane.z >= 0) {
+							if(maxX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return -1;
+							if(minX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
+						}
+						else {
+							if(maxX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return -1;
+							if(minX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
+						}
+					}
+					else if(plane.z >= 0) {
+						if(maxX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return -1;
+						if(minX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
+					}
+					else {
+						if(maxX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return -1;
+						if(minX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
 					}
 				}
-				return str + ")";
-			}
-			var l = o.length;
-			var i;
-			var str = "[";
-			s += "\t";
-			{
-				var _g = 0;
-				while(_g < l) {
-					var i1 = _g++;
-					str += (i1 > 0?",":"") + js.Boot.__string_rec(o[i1],s);
+				else if(plane.y >= 0) {
+					if(plane.z >= 0) {
+						if(minX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return -1;
+						if(maxX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
+					}
+					else {
+						if(minX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return -1;
+						if(maxX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
+					}
+				}
+				else if(plane.z >= 0) {
+					if(minX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return -1;
+					if(maxX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
+				}
+				else {
+					if(minX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return -1;
+					if(maxX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
 				}
 			}
-			str += "]";
-			return str;
+			side <<= 1;
 		}
-		var tostr;
-		try {
-			tostr = o.toString;
-		}
-		catch( $e0 ) {
-			{
-				var e = $e0;
-				{
-					return "???";
-				}
-			}
-		}
-		if(tostr != null && tostr != Object.toString) {
-			var s2 = o.toString();
-			if(s2 != "[object Object]") return s2;
-		}
-		var k = null;
-		var str = "{\n";
-		s += "\t";
-		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) { ;
-		if(hasp && !o.hasOwnProperty(k)) continue;
-		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__") continue;
-		if(str.length != 2) str += ", \n";
-		str += s + k + " : " + js.Boot.__string_rec(o[k],s);
-		}
-		s = s.substring(1);
-		str += "\n" + s + "}";
-		return str;
-	}break;
-	case "function":{
-		return "<function>";
-	}break;
-	case "string":{
-		return o;
-	}break;
-	default:{
-		return String(o);
-	}break;
 	}
+	return culling;
 }
-js.Boot.__interfLoop = function(cc,cl) {
-	if(cc == null) return false;
-	if(cc == cl) return true;
-	var intf = cc.__interfaces__;
-	if(intf != null) {
-		var _g1 = 0, _g = intf.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var i1 = intf[i];
-			if(i1 == cl || js.Boot.__interfLoop(i1,cl)) return true;
-		}
+glidias.Frustum.prototype.setup6FromWorldMatrix = function(te,screenWhalf,screenHhalf,focalLength,near,far) {
+	if(far == null) far = 9999999999;
+	if(near == null) near = 0;
+	var planes = this.planes;
+	var p;
+	var vx;
+	var vy;
+	var vz;
+	var ax;
+	var ay;
+	var az;
+	var bx;
+	var by;
+	var bz;
+	var cx = te[12];
+	var cy = te[13];
+	var cz = te[14];
+	p = planes[0];
+	vz = -focalLength;
+	vx = -screenWhalf;
+	vy = -screenHhalf;
+	ax = te[0] * vx + te[4] * vy + te[8] * vz;
+	ay = te[1] * vx + te[5] * vy + te[9] * vz;
+	az = te[2] * vx + te[6] * vy + te[10] * vz;
+	var tx = ax;
+	var ty = ay;
+	var tz = az;
+	vz = -focalLength;
+	vx = screenWhalf;
+	vy = -screenHhalf;
+	bx = te[0] * vx + te[4] * vy + te[8] * vz;
+	by = te[1] * vx + te[5] * vy + te[9] * vz;
+	bz = te[2] * vx + te[6] * vy + te[10] * vz;
+	vx = ay * bz - az * by;
+	vy = az * bx - ax * bz;
+	vz = ax * by - ay * bx;
+	p.x = vx;
+	p.y = vy;
+	p.z = vz;
+	p.w = vx * cx + vy * cy + vz * cz;
+	{
+		p.x = -p.x;
+		p.y = -p.y;
+		p.z = -p.z;
+		p.w = -p.w;
 	}
-	return js.Boot.__interfLoop(cc.__super__,cl);
+	ax = bx;
+	ay = by;
+	az = bz;
+	p = planes[1];
+	vz = -focalLength;
+	vx = screenWhalf;
+	vy = screenHhalf;
+	bx = te[0] * vx + te[4] * vy + te[8] * vz;
+	by = te[1] * vx + te[5] * vy + te[9] * vz;
+	bz = te[2] * vx + te[6] * vy + te[10] * vz;
+	vx = ay * bz - az * by;
+	vy = az * bx - ax * bz;
+	vz = ax * by - ay * bx;
+	p.x = vx;
+	p.y = vy;
+	p.z = vz;
+	p.w = vx * cx + vy * cy + vz * cz;
+	{
+		p.x = -p.x;
+		p.y = -p.y;
+		p.z = -p.z;
+		p.w = -p.w;
+	}
+	ax = bx;
+	ay = by;
+	az = bz;
+	p = planes[2];
+	vz = -focalLength;
+	vx = -screenWhalf;
+	vy = screenHhalf;
+	bx = te[0] * vx + te[4] * vy + te[8] * vz;
+	by = te[1] * vx + te[5] * vy + te[9] * vz;
+	bz = te[2] * vx + te[6] * vy + te[10] * vz;
+	vx = ay * bz - az * by;
+	vy = az * bx - ax * bz;
+	vz = ax * by - ay * bx;
+	p.x = vx;
+	p.y = vy;
+	p.z = vz;
+	p.w = vx * cx + vy * cy + vz * cz;
+	{
+		p.x = -p.x;
+		p.y = -p.y;
+		p.z = -p.z;
+		p.w = -p.w;
+	}
+	ax = bx;
+	ay = by;
+	az = bz;
+	p = planes[3];
+	bx = tx;
+	by = ty;
+	bz = tz;
+	vx = ay * bz - az * by;
+	vy = az * bx - ax * bz;
+	vz = ax * by - ay * bx;
+	p.x = vx;
+	p.y = vy;
+	p.z = vz;
+	p.w = vx * cx + vy * cy + vz * cz;
+	{
+		p.x = -p.x;
+		p.y = -p.y;
+		p.z = -p.z;
+		p.w = -p.w;
+	}
+	vx = 0;
+	vy = 0;
+	vz = -1;
+	tx = te[0] * vx + te[4] * vy + te[8] * vz;
+	ty = te[1] * vx + te[5] * vy + te[9] * vz;
+	tz = te[2] * vx + te[6] * vy + te[10] * vz;
+	p = planes[4];
+	p.x = tx;
+	p.y = ty;
+	p.z = tz;
+	p.w = tx * cx + ty * cy + tz * cz;
+	p = planes[5];
+	p.x = tx;
+	p.y = ty;
+	p.z = tz;
+	p.w = tx * cx + ty * cy + tz * cz;
 }
-js.Boot.__instanceof = function(o,cl) {
-	try {
-		if(o instanceof cl) {
-			if(cl == Array) return o.__enum__ == null;
-			return true;
-		}
-		if(js.Boot.__interfLoop(o.__class__,cl)) return true;
-	}
-	catch( $e0 ) {
-		{
-			var e = $e0;
-			{
-				if(cl == null) return false;
-			}
-		}
-	}
-	switch(cl) {
-	case Int:{
-		return Math.ceil(o%2147483648.0) === o;
-	}break;
-	case Float:{
-		return typeof(o) == "number";
-	}break;
-	case Bool:{
-		return o === true || o === false;
-	}break;
-	case String:{
-		return typeof(o) == "string";
-	}break;
-	case Dynamic:{
-		return true;
-	}break;
-	default:{
-		if(o == null) return false;
-		return o.__enum__ == cl || cl == Class && o.__name__ != null || cl == Enum && o.__ename__ != null;
-	}break;
-	}
-}
-js.Boot.__init = function() {
-	js.Lib.isIE = typeof document!='undefined' && document.all != null && typeof window!='undefined' && window.opera == null;
-	js.Lib.isOpera = typeof window!='undefined' && window.opera != null;
-	Array.prototype.copy = Array.prototype.slice;
-	Array.prototype.insert = function(i,x) {
-		this.splice(i,0,x);
-	}
-	Array.prototype.remove = Array.prototype.indexOf?function(obj) {
-		var idx = this.indexOf(obj);
-		if(idx == -1) return false;
-		this.splice(idx,1);
-		return true;
-	}:function(obj) {
-		var i = 0;
-		var l = this.length;
-		while(i < l) {
-			if(this[i] == obj) {
-				this.splice(i,1);
-				return true;
-			}
-			i++;
-		}
-		return false;
-	}
-	Array.prototype.iterator = function() {
-		return { cur : 0, arr : this, hasNext : function() {
-			return this.cur < this.arr.length;
-		}, next : function() {
-			return this.arr[this.cur++];
-		}};
-	}
-	if(String.prototype.cca == null) String.prototype.cca = String.prototype.charCodeAt;
-	String.prototype.charCodeAt = function(i) {
-		var x = this.cca(i);
-		if(x != x) return null;
-		return x;
-	}
-	var oldsub = String.prototype.substr;
-	String.prototype.substr = function(pos,len) {
-		if(pos != null && pos != 0 && len != null && len < 0) return "";
-		if(len == null) len = this.length;
-		if(pos < 0) {
-			pos = this.length + pos;
-			if(pos < 0) pos = 0;
-		}
-		else if(len < 0) {
-			len = this.length + len - pos;
-		}
-		return oldsub.apply(this,[pos,len]);
-	}
-	$closure = js.Boot.__closure;
-}
-js.Boot.prototype.__class__ = js.Boot;
-js.Lib = function() { }
-js.Lib.__name__ = ["js","Lib"];
-js.Lib.isIE = null;
-js.Lib.isOpera = null;
-js.Lib.document = null;
-js.Lib.window = null;
-js.Lib.alert = function(v) {
-	alert(js.Boot.__string_rec(v,""));
-}
-js.Lib.eval = function(code) {
-	return eval(code);
-}
-js.Lib.setErrorHandler = function(f) {
-	js.Lib.onerror = f;
-}
-js.Lib.prototype.__class__ = js.Lib;
-if(typeof glidias=='undefined') glidias = {}
-glidias.Vec3 = function(x,y,z,w) { if( x === $_ ) return; {
-	if(w == null) w = 0;
-	this.x = x;
-	this.y = y;
-	this.z = z;
-	this.w = w;
+glidias.Frustum.prototype.__class__ = glidias.Frustum;
+glidias.IAABB = function() { }
+glidias.IAABB.__name__ = ["glidias","IAABB"];
+glidias.IAABB.prototype.minX = null;
+glidias.IAABB.prototype.minY = null;
+glidias.IAABB.prototype.minZ = null;
+glidias.IAABB.prototype.maxX = null;
+glidias.IAABB.prototype.maxY = null;
+glidias.IAABB.prototype.maxZ = null;
+glidias.IAABB.prototype.__class__ = glidias.IAABB;
+glidias.AABBPortal = function(p) { if( p === $_ ) return; {
+	this.points = new Array();
 }}
-glidias.Vec3.__name__ = ["glidias","Vec3"];
-glidias.Vec3.prototype.x = null;
-glidias.Vec3.prototype.y = null;
-glidias.Vec3.prototype.z = null;
-glidias.Vec3.prototype.w = null;
-glidias.Vec3.prototype.toString = function() {
-	return "[Vec3 " + this.x + "," + this.y + "," + this.z + "]";
-}
-glidias.Vec3.prototype.normalize = function() {
-	var mag = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-	if(mag != 0 && mag != 1) {
-		mag = 1 / mag;
-		this.x *= mag;
-		this.y *= mag;
-		this.z *= mag;
+glidias.AABBPortal.__name__ = ["glidias","AABBPortal"];
+glidias.AABBPortal.prototype.minX = null;
+glidias.AABBPortal.prototype.minY = null;
+glidias.AABBPortal.prototype.minZ = null;
+glidias.AABBPortal.prototype.maxX = null;
+glidias.AABBPortal.prototype.maxY = null;
+glidias.AABBPortal.prototype.maxZ = null;
+glidias.AABBPortal.prototype.points = null;
+glidias.AABBPortal.prototype.width = null;
+glidias.AABBPortal.prototype.height = null;
+glidias.AABBPortal.prototype.target = null;
+glidias.AABBPortal.prototype.id = null;
+glidias.AABBPortal.prototype.getReverse = function(newTarget,direction,version2) {
+	if(version2 == null) version2 = false;
+	var meNew = new glidias.AABBPortal();
+	glidias.AABBUtils.match(meNew,this);
+	if(!version2) {
+		if(direction == 1) {
+			meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]];
+		}
+		else if(direction == 0) {
+			meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]];
+		}
+		else if(direction == 2) {
+			meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]];
+		}
+		else {
+			meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]];
+		}
 	}
+	else {
+		if(direction == 1) {
+			meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]];
+		}
+		else if(direction == 0) {
+			meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]];
+		}
+		else if(direction == 2) {
+			meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]];
+		}
+		else {
+			meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]];
+		}
+	}
+	meNew.width = this.width;
+	meNew.height = this.height;
+	meNew.target = newTarget;
+	return meNew;
 }
-glidias.Vec3.prototype.normalizeAndCalcOffset = function(px,py,pz) {
-	this.normalize();
-	this.w = this.x * px + py * this.y + pz * this.z;
+glidias.AABBPortal.prototype.traceValid = function() {
+	if(this.points[0].z <= 0) haxe.Log.trace("Invalid first point z!" + this.points[0].z,{ fileName : "AABBPortal.hx", lineNumber : 99, className : "glidias.AABBPortal", methodName : "traceValid"});
+	if(this.points[0].z == this.points[2].z) haxe.Log.trace("Invalid first point z 2222!",{ fileName : "AABBPortal.hx", lineNumber : 100, className : "glidias.AABBPortal", methodName : "traceValid"});
 }
-glidias.Vec3.prototype.set = function(x,y,z,w) {
-	if(w == null) w = 0;
-	this.x = x;
-	this.y = y;
-	this.z = z;
-	this.w = w;
+glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doorHeight,groundPos) {
+	this.target = target;
+	this.height = doorHeight;
+	this.width = doorWidth;
+	var south = glidias.AABBPortalPlane.DIRECTIONS[2];
+	var east = glidias.AABBPortalPlane.DIRECTIONS[3];
+	var up = glidias.AABBPortalPlane.UP;
+	var dir = glidias.AABBPortalPlane.getDoorDir(door);
+	var sx = door.x;
+	var sy = door.y;
+	var reverse = dir == 0 || dir == 1;
+	if(reverse) {
+		if(dir == 1) {
+			sx += 1;
+		}
+		else {
+			sy += 1;
+		}
+	}
+	{
+		this.minX = 1.7976931348623157e+308;
+		this.minY = 1.7976931348623157e+308;
+		this.minZ = 1.7976931348623157e+308;
+		this.maxX = -1.7976931348623157e+308;
+		this.maxY = -1.7976931348623157e+308;
+		this.maxZ = -1.7976931348623157e+308;
+	}
+	var px;
+	var py;
+	var pz;
+	var p;
+	p = sy * gridSize;
+	px = south.x * p;
+	py = south.y * p;
+	pz = south.z * p;
+	p = sx * gridSize;
+	px += east.x * p;
+	py += east.y * p;
+	pz += east.z * p;
+	p = groundPos + doorHeight;
+	px += up.x * p;
+	py += up.y * p;
+	pz += up.z * p;
+	this.points.push(new glidias.Vec3(px,py,pz,1));
+	p = sy * gridSize;
+	px = south.x * p;
+	py = south.y * p;
+	pz = south.z * p;
+	p = sx * gridSize;
+	px += east.x * p;
+	py += east.y * p;
+	pz += east.z * p;
+	p = groundPos;
+	px += up.x * p;
+	py += up.y * p;
+	pz += up.z * p;
+	this.points.push(new glidias.Vec3(px,py,pz,1));
+	if((dir & 1) != 0) {
+		sy += 1;
+	}
+	else {
+		sx += 1;
+	}
+	p = sy * gridSize;
+	px = south.x * p;
+	py = south.y * p;
+	pz = south.z * p;
+	p = sx * gridSize;
+	px += east.x * p;
+	py += east.y * p;
+	pz += east.z * p;
+	p = groundPos;
+	px += up.x * p;
+	py += up.y * p;
+	pz += up.z * p;
+	this.points.push(new glidias.Vec3(px,py,pz,1));
+	p = sy * gridSize;
+	px = south.x * p;
+	py = south.y * p;
+	pz = south.z * p;
+	p = sx * gridSize;
+	px += east.x * p;
+	py += east.y * p;
+	pz += east.z * p;
+	p = groundPos + doorHeight;
+	px += up.x * p;
+	py += up.y * p;
+	pz += up.z * p;
+	this.points.push(new glidias.Vec3(px,py,pz,1));
+	if((dir & 1) != 0) {
+		if(!reverse) this.points = [this.points[3],this.points[0],this.points[1],this.points[2]];
+	}
+	else {
+		if(reverse) this.points = [this.points[3],this.points[0],this.points[1],this.points[2]];
+	}
+	glidias.AABBUtils.expandWithPoint(this.points[0],this);
+	glidias.AABBUtils.expandWithPoint(this.points[2],this);
+	return dir;
 }
-glidias.Vec3.prototype.add3 = function(x,y,z) {
-	this.x += x;
-	this.y += y;
-	this.z += z;
-}
-glidias.Vec3.prototype.subtract3 = function(x,y,z) {
-	this.x -= x;
-	this.y -= y;
-	this.z -= z;
-}
-glidias.Vec3.prototype.copyReverse = function(ref) {
-	this.x = -ref.x;
-	this.y = -ref.y;
-	this.z = -ref.z;
-	this.w = ref.w;
-}
-glidias.Vec3.prototype.copy = function(ref) {
-	this.x = ref.x;
-	this.y = ref.y;
-	this.z = ref.z;
-	this.w = ref.w;
-}
-glidias.Vec3.prototype.crossProduct = function(b) {
-	return new glidias.Vec3(this.y * b.z - this.z * b.y,this.z * b.x - this.x * b.z,this.x * b.y - this.y * b.x);
-}
-glidias.Vec3.prototype.dotProduct = function(b) {
-	return this.x * b.x + this.y * b.y + this.z * b.z;
-}
-glidias.Vec3.prototype.getReverse = function() {
-	return new glidias.Vec3(-this.x,-this.y,-this.z,this.w);
-}
-glidias.Vec3.prototype.lengthSquared = function() {
-	return this.x * this.x + this.y * this.y + this.z * this.z;
-}
-glidias.Vec3.prototype.clone = function() {
-	return new glidias.Vec3(this.x,this.y,this.z,this.w);
-}
-glidias.Vec3.prototype.divideScalar = function(amt) {
-	this.x /= amt;
-	this.y /= amt;
-	this.z /= amt;
-}
-glidias.Vec3.prototype.scaleBy = function(amt) {
-	this.x *= amt;
-	this.y *= amt;
-	this.z *= amt;
-}
-glidias.Vec3.prototype.flip = function() {
-	this.x = -this.x;
-	this.y = -this.y;
-	this.z = -this.z;
-	this.w = -this.w;
-}
-glidias.Vec3.prototype.__class__ = glidias.Vec3;
-glidias.Int4 = function(x,y,z,w) { if( x === $_ ) return; {
-	if(w == null) w = 0;
-	this.x = x;
-	this.y = y;
-	this.z = z;
-	this.w = w;
-}}
-glidias.Int4.__name__ = ["glidias","Int4"];
-glidias.Int4.prototype.x = null;
-glidias.Int4.prototype.y = null;
-glidias.Int4.prototype.z = null;
-glidias.Int4.prototype.w = null;
-glidias.Int4.prototype.__class__ = glidias.Int4;
-glidias.Rectangle = function(x,y,width,height) { if( x === $_ ) return; {
-	this.x = x;
-	this.y = y;
-	this.width = width;
-	this.height = height;
-}}
-glidias.Rectangle.__name__ = ["glidias","Rectangle"];
-glidias.Rectangle.prototype.x = null;
-glidias.Rectangle.prototype.y = null;
-glidias.Rectangle.prototype.width = null;
-glidias.Rectangle.prototype.height = null;
-glidias.Rectangle.prototype.toHTML = function(mat,scale) {
-	if(scale == null) scale = 1;
-	return "<div style=\"position:absolute;top:" + Math.round(this.y * scale) + "px;left:" + Math.round(this.x * scale) + "px;width:" + Math.round(this.width * scale) + "px;height:" + Math.round(this.height * scale) + "px;" + mat + "\"></div>";
-}
-glidias.Rectangle.prototype.toString = function() {
-	return "rect:" + [this.x,this.y,this.width,this.height];
-}
-glidias.Rectangle.prototype.__class__ = glidias.Rectangle;
-glidias.PM_PRNG = function(_seed) { if( _seed === $_ ) return; {
-	if(_seed == null) _seed = 1;
-	this.seed = _seed;
-}}
-glidias.PM_PRNG.__name__ = ["glidias","PM_PRNG"];
-glidias.PM_PRNG.prototype.seed = null;
-glidias.PM_PRNG.prototype.nextInt = function() {
-	return this.gen();
-}
-glidias.PM_PRNG.prototype.nextDouble = function() {
-	return this.gen() / 2147483647;
-}
-glidias.PM_PRNG.prototype.nextIntRange = function(min,max) {
-	min -= .4999;
-	max += .4999;
-	return Math.round(min + (max - min) * this.nextDouble());
-}
-glidias.PM_PRNG.prototype.nextDoubleRange = function(min,max) {
-	return min + (max - min) * this.nextDouble();
-}
-glidias.PM_PRNG.prototype.gen = function() {
-	return this.seed = this.seed * 16807 % 2147483647;
-}
-glidias.PM_PRNG.prototype.__class__ = glidias.PM_PRNG;
-if(typeof haxe=='undefined') haxe = {}
-haxe.Log = function() { }
-haxe.Log.__name__ = ["haxe","Log"];
-haxe.Log.trace = function(v,infos) {
-	js.Boot.__trace(v,infos);
-}
-haxe.Log.clear = function() {
-	js.Boot.__clear_trace();
-}
-haxe.Log.prototype.__class__ = haxe.Log;
+glidias.AABBPortal.prototype.__class__ = glidias.AABBPortal;
+glidias.AABBPortal.__interfaces__ = [glidias.IAABB];
 glidias.RoomFiller = function(async) { if( async === $_ ) return; {
 	if(async == null) async = 0;
 	this.wallColor = "#3d3c37";
@@ -886,785 +978,105 @@ glidias.RoomFiller.prototype.checkArea = function(s,e,w,h) {
 	return true;
 }
 glidias.RoomFiller.prototype.__class__ = glidias.RoomFiller;
-Std = function() { }
-Std.__name__ = ["Std"];
-Std["is"] = function(v,t) {
-	return js.Boot.__instanceof(v,t);
+if(typeof haxe=='undefined') haxe = {}
+haxe.Log = function() { }
+haxe.Log.__name__ = ["haxe","Log"];
+haxe.Log.trace = function(v,infos) {
+	js.Boot.__trace(v,infos);
 }
-Std.string = function(s) {
-	return js.Boot.__string_rec(s,"");
+haxe.Log.clear = function() {
+	js.Boot.__clear_trace();
 }
-Std["int"] = function(x) {
-	if(x < 0) return Math.ceil(x);
-	return Math.floor(x);
-}
-Std.parseInt = function(x) {
-	var v = parseInt(x,10);
-	if(v == 0 && x.charCodeAt(1) == 120) v = parseInt(x);
-	if(isNaN(v)) return null;
-	return v;
-}
-Std.parseFloat = function(x) {
-	return parseFloat(x);
-}
-Std.random = function(x) {
-	return Math.floor(Math.random() * x);
-}
-Std.prototype.__class__ = Std;
-glidias.Frustum = function(p) { if( p === $_ ) return; {
-	this.planes = new Array();
+haxe.Log.prototype.__class__ = haxe.Log;
+glidias.Vec3 = function(x,y,z,w) { if( x === $_ ) return; {
+	if(w == null) w = 0;
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	this.w = w;
 }}
-glidias.Frustum.__name__ = ["glidias","Frustum"];
-glidias.Frustum.create6 = function() {
-	var me = new glidias.Frustum();
-	var planes = me.planes;
-	planes[0] = new glidias.Vec3(0,0,0,0);
-	planes[1] = new glidias.Vec3(0,0,0,0);
-	planes[2] = new glidias.Vec3(0,0,0,0);
-	planes[3] = new glidias.Vec3(0,0,0,0);
-	planes[4] = new glidias.Vec3(0,0,0,0);
-	planes[5] = new glidias.Vec3(0,0,0,0);
-	return me;
+glidias.Vec3.__name__ = ["glidias","Vec3"];
+glidias.Vec3.prototype.x = null;
+glidias.Vec3.prototype.y = null;
+glidias.Vec3.prototype.z = null;
+glidias.Vec3.prototype.w = null;
+glidias.Vec3.prototype.toString = function() {
+	return "[Vec3 " + this.x + "," + this.y + "," + this.z + "]";
 }
-glidias.Frustum.create4 = function() {
-	var me = new glidias.Frustum();
-	var planes = me.planes;
-	planes[0] = new glidias.Vec3(0,0,0,0);
-	planes[1] = new glidias.Vec3(0,0,0,0);
-	planes[2] = new glidias.Vec3(0,0,0,0);
-	planes[3] = new glidias.Vec3(0,0,0,0);
-	return me;
-}
-glidias.Frustum.prototype.planes = null;
-glidias.Frustum.prototype.toString = function() {
-	return "[[Frustum]" + this.planes + "]]";
-}
-glidias.Frustum.prototype.fillNewPlanes = function() {
-	var len = this.planes.length;
-	{
-		var _g = 0;
-		while(_g < len) {
-			var i = _g++;
-			this.planes[i] = new glidias.Vec3(0,0,0,0);
-		}
+glidias.Vec3.prototype.normalize = function() {
+	var mag = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+	if(mag != 0 && mag != 1) {
+		mag = 1 / mag;
+		this.x *= mag;
+		this.y *= mag;
+		this.z *= mag;
 	}
 }
-glidias.Frustum.prototype.setup4FromPortal = function(camX,camY,camZ,pts,o) {
-	if(o == null) o = 0;
-	var a;
-	var b;
-	var ax, ay, az;
-	var bx, by, bz;
-	var vx, vy, vz;
-	var p;
-	var planes = this.planes;
-	p = planes[o];
-	a = pts[0];
-	b = pts[1];
-	ax = b.x - camX;
-	ay = b.y - camY;
-	az = b.z - camZ;
-	bx = a.x - camX;
-	by = a.y - camY;
-	bz = a.z - camZ;
-	vx = ay * bz - az * by;
-	vy = az * bx - ax * bz;
-	vz = ax * by - ay * bx;
-	p.x = vx;
-	p.y = vy;
-	p.z = vz;
-	o++;
-	p = planes[o];
-	a = pts[1];
-	b = pts[2];
-	ax = b.x - camX;
-	ay = b.y - camY;
-	az = b.z - camZ;
-	bx = a.x - camX;
-	by = a.y - camY;
-	bz = a.z - camZ;
-	vx = ay * bz - az * by;
-	vy = az * bx - ax * bz;
-	vz = ax * by - ay * bx;
-	p.x = vx;
-	p.y = vy;
-	p.z = vz;
-	o++;
-	p = planes[o];
-	a = pts[2];
-	b = pts[3];
-	ax = b.x - camX;
-	ay = b.y - camY;
-	az = b.z - camZ;
-	bx = a.x - camX;
-	by = a.y - camY;
-	bz = a.z - camZ;
-	vx = ay * bz - az * by;
-	vy = az * bx - ax * bz;
-	vz = ax * by - ay * bx;
-	p.x = vx;
-	p.y = vy;
-	p.z = vz;
-	o++;
-	p = planes[o];
-	a = pts[3];
-	b = pts[4];
-	ax = b.x - camX;
-	ay = b.y - camY;
-	az = b.z - camZ;
-	bx = a.x - camX;
-	by = a.y - camY;
-	bz = a.z - camZ;
-	vx = ay * bz - az * by;
-	vy = az * bx - ax * bz;
-	vz = ax * by - ay * bx;
-	p.x = vx;
-	p.y = vy;
-	p.z = vz;
+glidias.Vec3.prototype.normalizeAndCalcOffset = function(px,py,pz) {
+	this.normalize();
+	this.w = this.x * px + py * this.y + pz * this.z;
 }
-glidias.Frustum.prototype.checkFrustumCulling = function(a,culling) {
-	var side = 1;
-	var planes = this.planes;
-	var len = planes.length;
-	var minX = a.minX;
-	var minY = a.minY;
-	var minZ = a.minZ;
-	var maxX = a.maxX;
-	var maxY = a.maxY;
-	var maxZ = a.maxZ;
-	var rootCull = culling;
-	{
-		var _g = 0;
-		while(_g < len) {
-			var i = _g++;
-			var plane = planes[i];
-			if((culling & side) != 0) {
-				if(plane.x >= 0) {
-					if(plane.y >= 0) {
-						if(plane.z >= 0) {
-							if(maxX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return -1;
-							if(minX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
-						}
-						else {
-							if(maxX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return -1;
-							if(minX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
-						}
-					}
-					else if(plane.z >= 0) {
-						if(maxX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return -1;
-						if(minX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
-					}
-					else {
-						if(maxX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return -1;
-						if(minX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
-					}
-				}
-				else if(plane.y >= 0) {
-					if(plane.z >= 0) {
-						if(minX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return -1;
-						if(maxX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
-					}
-					else {
-						if(minX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return -1;
-						if(maxX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
-					}
-				}
-				else if(plane.z >= 0) {
-					if(minX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return -1;
-					if(maxX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
-				}
-				else {
-					if(minX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return -1;
-					if(maxX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
-				}
-			}
-			side <<= 1;
-		}
-	}
-	return culling;
+glidias.Vec3.prototype.set = function(x,y,z,w) {
+	if(w == null) w = 0;
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	this.w = w;
 }
-glidias.Frustum.prototype.setup6FromWorldMatrix = function(te,screenWhalf,screenHhalf,focalLength,near,far) {
-	if(far == null) far = 9999999999;
-	if(near == null) near = 0;
-	var planes = this.planes;
-	var p;
-	var vx;
-	var vy;
-	var vz;
-	var ax;
-	var ay;
-	var az;
-	var bx;
-	var by;
-	var bz;
-	var cx = te[12];
-	var cy = te[13];
-	var cz = te[14];
-	p = planes[0];
-	vz = -focalLength;
-	vx = -screenWhalf;
-	vy = -screenHhalf;
-	ax = te[0] * vx + te[4] * vy + te[8] * vz;
-	ay = te[1] * vx + te[5] * vy + te[9] * vz;
-	az = te[2] * vx + te[6] * vy + te[10] * vz;
-	var tx = ax;
-	var ty = ay;
-	var tz = az;
-	vz = -focalLength;
-	vx = screenWhalf;
-	vy = -screenHhalf;
-	bx = te[0] * vx + te[4] * vy + te[8] * vz;
-	by = te[1] * vx + te[5] * vy + te[9] * vz;
-	bz = te[2] * vx + te[6] * vy + te[10] * vz;
-	vx = ay * bz - az * by;
-	vy = az * bx - ax * bz;
-	vz = ax * by - ay * bx;
-	p.x = vx;
-	p.y = vy;
-	p.z = vz;
-	p.w = vx * cx + vy * cy + vz * cz;
-	{
-		p.x = -p.x;
-		p.y = -p.y;
-		p.z = -p.z;
-		p.w = -p.w;
-	}
-	ax = bx;
-	ay = by;
-	az = bz;
-	p = planes[1];
-	vz = -focalLength;
-	vx = screenWhalf;
-	vy = screenHhalf;
-	bx = te[0] * vx + te[4] * vy + te[8] * vz;
-	by = te[1] * vx + te[5] * vy + te[9] * vz;
-	bz = te[2] * vx + te[6] * vy + te[10] * vz;
-	vx = ay * bz - az * by;
-	vy = az * bx - ax * bz;
-	vz = ax * by - ay * bx;
-	p.x = vx;
-	p.y = vy;
-	p.z = vz;
-	p.w = vx * cx + vy * cy + vz * cz;
-	{
-		p.x = -p.x;
-		p.y = -p.y;
-		p.z = -p.z;
-		p.w = -p.w;
-	}
-	ax = bx;
-	ay = by;
-	az = bz;
-	p = planes[2];
-	vz = -focalLength;
-	vx = -screenWhalf;
-	vy = screenHhalf;
-	bx = te[0] * vx + te[4] * vy + te[8] * vz;
-	by = te[1] * vx + te[5] * vy + te[9] * vz;
-	bz = te[2] * vx + te[6] * vy + te[10] * vz;
-	vx = ay * bz - az * by;
-	vy = az * bx - ax * bz;
-	vz = ax * by - ay * bx;
-	p.x = vx;
-	p.y = vy;
-	p.z = vz;
-	p.w = vx * cx + vy * cy + vz * cz;
-	{
-		p.x = -p.x;
-		p.y = -p.y;
-		p.z = -p.z;
-		p.w = -p.w;
-	}
-	ax = bx;
-	ay = by;
-	az = bz;
-	p = planes[3];
-	bx = tx;
-	by = ty;
-	bz = tz;
-	vx = ay * bz - az * by;
-	vy = az * bx - ax * bz;
-	vz = ax * by - ay * bx;
-	p.x = vx;
-	p.y = vy;
-	p.z = vz;
-	p.w = vx * cx + vy * cy + vz * cz;
-	{
-		p.x = -p.x;
-		p.y = -p.y;
-		p.z = -p.z;
-		p.w = -p.w;
-	}
-	vx = 0;
-	vy = 0;
-	vz = -1;
-	tx = te[0] * vx + te[4] * vy + te[8] * vz;
-	ty = te[1] * vx + te[5] * vy + te[9] * vz;
-	tz = te[2] * vx + te[6] * vy + te[10] * vz;
-	p = planes[4];
-	p.x = tx;
-	p.y = ty;
-	p.z = tz;
-	p.w = tx * cx + ty * cy + tz * cz;
-	p = planes[5];
-	p.x = tx;
-	p.y = ty;
-	p.z = tz;
-	p.w = tx * cx + ty * cy + tz * cz;
+glidias.Vec3.prototype.add3 = function(x,y,z) {
+	this.x += x;
+	this.y += y;
+	this.z += z;
 }
-glidias.Frustum.prototype.setup6FromProjMatrix = function(me) {
-	var plane;
-	var planes = this.planes;
-	var me0 = me[0], me1 = me[1], me2 = me[2], me3 = me[3];
-	var me4 = me[4], me5 = me[5], me6 = me[6], me7 = me[7];
-	var me8 = me[8], me9 = me[9], me10 = me[10], me11 = me[11];
-	var me12 = me[12], me13 = me[13], me14 = me[14], me15 = me[15];
-	planes[0].set(me3 - me0,me7 - me4,me11 - me8,me15 - me12);
-	planes[1].set(me3 + me0,me7 + me4,me11 + me8,me15 + me12);
-	planes[2].set(me3 + me1,me7 + me5,me11 + me9,me15 + me13);
-	planes[3].set(me3 - me1,me7 - me5,me11 - me9,me15 - me13);
-	planes[4].set(me3 - me2,me7 - me6,me11 - me10,me15 - me14);
-	planes[5].set(me3 + me2,me7 + me6,me11 + me10,me15 + me14);
-	plane = planes[0];
-	plane.divideScalar(Math.sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z));
-	plane = planes[1];
-	plane.divideScalar(Math.sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z));
-	plane = planes[2];
-	plane.divideScalar(Math.sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z));
-	plane = planes[3];
-	plane.divideScalar(Math.sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z));
-	plane = planes[4];
-	plane.divideScalar(Math.sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z));
-	plane = planes[5];
-	plane.divideScalar(Math.sqrt(plane.x * plane.x + plane.y * plane.y + plane.z * plane.z));
+glidias.Vec3.prototype.subtract3 = function(x,y,z) {
+	this.x -= x;
+	this.y -= y;
+	this.z -= z;
 }
-glidias.Frustum.prototype.calculateFrustum6 = function(me,screenWhalf,screenHhalf,focalLength,near,far) {
-	if(far == null) far = 9999999999;
-	if(near == null) near = 1;
-	var correctionX = screenWhalf / focalLength;
-	var correctionY = screenHhalf / focalLength;
-	var planes = this.planes;
-	var nearPlane = planes[4];
-	var farPlane = planes[5];
-	var leftPlane = planes[3];
-	var rightPlane = planes[1];
-	var topPlane = planes[0];
-	var bottomPlane = planes[2];
-	var a = me[0];
-	var b = me[1];
-	var c = me[2];
-	var d = me[3];
-	var e = me[4];
-	var f = me[5];
-	var g = me[6];
-	var h = me[7];
-	var i = me[8];
-	var j = me[9];
-	var k = me[10];
-	var l = me[11];
-	var fa = a * correctionX;
-	var fe = e * correctionX;
-	var fi = i * correctionX;
-	var fb = b * correctionY;
-	var ff = f * correctionY;
-	var fj = j * correctionY;
-	nearPlane.x = fj * fe - ff * fi;
-	nearPlane.y = fb * fi - fj * fa;
-	nearPlane.z = ff * fa - fb * fe;
-	nearPlane.w = (d + c * near) * nearPlane.x + (h + g * near) * nearPlane.y + (l + k * near) * nearPlane.z;
-	farPlane.x = -nearPlane.x;
-	farPlane.y = -nearPlane.y;
-	farPlane.z = -nearPlane.z;
-	farPlane.w = (d + c * far) * farPlane.x + (h + g * far) * farPlane.y + (l + k * far) * farPlane.z;
-	var ax = -fa - fb + c;
-	var ay = -fe - ff + g;
-	var az = -fi - fj + k;
-	var bx = fa - fb + c;
-	var by = fe - ff + g;
-	var bz = fi - fj + k;
-	topPlane.x = bz * ay - by * az;
-	topPlane.y = bx * az - bz * ax;
-	topPlane.z = by * ax - bx * ay;
-	topPlane.w = d * topPlane.x + h * topPlane.y + l * topPlane.z;
-	ax = bx;
-	ay = by;
-	az = bz;
-	bx = fa + fb + c;
-	by = fe + ff + g;
-	bz = fi + fj + k;
-	rightPlane.x = bz * ay - by * az;
-	rightPlane.y = bx * az - bz * ax;
-	rightPlane.z = by * ax - bx * ay;
-	rightPlane.w = d * rightPlane.x + h * rightPlane.y + l * rightPlane.z;
-	ax = bx;
-	ay = by;
-	az = bz;
-	bx = -fa + fb + c;
-	by = -fe + ff + g;
-	bz = -fi + fj + k;
-	bottomPlane.x = bz * ay - by * az;
-	bottomPlane.y = bx * az - bz * ax;
-	bottomPlane.z = by * ax - bx * ay;
-	bottomPlane.w = d * bottomPlane.x + h * bottomPlane.y + l * bottomPlane.z;
-	ax = bx;
-	ay = by;
-	az = bz;
-	bx = -fa - fb + c;
-	by = -fe - ff + g;
-	bz = -fi - fj + k;
-	leftPlane.x = bz * ay - by * az;
-	leftPlane.y = bx * az - bz * ax;
-	leftPlane.z = by * ax - bx * ay;
-	leftPlane.w = d * leftPlane.x + h * leftPlane.y + l * leftPlane.z;
+glidias.Vec3.prototype.copyReverse = function(ref) {
+	this.x = -ref.x;
+	this.y = -ref.y;
+	this.z = -ref.z;
+	this.w = ref.w;
 }
-glidias.Frustum.prototype.__class__ = glidias.Frustum;
-glidias.IAABB = function() { }
-glidias.IAABB.__name__ = ["glidias","IAABB"];
-glidias.IAABB.prototype.minX = null;
-glidias.IAABB.prototype.minY = null;
-glidias.IAABB.prototype.minZ = null;
-glidias.IAABB.prototype.maxX = null;
-glidias.IAABB.prototype.maxY = null;
-glidias.IAABB.prototype.maxZ = null;
-glidias.IAABB.prototype.__class__ = glidias.IAABB;
-glidias.AABBPortal = function(p) { if( p === $_ ) return; {
-	this.points = new Array();
-}}
-glidias.AABBPortal.__name__ = ["glidias","AABBPortal"];
-glidias.AABBPortal.prototype.minX = null;
-glidias.AABBPortal.prototype.minY = null;
-glidias.AABBPortal.prototype.minZ = null;
-glidias.AABBPortal.prototype.maxX = null;
-glidias.AABBPortal.prototype.maxY = null;
-glidias.AABBPortal.prototype.maxZ = null;
-glidias.AABBPortal.prototype.points = null;
-glidias.AABBPortal.prototype.width = null;
-glidias.AABBPortal.prototype.height = null;
-glidias.AABBPortal.prototype.target = null;
-glidias.AABBPortal.prototype.id = null;
-glidias.AABBPortal.prototype.getReverse = function(newTarget,direction,version2) {
-	if(version2 == null) version2 = false;
-	var meNew = new glidias.AABBPortal();
-	glidias.AABBUtils.match(meNew,this);
-	if(!version2) {
-		if(direction == 1) {
-			meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]];
-		}
-		else if(direction == 0) {
-			meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]];
-		}
-		else if(direction == 2) {
-			meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]];
-		}
-		else {
-			meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]];
-		}
-	}
-	else {
-		if(direction == 1) {
-			meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]];
-		}
-		else if(direction == 0) {
-			meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]];
-		}
-		else if(direction == 2) {
-			meNew.points = [this.points[3],this.points[2],this.points[1],this.points[0]];
-		}
-		else {
-			meNew.points = [this.points[1],this.points[2],this.points[3],this.points[0]];
-		}
-	}
-	meNew.width = this.width;
-	meNew.height = this.height;
-	meNew.target = newTarget;
-	return meNew;
+glidias.Vec3.prototype.copy = function(ref) {
+	this.x = ref.x;
+	this.y = ref.y;
+	this.z = ref.z;
+	this.w = ref.w;
 }
-glidias.AABBPortal.prototype.traceValid = function() {
-	if(this.points[0].z <= 0) haxe.Log.trace("Invalid first point z!" + this.points[0].z,{ fileName : "AABBPortal.hx", lineNumber : 99, className : "glidias.AABBPortal", methodName : "traceValid"});
-	if(this.points[0].z == this.points[2].z) haxe.Log.trace("Invalid first point z 2222!",{ fileName : "AABBPortal.hx", lineNumber : 100, className : "glidias.AABBPortal", methodName : "traceValid"});
+glidias.Vec3.prototype.crossProduct = function(b) {
+	return new glidias.Vec3(this.y * b.z - this.z * b.y,this.z * b.x - this.x * b.z,this.x * b.y - this.y * b.x);
 }
-glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doorHeight,groundPos) {
-	this.target = target;
-	this.height = doorHeight;
-	this.width = doorWidth;
-	var south = glidias.AABBPortalPlane.DIRECTIONS[2];
-	var east = glidias.AABBPortalPlane.DIRECTIONS[3];
-	var up = glidias.AABBPortalPlane.UP;
-	var dir = glidias.AABBPortalPlane.getDoorDir(door);
-	var sx = door.x;
-	var sy = door.y;
-	var reverse = dir == 0 || dir == 1;
-	if(reverse) {
-		if(dir == 1) {
-			sx += 1;
-		}
-		else {
-			sy += 1;
-		}
-	}
-	{
-		this.minX = 1.7976931348623157e+308;
-		this.minY = 1.7976931348623157e+308;
-		this.minZ = 1.7976931348623157e+308;
-		this.maxX = -1.7976931348623157e+308;
-		this.maxY = -1.7976931348623157e+308;
-		this.maxZ = -1.7976931348623157e+308;
-	}
-	var px;
-	var py;
-	var pz;
-	var p;
-	p = sy * gridSize;
-	px = south.x * p;
-	py = south.y * p;
-	pz = south.z * p;
-	p = sx * gridSize;
-	px += east.x * p;
-	py += east.y * p;
-	pz += east.z * p;
-	p = groundPos + doorHeight;
-	px += up.x * p;
-	py += up.y * p;
-	pz += up.z * p;
-	this.points.push(new glidias.Vec3(px,py,pz,1));
-	p = sy * gridSize;
-	px = south.x * p;
-	py = south.y * p;
-	pz = south.z * p;
-	p = sx * gridSize;
-	px += east.x * p;
-	py += east.y * p;
-	pz += east.z * p;
-	p = groundPos;
-	px += up.x * p;
-	py += up.y * p;
-	pz += up.z * p;
-	this.points.push(new glidias.Vec3(px,py,pz,1));
-	if((dir & 1) != 0) {
-		sy += 1;
-	}
-	else {
-		sx += 1;
-	}
-	p = sy * gridSize;
-	px = south.x * p;
-	py = south.y * p;
-	pz = south.z * p;
-	p = sx * gridSize;
-	px += east.x * p;
-	py += east.y * p;
-	pz += east.z * p;
-	p = groundPos;
-	px += up.x * p;
-	py += up.y * p;
-	pz += up.z * p;
-	this.points.push(new glidias.Vec3(px,py,pz,1));
-	p = sy * gridSize;
-	px = south.x * p;
-	py = south.y * p;
-	pz = south.z * p;
-	p = sx * gridSize;
-	px += east.x * p;
-	py += east.y * p;
-	pz += east.z * p;
-	p = groundPos + doorHeight;
-	px += up.x * p;
-	py += up.y * p;
-	pz += up.z * p;
-	this.points.push(new glidias.Vec3(px,py,pz,1));
-	if((dir & 1) != 0) {
-		if(!reverse) this.points = [this.points[3],this.points[0],this.points[1],this.points[2]];
-	}
-	else {
-		if(reverse) this.points = [this.points[3],this.points[0],this.points[1],this.points[2]];
-	}
-	glidias.AABBUtils.expandWithPoint(this.points[0],this);
-	glidias.AABBUtils.expandWithPoint(this.points[2],this);
-	return dir;
+glidias.Vec3.prototype.dotProduct = function(b) {
+	return this.x * b.x + this.y * b.y + this.z * b.z;
 }
-glidias.AABBPortal.prototype.__class__ = glidias.AABBPortal;
-glidias.AABBPortal.__interfaces__ = [glidias.IAABB];
-glidias.AABBSector = function(p) { if( p === $_ ) return; {
-	this.renderId = -999999999;
-}}
-glidias.AABBSector.__name__ = ["glidias","AABBSector"];
-glidias.AABBSector.prototype.minX = null;
-glidias.AABBSector.prototype.minY = null;
-glidias.AABBSector.prototype.minZ = null;
-glidias.AABBSector.prototype.maxX = null;
-glidias.AABBSector.prototype.maxY = null;
-glidias.AABBSector.prototype.maxZ = null;
-glidias.AABBSector.prototype.portalWalls = null;
-glidias.AABBSector.prototype.renderId = null;
-glidias.AABBSector.prototype.rect = null;
-glidias.AABBSector.prototype.ceilHeight = null;
-glidias.AABBSector.prototype.groundPos = null;
-glidias.AABBSector.prototype.setup = function(rect,gridSize,height,groundPos) {
-	if(groundPos == null) groundPos = 0;
-	{
-		this.minX = 1.7976931348623157e+308;
-		this.minY = 1.7976931348623157e+308;
-		this.minZ = 1.7976931348623157e+308;
-		this.maxX = -1.7976931348623157e+308;
-		this.maxY = -1.7976931348623157e+308;
-		this.maxZ = -1.7976931348623157e+308;
-	}
-	this.portalWalls = new Array();
-	this.rect = rect;
-	this.ceilHeight = height;
-	this.groundPos = groundPos;
-	var east = glidias.AABBPortalPlane.DIRECTIONS[3];
-	var south = glidias.AABBPortalPlane.DIRECTIONS[2];
-	var up = glidias.AABBPortalPlane.UP;
-	var x;
-	var y;
-	var z;
-	var a;
-	var b;
-	var c;
-	x = gridSize * rect.x;
-	y = gridSize * rect.y;
-	z = groundPos;
-	a = east.x * x;
-	b = east.y * x;
-	c = east.z * x;
-	a += south.x * y;
-	b += south.y * y;
-	c += south.z * y;
-	a += up.x * z;
-	b += up.y * z;
-	c += up.z * z;
-	{
-		if(a < this.minX) this.minX = a;
-		if(b < this.minY) this.minY = b;
-		if(c < this.minZ) this.minZ = c;
-		if(a > this.maxX) this.maxX = a;
-		if(b > this.maxY) this.maxY = b;
-		if(c > this.maxZ) this.maxZ = c;
-	}
-	x = gridSize * (rect.x + rect.width);
-	y = gridSize * (rect.y + rect.height);
-	z = groundPos;
-	a = east.x * x;
-	b = east.y * x;
-	c = east.z * x;
-	a += south.x * y;
-	b += south.y * y;
-	c += south.z * y;
-	a += up.x * z;
-	b += up.y * z;
-	c += up.z * z;
-	{
-		if(a < this.minX) this.minX = a;
-		if(b < this.minY) this.minY = b;
-		if(c < this.minZ) this.minZ = c;
-		if(a > this.maxX) this.maxX = a;
-		if(b > this.maxY) this.maxY = b;
-		if(c > this.maxZ) this.maxZ = c;
-	}
-	x = gridSize * rect.x;
-	y = gridSize * rect.y;
-	z = groundPos + height;
-	a = east.x * x;
-	b = east.y * x;
-	c = east.z * x;
-	a += south.x * y;
-	b += south.y * y;
-	c += south.z * y;
-	a += up.x * z;
-	b += up.y * z;
-	c += up.z * z;
-	{
-		if(a < this.minX) this.minX = a;
-		if(b < this.minY) this.minY = b;
-		if(c < this.minZ) this.minZ = c;
-		if(a > this.maxX) this.maxX = a;
-		if(b > this.maxY) this.maxY = b;
-		if(c > this.maxZ) this.maxZ = c;
-	}
-	x = gridSize * (rect.x + rect.width);
-	y = gridSize * (rect.y + rect.height);
-	z = groundPos + height;
-	a = east.x * x;
-	b = east.y * x;
-	c = east.z * x;
-	a += south.x * y;
-	b += south.y * y;
-	c += south.z * y;
-	a += up.x * z;
-	b += up.y * z;
-	c += up.z * z;
-	{
-		if(a < this.minX) this.minX = a;
-		if(b < this.minY) this.minY = b;
-		if(c < this.minZ) this.minZ = c;
-		if(a > this.maxX) this.maxX = a;
-		if(b > this.maxY) this.maxY = b;
-		if(c > this.maxZ) this.maxZ = c;
-	}
+glidias.Vec3.prototype.getReverse = function() {
+	return new glidias.Vec3(-this.x,-this.y,-this.z,this.w);
 }
-glidias.AABBSector.prototype.getWallHTML = function(direction,mat,gridSize) {
-	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[direction],this,gridSize).getHTML(mat);
+glidias.Vec3.prototype.lengthSquared = function() {
+	return this.x * this.x + this.y * this.y + this.z * this.z;
 }
-glidias.AABBSector.prototype.getCeilingHTML = function(mat,gridSize) {
-	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP.getReverse(),this,gridSize).getHTML(mat);
+glidias.Vec3.prototype.clone = function() {
+	return new glidias.Vec3(this.x,this.y,this.z,this.w);
 }
-glidias.AABBSector.prototype.getFloorHTML = function(mat,gridSize) {
-	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP,this,gridSize).getHTML(mat);
+glidias.Vec3.prototype.divideScalar = function(amt) {
+	this.x /= amt;
+	this.y /= amt;
+	this.z /= amt;
 }
-glidias.AABBSector.prototype.getPortalPlane = function(direction) {
-	var len = this.portalWalls.length;
-	{
-		var _g = 0;
-		while(_g < len) {
-			var i = _g++;
-			if(this.portalWalls[i].direction == direction) return this.portalWalls[i];
-		}
-	}
-	return null;
+glidias.Vec3.prototype.scaleBy = function(amt) {
+	this.x *= amt;
+	this.y *= amt;
+	this.z *= amt;
 }
-glidias.AABBSector.prototype.addPortal = function(portal,direction) {
-	var portalPlane;
-	if((portalPlane = this.getPortalPlane(direction)) == null) {
-		portalPlane = new glidias.AABBPortalPlane();
-		portalPlane.direction = direction;
-		this.portalWalls.push(portalPlane);
-	}
-	{
-		glidias.AABBUtils.expand2(portalPlane,portal);
-		portalPlane.portals.push(portal);
-	}
+glidias.Vec3.prototype.flip = function() {
+	this.x = -this.x;
+	this.y = -this.y;
+	this.z = -this.z;
+	this.w = -this.w;
 }
-glidias.AABBSector.prototype.addPortalPlane = function(plane) {
-	this.portalWalls.push(plane);
-}
-glidias.AABBSector.prototype.getPortalList = function() {
-	var arr = [];
-	{
-		var _g1 = 0, _g = this.portalWalls.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var portalPlane = this.portalWalls[i];
-			var portals = portalPlane.portals;
-			{
-				var _g3 = 0, _g2 = portals.length;
-				while(_g3 < _g2) {
-					var u = _g3++;
-					arr.push(portals[u]);
-				}
-			}
-		}
-	}
-	return arr;
-}
-glidias.AABBSector.prototype.__class__ = glidias.AABBSector;
-glidias.AABBSector.__interfaces__ = [glidias.IAABB];
-glidias.Package = function() { }
-glidias.Package.__name__ = ["glidias","Package"];
-glidias.Package.main = function() {
-	null;
-}
-glidias.Package.prototype.__class__ = glidias.Package;
+glidias.Vec3.prototype.__class__ = glidias.Vec3;
 glidias.AABBPortalPlane = function(p) { if( p === $_ ) return; {
 	{
 		this.minX = 1.7976931348623157e+308;
@@ -1851,6 +1263,612 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 }
 glidias.AABBPortalPlane.prototype.__class__ = glidias.AABBPortalPlane;
 glidias.AABBPortalPlane.__interfaces__ = [glidias.IAABB];
+glidias.Int4 = function(x,y,z,w) { if( x === $_ ) return; {
+	if(w == null) w = 0;
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	this.w = w;
+}}
+glidias.Int4.__name__ = ["glidias","Int4"];
+glidias.Int4.prototype.x = null;
+glidias.Int4.prototype.y = null;
+glidias.Int4.prototype.z = null;
+glidias.Int4.prototype.w = null;
+glidias.Int4.prototype.__class__ = glidias.Int4;
+glidias.PlaneResult = function(p) { if( p === $_ ) return; {
+	null;
+}}
+glidias.PlaneResult.__name__ = ["glidias","PlaneResult"];
+glidias.PlaneResult.getIdentity = function() {
+	var me = new glidias.PlaneResult();
+	me.pos = new glidias.Vec3(0,0,0);
+	me.up = new glidias.Vec3(0,1,0);
+	me.right = new glidias.Vec3(-1,0,0);
+	me.look = new glidias.Vec3(0,0,1);
+	return me;
+}
+glidias.PlaneResult.prototype.up = null;
+glidias.PlaneResult.prototype.right = null;
+glidias.PlaneResult.prototype.look = null;
+glidias.PlaneResult.prototype.pos = null;
+glidias.PlaneResult.prototype.width = null;
+glidias.PlaneResult.prototype.height = null;
+glidias.PlaneResult.prototype.getHTML = function(mat) {
+	return "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(this.width) + "px;height:" + Math.round(this.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
+}
+glidias.PlaneResult.prototype.getOpenHTML = function(mat) {
+	return "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(this.width) + "px;height:" + Math.round(this.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">";
+}
+glidias.PlaneResult.prototype.clone = function() {
+	var me = new glidias.PlaneResult();
+	me.up = this.up.clone();
+	me.right = this.right.clone();
+	me.look = this.look.clone();
+	me.pos = this.pos.clone();
+	me.width = this.width;
+	me.height = this.height;
+	return me;
+}
+glidias.PlaneResult.prototype.__class__ = glidias.PlaneResult;
+glidias.ArrayBuffer = function(p) { if( p === $_ ) return; {
+	this.i = 0;
+	this.arr = new Array();
+}}
+glidias.ArrayBuffer.__name__ = ["glidias","ArrayBuffer"];
+glidias.ArrayBuffer.prototype.arr = null;
+glidias.ArrayBuffer.prototype.i = null;
+glidias.ArrayBuffer.prototype.pop = function() {
+	this.i--;
+}
+glidias.ArrayBuffer.prototype.push = function(val) {
+	this.arr[this.i++] = val;
+}
+glidias.ArrayBuffer.prototype.reset = function() {
+	this.i = 0;
+}
+glidias.ArrayBuffer.prototype.__class__ = glidias.ArrayBuffer;
+IntIter = function(min,max) { if( min === $_ ) return; {
+	this.min = min;
+	this.max = max;
+}}
+IntIter.__name__ = ["IntIter"];
+IntIter.prototype.min = null;
+IntIter.prototype.max = null;
+IntIter.prototype.hasNext = function() {
+	return this.min < this.max;
+}
+IntIter.prototype.next = function() {
+	return this.min++;
+}
+IntIter.prototype.__class__ = IntIter;
+glidias.Rectangle = function(x,y,width,height) { if( x === $_ ) return; {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+}}
+glidias.Rectangle.__name__ = ["glidias","Rectangle"];
+glidias.Rectangle.prototype.x = null;
+glidias.Rectangle.prototype.y = null;
+glidias.Rectangle.prototype.width = null;
+glidias.Rectangle.prototype.height = null;
+glidias.Rectangle.prototype.toHTML = function(mat,scale) {
+	if(scale == null) scale = 1;
+	return "<div style=\"position:absolute;top:" + Math.round(this.y * scale) + "px;left:" + Math.round(this.x * scale) + "px;width:" + Math.round(this.width * scale) + "px;height:" + Math.round(this.height * scale) + "px;" + mat + "\"></div>";
+}
+glidias.Rectangle.prototype.toString = function() {
+	return "rect:" + [this.x,this.y,this.width,this.height];
+}
+glidias.Rectangle.prototype.__class__ = glidias.Rectangle;
+glidias.AABBSector = function(p) { if( p === $_ ) return; {
+	this.renderId = -999999999;
+}}
+glidias.AABBSector.__name__ = ["glidias","AABBSector"];
+glidias.AABBSector.prototype.minX = null;
+glidias.AABBSector.prototype.minY = null;
+glidias.AABBSector.prototype.minZ = null;
+glidias.AABBSector.prototype.maxX = null;
+glidias.AABBSector.prototype.maxY = null;
+glidias.AABBSector.prototype.maxZ = null;
+glidias.AABBSector.prototype.portalWalls = null;
+glidias.AABBSector.prototype.renderId = null;
+glidias.AABBSector.prototype.rect = null;
+glidias.AABBSector.prototype.ceilHeight = null;
+glidias.AABBSector.prototype.groundPos = null;
+glidias.AABBSector.prototype.dom = null;
+glidias.AABBSector.prototype.setVis = function(val) {
+	this.dom.style.visibility = val?"visible":"hidden";
+}
+glidias.AABBSector.prototype.checkVis = function(camPos,buffer,frus,visibleSectors,culling,renderId) {
+	this.dom.style.visibility = "visible";
+	this.renderId = renderId;
+	visibleSectors.arr[visibleSectors.i++] = this;
+	var c;
+	var p;
+	var ptl;
+	var pl;
+	var cp;
+	var portal;
+	var len = this.portalWalls.length;
+	var port;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			p = this.portalWalls[i];
+			if((c = frus.checkFrustumCulling(p,culling)) >= 0) {
+				ptl = p.portals;
+				pl = ptl.length;
+				{
+					var _g1 = 0;
+					while(_g1 < pl) {
+						var u = _g1++;
+						portal = ptl[u];
+						if((cp = frus.checkFrustumCulling(portal,c)) >= 0) {
+							port = portal.target;
+							if(port == null) continue;
+							visibleSectors.arr[visibleSectors.i++] = port;
+							if(port.renderId != renderId) port.checkVis(camPos,buffer,(buffer._i < buffer._len?buffer._vec[buffer._i++]:buffer._vec[buffer._len++] = buffer._method()).setup4FromPortal(camPos.x,camPos.y,camPos.z,portal.points,0),visibleSectors,cp,renderId);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+glidias.AABBSector.prototype.setup = function(rect,gridSize,height,groundPos) {
+	if(groundPos == null) groundPos = 0;
+	{
+		this.minX = 1.7976931348623157e+308;
+		this.minY = 1.7976931348623157e+308;
+		this.minZ = 1.7976931348623157e+308;
+		this.maxX = -1.7976931348623157e+308;
+		this.maxY = -1.7976931348623157e+308;
+		this.maxZ = -1.7976931348623157e+308;
+	}
+	this.portalWalls = new Array();
+	this.rect = rect;
+	this.ceilHeight = height;
+	this.groundPos = groundPos;
+	var east = glidias.AABBPortalPlane.DIRECTIONS[3];
+	var south = glidias.AABBPortalPlane.DIRECTIONS[2];
+	var up = glidias.AABBPortalPlane.UP;
+	var x;
+	var y;
+	var z;
+	var a;
+	var b;
+	var c;
+	x = gridSize * rect.x;
+	y = gridSize * rect.y;
+	z = groundPos;
+	a = east.x * x;
+	b = east.y * x;
+	c = east.z * x;
+	a += south.x * y;
+	b += south.y * y;
+	c += south.z * y;
+	a += up.x * z;
+	b += up.y * z;
+	c += up.z * z;
+	{
+		if(a < this.minX) this.minX = a;
+		if(b < this.minY) this.minY = b;
+		if(c < this.minZ) this.minZ = c;
+		if(a > this.maxX) this.maxX = a;
+		if(b > this.maxY) this.maxY = b;
+		if(c > this.maxZ) this.maxZ = c;
+	}
+	x = gridSize * (rect.x + rect.width);
+	y = gridSize * (rect.y + rect.height);
+	z = groundPos;
+	a = east.x * x;
+	b = east.y * x;
+	c = east.z * x;
+	a += south.x * y;
+	b += south.y * y;
+	c += south.z * y;
+	a += up.x * z;
+	b += up.y * z;
+	c += up.z * z;
+	{
+		if(a < this.minX) this.minX = a;
+		if(b < this.minY) this.minY = b;
+		if(c < this.minZ) this.minZ = c;
+		if(a > this.maxX) this.maxX = a;
+		if(b > this.maxY) this.maxY = b;
+		if(c > this.maxZ) this.maxZ = c;
+	}
+	x = gridSize * rect.x;
+	y = gridSize * rect.y;
+	z = groundPos + height;
+	a = east.x * x;
+	b = east.y * x;
+	c = east.z * x;
+	a += south.x * y;
+	b += south.y * y;
+	c += south.z * y;
+	a += up.x * z;
+	b += up.y * z;
+	c += up.z * z;
+	{
+		if(a < this.minX) this.minX = a;
+		if(b < this.minY) this.minY = b;
+		if(c < this.minZ) this.minZ = c;
+		if(a > this.maxX) this.maxX = a;
+		if(b > this.maxY) this.maxY = b;
+		if(c > this.maxZ) this.maxZ = c;
+	}
+	x = gridSize * (rect.x + rect.width);
+	y = gridSize * (rect.y + rect.height);
+	z = groundPos + height;
+	a = east.x * x;
+	b = east.y * x;
+	c = east.z * x;
+	a += south.x * y;
+	b += south.y * y;
+	c += south.z * y;
+	a += up.x * z;
+	b += up.y * z;
+	c += up.z * z;
+	{
+		if(a < this.minX) this.minX = a;
+		if(b < this.minY) this.minY = b;
+		if(c < this.minZ) this.minZ = c;
+		if(a > this.maxX) this.maxX = a;
+		if(b > this.maxY) this.maxY = b;
+		if(c > this.maxZ) this.maxZ = c;
+	}
+}
+glidias.AABBSector.prototype.getWallHTML = function(direction,mat,gridSize) {
+	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[direction],this,gridSize).getHTML(mat);
+}
+glidias.AABBSector.prototype.getCeilingHTML = function(mat,gridSize) {
+	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP.getReverse(),this,gridSize).getHTML(mat);
+}
+glidias.AABBSector.prototype.getFloorHTML = function(mat,gridSize) {
+	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP,this,gridSize).getHTML(mat);
+}
+glidias.AABBSector.prototype.getPortalPlane = function(direction) {
+	var len = this.portalWalls.length;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			if(this.portalWalls[i].direction == direction) return this.portalWalls[i];
+		}
+	}
+	return null;
+}
+glidias.AABBSector.prototype.addPortal = function(portal,direction) {
+	var portalPlane;
+	if((portalPlane = this.getPortalPlane(direction)) == null) {
+		portalPlane = new glidias.AABBPortalPlane();
+		portalPlane.direction = direction;
+		this.portalWalls.push(portalPlane);
+	}
+	{
+		glidias.AABBUtils.expand2(portalPlane,portal);
+		portalPlane.portals.push(portal);
+	}
+}
+glidias.AABBSector.prototype.addPortalPlane = function(plane) {
+	this.portalWalls.push(plane);
+}
+glidias.AABBSector.prototype.getPortalList = function() {
+	var arr = [];
+	{
+		var _g1 = 0, _g = this.portalWalls.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var portalPlane = this.portalWalls[i];
+			var portals = portalPlane.portals;
+			{
+				var _g3 = 0, _g2 = portals.length;
+				while(_g3 < _g2) {
+					var u = _g3++;
+					arr.push(portals[u]);
+				}
+			}
+		}
+	}
+	return arr;
+}
+glidias.AABBSector.prototype.__class__ = glidias.AABBSector;
+glidias.AABBSector.__interfaces__ = [glidias.IAABB];
+Std = function() { }
+Std.__name__ = ["Std"];
+Std["is"] = function(v,t) {
+	return js.Boot.__instanceof(v,t);
+}
+Std.string = function(s) {
+	return js.Boot.__string_rec(s,"");
+}
+Std["int"] = function(x) {
+	if(x < 0) return Math.ceil(x);
+	return Math.floor(x);
+}
+Std.parseInt = function(x) {
+	var v = parseInt(x,10);
+	if(v == 0 && x.charCodeAt(1) == 120) v = parseInt(x);
+	if(isNaN(v)) return null;
+	return v;
+}
+Std.parseFloat = function(x) {
+	return parseFloat(x);
+}
+Std.random = function(x) {
+	return Math.floor(Math.random() * x);
+}
+Std.prototype.__class__ = Std;
+glidias.PM_PRNG = function(_seed) { if( _seed === $_ ) return; {
+	if(_seed == null) _seed = 1;
+	this.seed = _seed;
+}}
+glidias.PM_PRNG.__name__ = ["glidias","PM_PRNG"];
+glidias.PM_PRNG.prototype.seed = null;
+glidias.PM_PRNG.prototype.nextInt = function() {
+	return this.gen();
+}
+glidias.PM_PRNG.prototype.nextDouble = function() {
+	return this.gen() / 2147483647;
+}
+glidias.PM_PRNG.prototype.nextIntRange = function(min,max) {
+	min -= .4999;
+	max += .4999;
+	return Math.round(min + (max - min) * this.nextDouble());
+}
+glidias.PM_PRNG.prototype.nextDoubleRange = function(min,max) {
+	return min + (max - min) * this.nextDouble();
+}
+glidias.PM_PRNG.prototype.gen = function() {
+	return this.seed = this.seed * 16807 % 2147483647;
+}
+glidias.PM_PRNG.prototype.__class__ = glidias.PM_PRNG;
+if(typeof js=='undefined') js = {}
+js.Lib = function() { }
+js.Lib.__name__ = ["js","Lib"];
+js.Lib.isIE = null;
+js.Lib.isOpera = null;
+js.Lib.document = null;
+js.Lib.window = null;
+js.Lib.alert = function(v) {
+	alert(js.Boot.__string_rec(v,""));
+}
+js.Lib.eval = function(code) {
+	return eval(code);
+}
+js.Lib.setErrorHandler = function(f) {
+	js.Lib.onerror = f;
+}
+js.Lib.prototype.__class__ = js.Lib;
+js.Boot = function() { }
+js.Boot.__name__ = ["js","Boot"];
+js.Boot.__unhtml = function(s) {
+	return s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
+}
+js.Boot.__trace = function(v,i) {
+	var msg = i != null?i.fileName + ":" + i.lineNumber + ": ":"";
+	msg += js.Boot.__unhtml(js.Boot.__string_rec(v,"")) + "<br/>";
+	var d = document.getElementById("haxe:trace");
+	if(d == null) alert("No haxe:trace element defined\n" + msg);
+	else d.innerHTML += msg;
+}
+js.Boot.__clear_trace = function() {
+	var d = document.getElementById("haxe:trace");
+	if(d != null) d.innerHTML = "";
+	else null;
+}
+js.Boot.__closure = function(o,f) {
+	var m = o[f];
+	if(m == null) return null;
+	var f1 = function() {
+		return m.apply(o,arguments);
+	}
+	f1.scope = o;
+	f1.method = m;
+	return f1;
+}
+js.Boot.__string_rec = function(o,s) {
+	if(o == null) return "null";
+	if(s.length >= 5) return "<...>";
+	var t = typeof(o);
+	if(t == "function" && (o.__name__ != null || o.__ename__ != null)) t = "object";
+	switch(t) {
+	case "object":{
+		if(o instanceof Array) {
+			if(o.__enum__ != null) {
+				if(o.length == 2) return o[0];
+				var str = o[0] + "(";
+				s += "\t";
+				{
+					var _g1 = 2, _g = o.length;
+					while(_g1 < _g) {
+						var i = _g1++;
+						if(i != 2) str += "," + js.Boot.__string_rec(o[i],s);
+						else str += js.Boot.__string_rec(o[i],s);
+					}
+				}
+				return str + ")";
+			}
+			var l = o.length;
+			var i;
+			var str = "[";
+			s += "\t";
+			{
+				var _g = 0;
+				while(_g < l) {
+					var i1 = _g++;
+					str += (i1 > 0?",":"") + js.Boot.__string_rec(o[i1],s);
+				}
+			}
+			str += "]";
+			return str;
+		}
+		var tostr;
+		try {
+			tostr = o.toString;
+		}
+		catch( $e0 ) {
+			{
+				var e = $e0;
+				{
+					return "???";
+				}
+			}
+		}
+		if(tostr != null && tostr != Object.toString) {
+			var s2 = o.toString();
+			if(s2 != "[object Object]") return s2;
+		}
+		var k = null;
+		var str = "{\n";
+		s += "\t";
+		var hasp = o.hasOwnProperty != null;
+		for( var k in o ) { ;
+		if(hasp && !o.hasOwnProperty(k)) continue;
+		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__") continue;
+		if(str.length != 2) str += ", \n";
+		str += s + k + " : " + js.Boot.__string_rec(o[k],s);
+		}
+		s = s.substring(1);
+		str += "\n" + s + "}";
+		return str;
+	}break;
+	case "function":{
+		return "<function>";
+	}break;
+	case "string":{
+		return o;
+	}break;
+	default:{
+		return String(o);
+	}break;
+	}
+}
+js.Boot.__interfLoop = function(cc,cl) {
+	if(cc == null) return false;
+	if(cc == cl) return true;
+	var intf = cc.__interfaces__;
+	if(intf != null) {
+		var _g1 = 0, _g = intf.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var i1 = intf[i];
+			if(i1 == cl || js.Boot.__interfLoop(i1,cl)) return true;
+		}
+	}
+	return js.Boot.__interfLoop(cc.__super__,cl);
+}
+js.Boot.__instanceof = function(o,cl) {
+	try {
+		if(o instanceof cl) {
+			if(cl == Array) return o.__enum__ == null;
+			return true;
+		}
+		if(js.Boot.__interfLoop(o.__class__,cl)) return true;
+	}
+	catch( $e0 ) {
+		{
+			var e = $e0;
+			{
+				if(cl == null) return false;
+			}
+		}
+	}
+	switch(cl) {
+	case Int:{
+		return Math.ceil(o%2147483648.0) === o;
+	}break;
+	case Float:{
+		return typeof(o) == "number";
+	}break;
+	case Bool:{
+		return o === true || o === false;
+	}break;
+	case String:{
+		return typeof(o) == "string";
+	}break;
+	case Dynamic:{
+		return true;
+	}break;
+	default:{
+		if(o == null) return false;
+		return o.__enum__ == cl || cl == Class && o.__name__ != null || cl == Enum && o.__ename__ != null;
+	}break;
+	}
+}
+js.Boot.__init = function() {
+	js.Lib.isIE = typeof document!='undefined' && document.all != null && typeof window!='undefined' && window.opera == null;
+	js.Lib.isOpera = typeof window!='undefined' && window.opera != null;
+	Array.prototype.copy = Array.prototype.slice;
+	Array.prototype.insert = function(i,x) {
+		this.splice(i,0,x);
+	}
+	Array.prototype.remove = Array.prototype.indexOf?function(obj) {
+		var idx = this.indexOf(obj);
+		if(idx == -1) return false;
+		this.splice(idx,1);
+		return true;
+	}:function(obj) {
+		var i = 0;
+		var l = this.length;
+		while(i < l) {
+			if(this[i] == obj) {
+				this.splice(i,1);
+				return true;
+			}
+			i++;
+		}
+		return false;
+	}
+	Array.prototype.iterator = function() {
+		return { cur : 0, arr : this, hasNext : function() {
+			return this.cur < this.arr.length;
+		}, next : function() {
+			return this.arr[this.cur++];
+		}};
+	}
+	if(String.prototype.cca == null) String.prototype.cca = String.prototype.charCodeAt;
+	String.prototype.charCodeAt = function(i) {
+		var x = this.cca(i);
+		if(x != x) return null;
+		return x;
+	}
+	var oldsub = String.prototype.substr;
+	String.prototype.substr = function(pos,len) {
+		if(pos != null && pos != 0 && len != null && len < 0) return "";
+		if(len == null) len = this.length;
+		if(pos < 0) {
+			pos = this.length + pos;
+			if(pos < 0) pos = 0;
+		}
+		else if(len < 0) {
+			len = this.length + len - pos;
+		}
+		return oldsub.apply(this,[pos,len]);
+	}
+	$closure = js.Boot.__closure;
+}
+js.Boot.prototype.__class__ = js.Boot;
+glidias.ArrayBuffer_glidias_AABBSector = function(p) { if( p === $_ ) return; {
+	this.i = 0;
+	this.arr = new Array();
+}}
+glidias.ArrayBuffer_glidias_AABBSector.__name__ = ["glidias","ArrayBuffer_glidias_AABBSector"];
+glidias.ArrayBuffer_glidias_AABBSector.prototype.arr = null;
+glidias.ArrayBuffer_glidias_AABBSector.prototype.i = null;
+glidias.ArrayBuffer_glidias_AABBSector.prototype.pop = function() {
+	this.i--;
+}
+glidias.ArrayBuffer_glidias_AABBSector.prototype.push = function(val) {
+	this.arr[this.i++] = val;
+}
+glidias.ArrayBuffer_glidias_AABBSector.prototype.reset = function() {
+	this.i = 0;
+}
+glidias.ArrayBuffer_glidias_AABBSector.prototype.__class__ = glidias.ArrayBuffer_glidias_AABBSector;
 glidias.AABBUtils = function() { }
 glidias.AABBUtils.__name__ = ["glidias","AABBUtils"];
 glidias.AABBUtils.getRect = function(aabb,threshold) {
@@ -1869,6 +1887,9 @@ glidias.AABBUtils.norm = function(w) {
 }
 glidias.AABBUtils.getString = function(aabb) {
 	return "AABB: " + [aabb.minX,aabb.minY,aabb.minZ,aabb.maxX,aabb.maxY,aabb.maxZ];
+}
+glidias.AABBUtils.pointInside = function(aabb,pt) {
+	return !(pt.x < aabb.minX || pt.y < aabb.minY || pt.z < aabb.minZ || pt.x > aabb.maxX || pt.y > aabb.maxY || pt.z > aabb.maxZ);
 }
 glidias.AABBUtils.match = function(aabb,refAABB) {
 	aabb.minX = refAABB.minX;
@@ -1911,68 +1932,216 @@ glidias.AABBUtils.expandWithPoint = function(vec,aabb) {
 	if(vec.z > aabb.maxZ) aabb.maxZ = vec.z;
 }
 glidias.AABBUtils.prototype.__class__ = glidias.AABBUtils;
-glidias.PlaneResult = function(p) { if( p === $_ ) return; {
+glidias.AllocatorF_glidias_Frustum = function(method,fillAmount,initialCapacity,fixed) { if( method === $_ ) return; {
+	if(fixed == null) fixed = false;
+	if(initialCapacity == null) initialCapacity = 0;
+	if(fillAmount == null) fillAmount = 0;
+	this._method = method;
+	this._len = 0;
+	this.fixed = fixed;
+	this._i = 0;
+	this._vec = new Array();
+	if(fillAmount > 0) this.fill(fillAmount,fixed);
+}}
+glidias.AllocatorF_glidias_Frustum.__name__ = ["glidias","AllocatorF_glidias_Frustum"];
+glidias.AllocatorF_glidias_Frustum.prototype._method = null;
+glidias.AllocatorF_glidias_Frustum.prototype._i = null;
+glidias.AllocatorF_glidias_Frustum.prototype._len = null;
+glidias.AllocatorF_glidias_Frustum.prototype._vec = null;
+glidias.AllocatorF_glidias_Frustum.prototype.fixed = null;
+glidias.AllocatorF_glidias_Frustum.prototype.get = function() {
+	return this._i < this._len?this._vec[this._i++]:this._vec[this._len++] = this._method();
+}
+glidias.AllocatorF_glidias_Frustum.prototype._pop = function() {
+	this._i--;
+}
+glidias.AllocatorF_glidias_Frustum.prototype.reset = function() {
+	this._i = 0;
+}
+glidias.AllocatorF_glidias_Frustum.prototype.getSize = function() {
+	return this._len;
+}
+glidias.AllocatorF_glidias_Frustum.prototype.purge = function() {
+	this._purge(null,null);
+}
+glidias.AllocatorF_glidias_Frustum.prototype.purgeAndTruncate = function(fixed) {
+	if(fixed == null) fixed = false;
+	this._purge(true,fixed);
+}
+glidias.AllocatorF_glidias_Frustum.prototype._purge = function(truncateLength,fixed) {
+	if(fixed == null) fixed = false;
+	if(truncateLength == null) truncateLength = false;
+	{
+		var _g1 = this._i, _g = this._len;
+		while(_g1 < _g) {
+			var i = _g1++;
+			this._vec[i] = null;
+		}
+	}
+	if(truncateLength) {
+		this._vec.length = this._i;
+		this._len = this._i;
+	}
+}
+glidias.AllocatorF_glidias_Frustum.prototype.fill = function(amount,fixed) {
+	this._vec.length = amount;
+	this._len = amount;
+	while(--amount > -1) {
+		if(this._vec[amount] == null) this._vec[amount] = this._method();
+	}
+}
+glidias.AllocatorF_glidias_Frustum.prototype.setFixed = function(val) {
+	this.fixed = val;
+}
+glidias.AllocatorF_glidias_Frustum.prototype.getFixed = function() {
+	return this.fixed;
+}
+glidias.AllocatorF_glidias_Frustum.prototype.kill = function() {
+	this.fill(0,false);
+	this._i = 0;
+}
+glidias.AllocatorF_glidias_Frustum.prototype.__class__ = glidias.AllocatorF_glidias_Frustum;
+glidias.Package = function() { }
+glidias.Package.__name__ = ["glidias","Package"];
+glidias.Package.main = function() {
 	null;
+}
+glidias.Package.prototype.__class__ = glidias.Package;
+glidias.AllocatorF = function(method,fillAmount,initialCapacity,fixed) { if( method === $_ ) return; {
+	if(fixed == null) fixed = false;
+	if(initialCapacity == null) initialCapacity = 0;
+	if(fillAmount == null) fillAmount = 0;
+	this._method = method;
+	this._len = 0;
+	this.fixed = fixed;
+	this._i = 0;
+	this._vec = new Array();
+	if(fillAmount > 0) this.fill(fillAmount,fixed);
 }}
-glidias.PlaneResult.__name__ = ["glidias","PlaneResult"];
-glidias.PlaneResult.getIdentity = function() {
-	var me = new glidias.PlaneResult();
-	me.pos = new glidias.Vec3(0,0,0);
-	me.up = new glidias.Vec3(0,1,0);
-	me.right = new glidias.Vec3(-1,0,0);
-	me.look = new glidias.Vec3(0,0,1);
-	return me;
+glidias.AllocatorF.__name__ = ["glidias","AllocatorF"];
+glidias.AllocatorF.prototype._method = null;
+glidias.AllocatorF.prototype._i = null;
+glidias.AllocatorF.prototype._len = null;
+glidias.AllocatorF.prototype._vec = null;
+glidias.AllocatorF.prototype.fixed = null;
+glidias.AllocatorF.prototype.get = function() {
+	return this._i < this._len?this._vec[this._i++]:this._vec[this._len++] = this._method();
 }
-glidias.PlaneResult.prototype.up = null;
-glidias.PlaneResult.prototype.right = null;
-glidias.PlaneResult.prototype.look = null;
-glidias.PlaneResult.prototype.pos = null;
-glidias.PlaneResult.prototype.width = null;
-glidias.PlaneResult.prototype.height = null;
-glidias.PlaneResult.prototype.getHTML = function(mat) {
-	return "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(this.width) + "px;height:" + Math.round(this.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
+glidias.AllocatorF.prototype._pop = function() {
+	this._i--;
 }
-glidias.PlaneResult.prototype.getOpenHTML = function(mat) {
-	return "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(this.width) + "px;height:" + Math.round(this.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">";
+glidias.AllocatorF.prototype.reset = function() {
+	this._i = 0;
 }
-glidias.PlaneResult.prototype.clone = function() {
-	var me = new glidias.PlaneResult();
-	me.up = this.up.clone();
-	me.right = this.right.clone();
-	me.look = this.look.clone();
-	me.pos = this.pos.clone();
-	me.width = this.width;
-	me.height = this.height;
-	return me;
+glidias.AllocatorF.prototype.getSize = function() {
+	return this._len;
 }
-glidias.PlaneResult.prototype.__class__ = glidias.PlaneResult;
-IntIter = function(min,max) { if( min === $_ ) return; {
-	this.min = min;
-	this.max = max;
+glidias.AllocatorF.prototype.purge = function() {
+	this._purge(null,null);
+}
+glidias.AllocatorF.prototype.purgeAndTruncate = function(fixed) {
+	if(fixed == null) fixed = false;
+	this._purge(true,fixed);
+}
+glidias.AllocatorF.prototype._purge = function(truncateLength,fixed) {
+	if(fixed == null) fixed = false;
+	if(truncateLength == null) truncateLength = false;
+	{
+		var _g1 = this._i, _g = this._len;
+		while(_g1 < _g) {
+			var i = _g1++;
+			this._vec[i] = null;
+		}
+	}
+	if(truncateLength) {
+		this._vec.length = this._i;
+		this._len = this._i;
+	}
+}
+glidias.AllocatorF.prototype.fill = function(amount,fixed) {
+	this._vec.length = amount;
+	this._len = amount;
+	while(--amount > -1) {
+		if(this._vec[amount] == null) this._vec[amount] = this._method();
+	}
+}
+glidias.AllocatorF.prototype.setFixed = function(val) {
+	this.fixed = val;
+}
+glidias.AllocatorF.prototype.getFixed = function() {
+	return this.fixed;
+}
+glidias.AllocatorF.prototype.kill = function() {
+	this.fill(0,false);
+	this._i = 0;
+}
+glidias.AllocatorF.prototype.__class__ = glidias.AllocatorF;
+glidias.AABBSectorVisController = function(fillAmount,initialCapacity) { if( fillAmount === $_ ) return; {
+	if(initialCapacity == null) initialCapacity = 0;
+	if(fillAmount == null) fillAmount = 0;
+	this.renderId++;
+	this.sectorStack = new glidias.ArrayBuffer_glidias_AABBSector();
+	this.frustumStack = new glidias.AllocatorF_glidias_Frustum($closure(glidias.Frustum,"create4"),fillAmount,initialCapacity);
 }}
-IntIter.__name__ = ["IntIter"];
-IntIter.prototype.min = null;
-IntIter.prototype.max = null;
-IntIter.prototype.hasNext = function() {
-	return this.min < this.max;
+glidias.AABBSectorVisController.__name__ = ["glidias","AABBSectorVisController"];
+glidias.AABBSectorVisController.prototype.curSector = null;
+glidias.AABBSectorVisController.prototype.sectorStack = null;
+glidias.AABBSectorVisController.prototype.frustumStack = null;
+glidias.AABBSectorVisController.prototype.renderId = null;
+glidias.AABBSectorVisController.prototype.getVisCount = function() {
+	return this.sectorStack.i;
 }
-IntIter.prototype.next = function() {
-	return this.min++;
+glidias.AABBSectorVisController.prototype.run = function(camPos,camFrus,sectors) {
+	this.renderId++;
+	this.frustumStack._i = 0;
+	var arr = this.sectorStack.arr;
+	var len = this.sectorStack.i;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			arr[i].dom.style.visibility = "hidden";
+		}
+	}
+	var s = this.curSector;
+	if(s == null) {
+		s = this.getCurrentSector(camPos,sectors);
+		if(s == null) {
+			return;
+		}
+		this.curSector = s;
+	}
+	else {
+		if(!!(camPos.x < s.minX || camPos.y < s.minY || camPos.z < s.minZ || camPos.x > s.maxX || camPos.y > s.maxY || camPos.z > s.maxZ)) {
+			s = this.getCurrentSector(camPos,sectors);
+			if(s != null && this.curSector != s) {
+				this.curSector = s;
+			}
+		}
+	}
+	this.sectorStack.i = 0;
+	var culling;
+	if((culling = camFrus.checkFrustumCulling(this.curSector,15)) >= 0) {
+		this.curSector.checkVis(camPos,this.frustumStack,camFrus,this.sectorStack,culling,this.renderId);
+	}
 }
-IntIter.prototype.__class__ = IntIter;
+glidias.AABBSectorVisController.prototype.getCurrentSector = function(camPos,sectors) {
+	var len = sectors.length;
+	var s;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			s = sectors[i];
+			if(!(camPos.x < s.minX || camPos.y < s.minY || camPos.z < s.minZ || camPos.x > s.maxX || camPos.y > s.maxY || camPos.z > s.maxZ)) return s;
+		}
+	}
+	return null;
+}
+glidias.AABBSectorVisController.prototype.__class__ = glidias.AABBSectorVisController;
 $_ = {}
 js.Boot.__res = {}
 js.Boot.__init();
-{
-	js.Lib.document = document;
-	js.Lib.window = window;
-	onerror = function(msg,url,line) {
-		var f = js.Lib.onerror;
-		if( f == null )
-			return false;
-		return f(msg,[url+":"+line]);
-	}
-}
 {
 	String.prototype.__class__ = String;
 	String.__name__ = ["String"];
@@ -1999,7 +2168,16 @@ js.Boot.__init();
 		return isNaN(i);
 	}
 }
-js.Lib.onerror = null;
+{
+	js.Lib.document = document;
+	js.Lib.window = window;
+	onerror = function(msg,url,line) {
+		var f = js.Lib.onerror;
+		if( f == null )
+			return false;
+		return f(msg,[url+":"+line]);
+	}
+}
 glidias.RoomFiller.COLS = 80;
 glidias.RoomFiller.ROWS = 80;
 glidias.RoomFiller.DIRT = 0;
@@ -2036,6 +2214,7 @@ glidias.AABBPortalPlane.OFFSET_BITMASKS = (function($this) {
 }(this));
 glidias.AABBPortalPlane.DIRECTIONS = [new glidias.Vec3(0,-1,0),new glidias.Vec3(-1,0,0),new glidias.Vec3(0,1,0),new glidias.Vec3(1,0,0)];
 glidias.AABBPortalPlane.UP = new glidias.Vec3(0,0,1);
+js.Lib.onerror = null;
 glidias.AABBUtils.MAX_VALUE = 1.7976931348623157e+308;
 glidias.AABBUtils.THRESHOLD = .1;
 glidias.Package.main()
