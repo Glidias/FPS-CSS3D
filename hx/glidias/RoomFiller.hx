@@ -195,6 +195,7 @@ package glidias;
 			var d:Int;
 			var c:Int;
 			var exit:Bool = false;
+			var addedPortals:Array<AABBPortal> = [];
 			//var gotCoridoor:Bool;
 			for (i in 0...len) {
 				door = doors[i];
@@ -303,7 +304,7 @@ package glidias;
 				portal.id = "c_s"; 
 				direction = portal.setup((target >= 0 ? map[target] : null ), door, gridSize, gridSize, doorHeight, groundPos);
 				sector.addPortal(portal, direction);
-				
+				addedPortals.push(portal);
 				
 				direction = AABBPortalPlane.getReverse(direction);  // flip direction
 				var p;
@@ -312,7 +313,9 @@ package glidias;
 					p = portal.getReverse(sector, direction);
 					p.id  = "s_c";
 					map[target].addPortal( p, direction );
+					addedPortals.push(p);
 				}
+			
 			
 				
 				
@@ -323,21 +326,35 @@ package glidias;
 					continue;
 				}
 				
-				var copyDir:Vec3 = AABBPortalPlane.DIRECTIONS[direction];
-				var copyOffset:Float = AABBPortalPlane.isDoorValHorizontal(direction) ? abs(door.z)*gridSize : abs(door.w)*gridSize;
-				portal =  portal.clone(map[target],copyDir.x*copyOffset,copyDir.y*copyOffset,copyDir.z*copyOffset);
-				portal.id  = "c_s2";
-				//portal.setup();  //map[target], new Int4(door.x + door.z, door.y + door.w, -door.z, -door.w), gridSize, gridSize, doorHeight, groundPos
-				sector.addPortal(portal, direction);
 				
-		
+				var copyDir:Vec3 = AABBPortalPlane.DIRECTIONS[direction];
+				var copyOffset:Float = AABBPortalPlane.isDoorValHorizontal(direction) ? (AABBPortalPlane.abs(door.z)+1)*gridSize : (AABBPortalPlane.abs(door.w)+1)*gridSize;
+				portal =  portal.clone2(map[target], copyDir.x*-copyOffset,copyDir.y*-copyOffset,copyDir.z*-copyOffset);
+				// portal.points.reverse();
+				
+				//portal =  new AABBPortal();
+				//portal.setup(map[target], new Int4(door.x + door.z, door.y + door.w, -door.z, -door.w), gridSize, gridSize, doorHeight, groundPos); 
+				portal.id  = "c_s2";
+				sector.addPortal(portal, direction);
+				addedPortals.push(portal);
+				
 				direction = AABBPortalPlane.getReverse(direction);   // flip direction
 				
 				//  create portal from opposite sector to corridoor in reversed direction
 				p = portal.getReverse(sector, direction, true);
 				p.id = "s_c2";
 				map[target].addPortal(p, direction );
-				
+				addedPortals.push(p);
+			}
+			
+			len = addedPortals.length;
+			
+			// fix portal points so that first portal point aligns top left.
+			var points:Array<Vec3>;
+			for (i in 0...len) {
+				portal = addedPortals[i];
+				points = portal.points;
+				portal.points = [points[3], points[0], points[1], points[2]];
 			}
 			
 			return map;

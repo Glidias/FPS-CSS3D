@@ -72,9 +72,9 @@ class Frustum
 		
 		var planes:Array<Vec3> = this.planes;
 		
-		//camX = 99999999999;
-	//	camY = 99999999999;
-		//camZ = 99999999999;
+		//camX = 999999999;
+		//camY = -999999999;
+		//camZ = 999999999;
 		//pts =[new Vec3(99999999999,99999999999,99999999999), new Vec3(99999999999,99999999999,99999999999), new Vec3(99999999999,99999999999,99999999999), new Vec3(99999999999,99999999999,99999999999)];
 		
 		p = planes[o];
@@ -93,7 +93,7 @@ class Frustum
 		p.y = vy;
 		p.z = vz;
 		p.w = vx * camX + vy * camY + vz * camZ;
-		//p.flip();	 // BUG: need to flip  plane for CSS 
+		p.flip();	 // BUG: need to flip  plane for CSS 
 		o++;
 		
 		p = planes[o];
@@ -112,7 +112,7 @@ class Frustum
 		p.y = vy;
 		p.z = vz;
 		p.w = vx * camX + vy * camY + vz * camZ;
-	//	p.flip();	 // BUG: need to flip  plane for CSS 
+		p.flip();	 // BUG: need to flip  plane for CSS 
 		o++;
 		
 		p = planes[o];
@@ -131,7 +131,7 @@ class Frustum
 		p.y = vy;
 		p.z = vz;
 		p.w = vx * camX + vy * camY + vz * camZ;
-	//	p.flip();	 // BUG: need to flip  plane for CSS 
+		p.flip();	 // BUG: need to flip  plane for CSS 
 		o++;
 		
 		p = planes[o];
@@ -150,10 +150,64 @@ class Frustum
 		p.y = vy;
 		p.z = vz;
 		p.w = vx * camX + vy * camY + vz * camZ;
-	//	p.flip();	 // BUG: need to flip  plane for CSS 
+		p.flip();	 // BUG: need to flip  plane for CSS 
 		
 		return this;
 		
+	}
+	
+	public function checkVisibility(a:IAABB):Bool {
+		var side:Int = 1;
+		var planes = this.planes;
+		var len = planes.length;
+		var minX:Float = a.minX;
+		var minY:Float = a.minY;
+		var minZ:Float = a.minZ;
+		var maxX:Float = a.maxX;
+		var maxY:Float = a.maxY;
+		var maxZ:Float = a.maxZ;
+
+		
+		for (i in 0...len) {
+			var plane:Vec3 = planes[i];
+			
+				if (plane.x >= 0)   
+				if (plane.y >= 0)
+				if (plane.z >= 0) {
+				if (maxX*plane.x + maxY*plane.y + maxZ*plane.z <= plane.w) return false;
+				//if (minX*plane.x + minY*plane.y + minZ*plane.z > plane.w) return true;
+				} else {
+				if (maxX*plane.x + maxY*plane.y + minZ*plane.z <= plane.w) return false;
+				//if (minX*plane.x + minY*plane.y + maxZ*plane.z > plane.w) return true;
+				}
+				else
+				if (plane.z >= 0) {
+				if (maxX*plane.x + minY*plane.y + maxZ*plane.z <= plane.w) return false;
+				//if (minX*plane.x + maxY*plane.y + minZ*plane.z > plane.w) return true;
+				} else {
+				if (maxX*plane.x + minY*plane.y + minZ*plane.z <= plane.w) return false;
+				//if (minX*plane.x + maxY*plane.y + maxZ*plane.z > plane.w) return true;
+				}
+				else if (plane.y >= 0)
+				if (plane.z >= 0) {
+				if (minX*plane.x + maxY*plane.y + maxZ*plane.z <= plane.w) return false;
+				//if (maxX*plane.x + minY*plane.y + minZ*plane.z > plane.w) return true;
+				} else {
+				if (minX*plane.x + maxY*plane.y + minZ*plane.z <= plane.w) return false;
+				//if (maxX*plane.x + minY*plane.y + maxZ*plane.z > plane.w) return true;
+				}
+				else if (plane.z >= 0) {
+				if (minX*plane.x + minY*plane.y + maxZ*plane.z <= plane.w) return false;
+				//if (maxX*plane.x + maxY*plane.y + minZ*plane.z > plane.w) return true;
+				} else {
+				if (minX*plane.x + minY*plane.y + minZ*plane.z <= plane.w) return false;
+				//if (maxX*plane.x + maxY*plane.y + maxZ*plane.z > plane.w) return true;
+				}
+				
+			
+			side <<= 1;
+		}
+		return true;
 	}
 	
 	/**
@@ -164,7 +218,7 @@ class Frustum
 	 */
 	public  function checkFrustumCulling(a:IAABB, culling:Int):Int {
 		
-		if (planes.length == 4) return -1;
+	//	if (planes.length == 4) return -1;
 		
 		var side:Int = 1;
 		var planes = this.planes;

@@ -59,10 +59,10 @@ class AABBSectorVisController
 		}
 		
 		sectorStack.reset();
-		var culling:Int;
-		if ( (culling = camFrus.checkFrustumCulling(curSector, 15)) >= 0 ) {
-			curSector.checkVis(camPos, frustumStack, camFrus, sectorStack, culling, renderId);
-		}
+	
+		//if (  camFrus.checkVisibility(curSector)) >= 0 ) {
+			curSector.checkVis(camPos, frustumStack, camFrus, sectorStack, renderId);
+		//}
 		
 		
 		

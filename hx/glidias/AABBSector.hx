@@ -47,7 +47,7 @@ class AABBSector implements IAABB
 	
 	//private static var COUNT:Int = 0;
 	// conveneint recursive method
-	public  function checkVis(camPos:Vec3, buffer:AllocatorF<Frustum>, frus:Frustum, visibleSectors:ArrayBuffer<AABBSector>, culling:Int, renderId:Int):Void {
+	public  function checkVis(camPos:Vec3, buffer:AllocatorF<Frustum>, frus:Frustum, visibleSectors:ArrayBuffer<AABBSector>, renderId:Int):Void {
 	//	if (COUNT == 0) 
 		//COUNT++;
 		
@@ -55,7 +55,7 @@ class AABBSector implements IAABB
 		this.renderId = renderId;  // prevent infinite render twice situations..
 		visibleSectors.push(this);
 		
-		var c:Int;
+		
 		var p:AABBPortalPlane;
 		var ptl;
 		var pl:Int;
@@ -63,21 +63,23 @@ class AABBSector implements IAABB
 		var portal:AABBPortal;
 		var len = portalWalls.length;
 		var port:AABBSector;
-		//var cFrus:Frustum;
+		var cFrus:Frustum;
 	
 		for (i in 0...len) {
 			p = portalWalls[i];
-			if ( (c = frus.checkFrustumCulling(p, culling)) >= 0) {
+			if ( frus.checkVisibility(p) ) {
 				ptl = p.portals;
 				pl = ptl.length;
 				for (u in 0...pl) {
 					portal = ptl[u];
-					if ((cp = frus.checkFrustumCulling(portal, c)) >= 0) {
+					if (frus.checkVisibility(portal)) {
 						port = portal.target;
 						if (port == null) continue;
 						if (port.renderId != renderId) {
-					
-							port.checkVis(camPos, buffer, 	buffer.get().setup4FromPortal(camPos.x, camPos.y, camPos.z, portal.points, 0), visibleSectors, cp, renderId);
+							cFrus = buffer.get().setup4FromPortal(camPos.x, camPos.y, camPos.z, portal.points);
+							cFrus.planes[4] = frus.planes[4];
+							cFrus.planes[5] = frus.planes[5];
+							port.checkVis(camPos, buffer, cFrus , visibleSectors,  renderId);
 						}
 					}
 				}

@@ -44,6 +44,7 @@ class AABBPortal implements IAABB
 		var meNew:AABBPortal = new AABBPortal();
 		AABBUtils.match(meNew, this);
 		
+		/*
 		if (!version2) {
 			if (direction == AABBPortalPlane.WEST) {
 				meNew.points = [points[1], points[2], points[3], points[0]  ];
@@ -80,9 +81,13 @@ class AABBPortal implements IAABB
 			}
 			
 		}
+		*/
 //
-
-//meNew.points.reverse(); // reverse poitns so they face opposite direction
+var len:Int = points.length;
+for( i in 0...len) {
+	meNew.points[i] = points[i].clone();
+}
+meNew.points.reverse(); // reverse poitns so they face opposite direction
 		//AABBUtils.reset(meNew);
 		//AABBUtils.expandWithPoint(meNew.points[0], meNew);
 		//AABBUtils.expandWithPoint(meNew.points[2], meNew); 
@@ -96,26 +101,33 @@ class AABBPortal implements IAABB
 	}
 	
 	
-	public function clone(newTarget:AABBSector, ox:Float = 0, oy:Float = 0, oz:Float=0 ):AABBPortal 
+	public function clone2(newTarget:AABBSector, ox:Float = 0, oy:Float = 0, oz:Float=0 ):AABBPortal 
 	{
 		var meNew:AABBPortal = new AABBPortal();
 		//AABBUtils.match(meNew, this);
-		AABBUtils.reset(this);
+		AABBUtils.reset(meNew);
 
 		meNew.width = width;
 		meNew.height = height;
 		meNew.target = newTarget;
 		
+		var mePoints:Array<Vec3> = [];
 		var len:Int = points.length;
+		var p:Vec3;
 		for (i in 0...len) {
-			var p:Vec3 = points[i];
+			 p = points[i];
+			p = p.clone();
 			p.x += ox;
 			p.y += oy;
 			p.z += oz;
-			AABBUtils.expand(p.x,p.y,p.z, this);
+			mePoints[i] = p;
+			AABBUtils.expand(p.x,p.y,p.z, meNew);
 		}
 		
 		
+	
+		meNew.points = mePoints;
+		meNew.points.reverse();
 		return meNew;
 	}
 	
@@ -189,7 +201,7 @@ class AABBPortal implements IAABB
 		pz += up.z  * p;
 		points.push(new Vec3(px, py, pz, 1));
 		
-		//AABBUtils.expand(px, py, pz, this);
+		AABBUtils.expand(px, py, pz, this);  // temp
 		// set bounds to above top-left and expand outward by height and width in antoclockwise direction
 		
 		
@@ -207,7 +219,7 @@ class AABBPortal implements IAABB
 		py += up.y  * p;
 		pz += up.z  * p;
 		points.push(new Vec3(px, py, pz, 1));
-		
+		AABBUtils.expand(px, py, pz, this);  // temp
 		
 		
 		// shift over to right
@@ -235,7 +247,7 @@ class AABBPortal implements IAABB
 		py += up.y  * p;
 		pz += up.z  * p;
 		points.push(new Vec3(px, py, pz, 1));
-		//AABBUtils.expand(px, py, pz, this);
+		AABBUtils.expand(px, py, pz, this);  // temp
 		
 		
 		// top right
@@ -252,16 +264,22 @@ class AABBPortal implements IAABB
 		py += up.y  * p;
 		pz += up.z  * p;
 		points.push(new Vec3(px, py, pz, 1));
+		AABBUtils.expand(px, py, pz, this);  // temp
 		
+		// doing this woudl force a clockwise motion
+		// not sure why, positive direction?
+		if ((dir==AABBPortalPlane.WEST) || (dir==AABBPortalPlane.SOUTH)) points.reverse();
 		
 		// Ensure that point starts anti-clockwise at the top-left hand corner from door-facing.
 		// This sucks, harccoded cross product conditional...vicey versa swappey logic
+		/*
 		if (AABBPortalPlane.isDoorValHorizontal(dir)) {  // use 3012 instead order instead
 			if (!reverse) points = [ points[3], points[0], points[1], points[2]  ];
 		}
 		else {
 			if (reverse) points = [ points[3], points[0], points[1], points[2]  ];
 		}
+		*/
 		
 		// Form bounds by crossing diagonal line
 		AABBUtils.expandWithPoint(points[0], this);

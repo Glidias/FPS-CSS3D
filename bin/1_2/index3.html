@@ -268,6 +268,7 @@
 				for (i = 0; i<len; i++) {
 					sectors[i].dom = sectorJ[i];
 					sectors[i].setVis(false);
+					sectorJ[i].style.opacity = ".8";
 				}
 				$("#scene").append(sectorJ);
 				
@@ -301,7 +302,7 @@
 						var count = portalViser.getVisCount();
 					
 						if (count > 1) {
-							var pt = portalViser.frustumStack._vec[0 ].debugPts[(Math.round(counter/30) & 3)]; //(Math.round(counter/30) & 3)
+							var pt = portalViser.frustumStack._vec[0 ].debugPts[(Math.round(counter/30) & 3)]; //[(Math.round(counter/30) & 3)
 							marker.style["-webkit-transform"] = "translate3d("+Math.round(pt.x)+"px,"+Math.round(pt.y)+"px,"+Math.round(pt.z)+"px)";
 						}
 						else marker.style["-webkit-transform"] = "translate3d("+Math.round(0)+"px,"+Math.round(0)+"px,"+Math.round(0)+"px)";
