@@ -38,10 +38,12 @@ glidias.Frustum.prototype.fillNewPlanes = function() {
 		}
 	}
 }
+glidias.Frustum.prototype.debugPts = null;
 glidias.Frustum.prototype.setup4FromPortal = function(camX,camY,camZ,pts,o) {
 	if(o == null) o = 0;
 	var a;
 	var b;
+	this.debugPts = pts;
 	var ax, ay, az;
 	var bx, by, bz;
 	var vx, vy, vz;
@@ -50,12 +52,12 @@ glidias.Frustum.prototype.setup4FromPortal = function(camX,camY,camZ,pts,o) {
 	p = planes[o];
 	a = pts[0];
 	b = pts[1];
-	ax = b.x - camX;
-	ay = b.y - camY;
-	az = b.z - camZ;
-	bx = a.x - camX;
-	by = a.y - camY;
-	bz = a.z - camZ;
+	ax = a.x - camX;
+	ay = a.y - camY;
+	az = a.z - camZ;
+	bx = b.x - camX;
+	by = b.y - camY;
+	bz = b.z - camZ;
 	vx = ay * bz - az * by;
 	vy = az * bx - ax * bz;
 	vz = ax * by - ay * bx;
@@ -67,12 +69,12 @@ glidias.Frustum.prototype.setup4FromPortal = function(camX,camY,camZ,pts,o) {
 	p = planes[o];
 	a = pts[1];
 	b = pts[2];
-	ax = b.x - camX;
-	ay = b.y - camY;
-	az = b.z - camZ;
-	bx = a.x - camX;
-	by = a.y - camY;
-	bz = a.z - camZ;
+	ax = a.x - camX;
+	ay = a.y - camY;
+	az = a.z - camZ;
+	bx = b.x - camX;
+	by = b.y - camY;
+	bz = b.z - camZ;
 	vx = ay * bz - az * by;
 	vy = az * bx - ax * bz;
 	vz = ax * by - ay * bx;
@@ -84,12 +86,12 @@ glidias.Frustum.prototype.setup4FromPortal = function(camX,camY,camZ,pts,o) {
 	p = planes[o];
 	a = pts[2];
 	b = pts[3];
-	ax = b.x - camX;
-	ay = b.y - camY;
-	az = b.z - camZ;
-	bx = a.x - camX;
-	by = a.y - camY;
-	bz = a.z - camZ;
+	ax = a.x - camX;
+	ay = a.y - camY;
+	az = a.z - camZ;
+	bx = b.x - camX;
+	by = b.y - camY;
+	bz = b.z - camZ;
 	vx = ay * bz - az * by;
 	vy = az * bx - ax * bz;
 	vz = ax * by - ay * bx;
@@ -101,12 +103,12 @@ glidias.Frustum.prototype.setup4FromPortal = function(camX,camY,camZ,pts,o) {
 	p = planes[o];
 	a = pts[3];
 	b = pts[0];
-	ax = b.x - camX;
-	ay = b.y - camY;
-	az = b.z - camZ;
-	bx = a.x - camX;
-	by = a.y - camY;
-	bz = a.z - camZ;
+	ax = a.x - camX;
+	ay = a.y - camY;
+	az = a.z - camZ;
+	bx = b.x - camX;
+	by = b.y - camY;
+	bz = b.z - camZ;
 	vx = ay * bz - az * by;
 	vy = az * bx - ax * bz;
 	vz = ax * by - ay * bx;
@@ -117,6 +119,7 @@ glidias.Frustum.prototype.setup4FromPortal = function(camX,camY,camZ,pts,o) {
 	return this;
 }
 glidias.Frustum.prototype.checkFrustumCulling = function(a,culling) {
+	if(this.planes.length == 4) return -1;
 	var side = 1;
 	var planes = this.planes;
 	var len = planes.length;
@@ -368,9 +371,39 @@ glidias.AABBPortal.prototype.getReverse = function(newTarget,direction,version2)
 	meNew.target = newTarget;
 	return meNew;
 }
+glidias.AABBPortal.prototype.clone = function(newTarget,ox,oy,oz) {
+	if(oz == null) oz = 0;
+	if(oy == null) oy = 0;
+	if(ox == null) ox = 0;
+	var meNew = new glidias.AABBPortal();
+	{
+		this.minX = 1.7976931348623157e+308;
+		this.minY = 1.7976931348623157e+308;
+		this.minZ = 1.7976931348623157e+308;
+		this.maxX = -1.7976931348623157e+308;
+		this.maxY = -1.7976931348623157e+308;
+		this.maxZ = -1.7976931348623157e+308;
+	}
+	meNew.width = this.width;
+	meNew.height = this.height;
+	meNew.target = newTarget;
+	var len = this.points.length;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			var p = this.points[i];
+			p.x += ox;
+			p.y += oy;
+			p.z += oz;
+			glidias.AABBUtils.expand(p.x,p.y,p.z,this);
+		}
+	}
+	return meNew;
+}
 glidias.AABBPortal.prototype.traceValid = function() {
-	if(this.points[0].z <= 0) haxe.Log.trace("Invalid first point z!" + this.points[0].z,{ fileName : "AABBPortal.hx", lineNumber : 99, className : "glidias.AABBPortal", methodName : "traceValid"});
-	if(this.points[0].z == this.points[2].z) haxe.Log.trace("Invalid first point z 2222!",{ fileName : "AABBPortal.hx", lineNumber : 100, className : "glidias.AABBPortal", methodName : "traceValid"});
+	if(this.points[0].z <= 0) haxe.Log.trace("Invalid first point z!" + this.points[0].z,{ fileName : "AABBPortal.hx", lineNumber : 123, className : "glidias.AABBPortal", methodName : "traceValid"});
+	if(this.points[0].z == this.points[2].z) haxe.Log.trace("Invalid first point z 2222!",{ fileName : "AABBPortal.hx", lineNumber : 124, className : "glidias.AABBPortal", methodName : "traceValid"});
 }
 glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doorHeight,groundPos) {
 	this.target = target;
@@ -691,9 +724,10 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 				haxe.Log.trace("Dead end.",{ fileName : "RoomFiller.hx", lineNumber : 322, className : "glidias.RoomFiller", methodName : "getSectors"});
 				continue;
 			}
-			portal = new glidias.AABBPortal();
+			var copyDir = glidias.AABBPortalPlane.DIRECTIONS[direction];
+			var copyOffset = (direction & 1) != 0?this.abs(door.z) * gridSize:this.abs(door.w) * gridSize;
+			portal = portal.clone(map[target],copyDir.x * copyOffset,copyDir.y * copyOffset,copyDir.z * copyOffset);
 			portal.id = "c_s2";
-			portal.setup(map[target],new glidias.Int4(door.x + door.z,door.y + door.w,-door.z,-door.w),gridSize,gridSize,this.doorHeight,groundPos);
 			sector.addPortal(portal,direction);
 			direction = glidias.AABBPortalPlane.getReverse(direction);
 			p = portal.getReverse(sector,direction,true);
@@ -705,7 +739,7 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 }
 glidias.RoomFiller.prototype.getSectorIndexAt = function(tx,ty) {
 	if(tx < 0 || tx >= 80 || ty < 0 || ty >= 80) {
-		haxe.Log.trace("out of bound getSectorIndexAt",{ fileName : "RoomFiller.hx", lineNumber : 355, className : "glidias.RoomFiller", methodName : "getSectorIndexAt"});
+		haxe.Log.trace("out of bound getSectorIndexAt",{ fileName : "RoomFiller.hx", lineNumber : 356, className : "glidias.RoomFiller", methodName : "getSectorIndexAt"});
 	}
 	return this.grid[tx][ty] - 4;
 }
@@ -797,7 +831,7 @@ glidias.RoomFiller.prototype.setInterval = function(target,timeMs) {
 glidias.RoomFiller.prototype.createFeature = function() {
 	if(this.currFeature-- == 0) {
 		if(this.roomInterv != -1) null;
-		haxe.Log.trace("Done.",{ fileName : "RoomFiller.hx", lineNumber : 483, className : "glidias.RoomFiller", methodName : "createFeature"});
+		haxe.Log.trace("Done.",{ fileName : "RoomFiller.hx", lineNumber : 484, className : "glidias.RoomFiller", methodName : "createFeature"});
 		return false;
 	}
 	var i, j;
@@ -946,7 +980,7 @@ glidias.RoomFiller.prototype.createRoom = function(s,e,w,h) {
 					var _g3 = e, _g2 = h + 1;
 					while(_g3 < _g2) {
 						var j = _g3++;
-						if(this.grid[i][j] == 3) haxe.Log.trace("Covered corridoor exception!",{ fileName : "RoomFiller.hx", lineNumber : 696, className : "glidias.RoomFiller", methodName : "createRoom"});
+						if(this.grid[i][j] == 3) haxe.Log.trace("Covered corridoor exception!",{ fileName : "RoomFiller.hx", lineNumber : 697, className : "glidias.RoomFiller", methodName : "createRoom"});
 						if(i == s || i == w || j == e || j == h) this.grid[i][j] = 1;
 						else this.grid[i][j] = 4 + roomLen;
 					}
@@ -1318,9 +1352,6 @@ glidias.ArrayBuffer = function(p) { if( p === $_ ) return; {
 glidias.ArrayBuffer.__name__ = ["glidias","ArrayBuffer"];
 glidias.ArrayBuffer.prototype.arr = null;
 glidias.ArrayBuffer.prototype.i = null;
-glidias.ArrayBuffer.prototype.pop = function() {
-	this.i--;
-}
 glidias.ArrayBuffer.prototype.push = function(val) {
 	this.arr[this.i++] = val;
 }
@@ -1362,6 +1393,7 @@ glidias.Rectangle.prototype.toString = function() {
 }
 glidias.Rectangle.prototype.__class__ = glidias.Rectangle;
 glidias.AABBSector = function(p) { if( p === $_ ) return; {
+	this.id = glidias.AABBSector.ID_COUNT++;
 	this.renderId = -999999999;
 }}
 glidias.AABBSector.__name__ = ["glidias","AABBSector"];
@@ -1379,6 +1411,10 @@ glidias.AABBSector.prototype.groundPos = null;
 glidias.AABBSector.prototype.dom = null;
 glidias.AABBSector.prototype.setVis = function(val) {
 	this.dom.style.visibility = val?"visible":"hidden";
+}
+glidias.AABBSector.prototype.id = null;
+glidias.AABBSector.prototype.toString = function() {
+	return "Sector:" + this.id + ">>" + this.renderId;
 }
 glidias.AABBSector.prototype.checkVis = function(camPos,buffer,frus,visibleSectors,culling,renderId) {
 	this.dom.style.visibility = "visible";
@@ -1408,8 +1444,9 @@ glidias.AABBSector.prototype.checkVis = function(camPos,buffer,frus,visibleSecto
 						if((cp = frus.checkFrustumCulling(portal,c)) >= 0) {
 							port = portal.target;
 							if(port == null) continue;
-							visibleSectors.arr[visibleSectors.i++] = port;
-							if(port.renderId != renderId) port.checkVis(camPos,buffer,(buffer._i < buffer._len?buffer._vec[buffer._i++]:buffer._vec[buffer._len++] = buffer._method()).setup4FromPortal(camPos.x,camPos.y,camPos.z,portal.points,0),visibleSectors,cp,renderId);
+							if(port.renderId != renderId) {
+								port.checkVis(camPos,buffer,(buffer._i < buffer._len?buffer._vec[buffer._i++]:buffer._vec[buffer._len++] = buffer._method()).setup4FromPortal(camPos.x,camPos.y,camPos.z,portal.points,0),visibleSectors,cp,renderId);
+							}
 						}
 					}
 				}
@@ -1859,9 +1896,6 @@ glidias.ArrayBuffer_glidias_AABBSector = function(p) { if( p === $_ ) return; {
 glidias.ArrayBuffer_glidias_AABBSector.__name__ = ["glidias","ArrayBuffer_glidias_AABBSector"];
 glidias.ArrayBuffer_glidias_AABBSector.prototype.arr = null;
 glidias.ArrayBuffer_glidias_AABBSector.prototype.i = null;
-glidias.ArrayBuffer_glidias_AABBSector.prototype.pop = function() {
-	this.i--;
-}
 glidias.ArrayBuffer_glidias_AABBSector.prototype.push = function(val) {
 	this.arr[this.i++] = val;
 }
@@ -2079,7 +2113,7 @@ glidias.AllocatorF.prototype.__class__ = glidias.AllocatorF;
 glidias.AABBSectorVisController = function(fillAmount,initialCapacity) { if( fillAmount === $_ ) return; {
 	if(initialCapacity == null) initialCapacity = 0;
 	if(fillAmount == null) fillAmount = 0;
-	this.renderId++;
+	this.renderId = 0;
 	this.sectorStack = new glidias.ArrayBuffer_glidias_AABBSector();
 	this.frustumStack = new glidias.AllocatorF_glidias_Frustum($closure(glidias.Frustum,"create4"),fillAmount,initialCapacity);
 }}
@@ -2214,6 +2248,7 @@ glidias.AABBPortalPlane.OFFSET_BITMASKS = (function($this) {
 }(this));
 glidias.AABBPortalPlane.DIRECTIONS = [new glidias.Vec3(0,-1,0),new glidias.Vec3(-1,0,0),new glidias.Vec3(0,1,0),new glidias.Vec3(1,0,0)];
 glidias.AABBPortalPlane.UP = new glidias.Vec3(0,0,1);
+glidias.AABBSector.ID_COUNT = 0;
 js.Lib.onerror = null;
 glidias.AABBUtils.MAX_VALUE = 1.7976931348623157e+308;
 glidias.AABBUtils.THRESHOLD = .1;

@@ -17,13 +17,15 @@ class AABBSectorVisController
 	{
 
 	
-		renderId++;
+		renderId = 0;
 		sectorStack = new ArrayBuffer<AABBSector>();
 		frustumStack = new AllocatorF<Frustum>(Frustum.create4, fillAmount, initialCapacity);
 	}
 	public inline function getVisCount():Int {
 		return sectorStack.i;
 	}
+	
+
 	
 	public function run(camPos:Vec3, camFrus:Frustum, sectors:Array<AABBSector>):Void {
 
@@ -61,6 +63,10 @@ class AABBSectorVisController
 		if ( (culling = camFrus.checkFrustumCulling(curSector, 15)) >= 0 ) {
 			curSector.checkVis(camPos, frustumStack, camFrus, sectorStack, culling, renderId);
 		}
+		
+		
+		
+		
 		
 	}
 	

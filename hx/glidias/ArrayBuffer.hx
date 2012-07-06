@@ -16,15 +16,16 @@ class ArrayBuffer<T> implements haxe.rtti.Generic
 		arr = new Array<T>();
 	}
 	
-	public inline function pop():Void {
-		i--;
-		
-	}
+	//public inline function pop():Void {
+	//	i--;
+	//}
 	public inline function push(val:T):Void {
 		arr[i++] = val;
 	}
 	public inline function reset():Void {
 		i = 0;
 	}
+	
+	
 	
 }

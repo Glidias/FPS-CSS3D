@@ -48,8 +48,9 @@ class Frustum
 		return me;
 	}
 	
-
 	
+	public var debugPts:Array<Vec3>;
+
 	/**
 	 * Sets up 4 planes based on portal.
 	 * @param	camX
@@ -62,6 +63,7 @@ class Frustum
 		var a:Vec3;
 		var b:Vec3;
 		
+		debugPts = pts;
 		
 		var ax:Float, ay:Float, az:Float;
 		var bx:Float, by:Float, bz:Float;
@@ -70,15 +72,20 @@ class Frustum
 		
 		var planes:Array<Vec3> = this.planes;
 		
+		//camX = 99999999999;
+	//	camY = 99999999999;
+		//camZ = 99999999999;
+		//pts =[new Vec3(99999999999,99999999999,99999999999), new Vec3(99999999999,99999999999,99999999999), new Vec3(99999999999,99999999999,99999999999), new Vec3(99999999999,99999999999,99999999999)];
+		
 		p = planes[o];
 		a = pts[0];
 		b = pts[1];
-		ax =b.x - camX;
-		ay = b.y - camY;
-		az = b.z - camZ;
-		bx=a.x - camX;
-		by=a.y - camY;
-		bz = a.z - camZ;
+		ax =a.x - camX;
+		ay = a.y - camY;
+		az = a.z - camZ;
+		bx=b.x - camX;
+		by=b.y - camY;
+		bz = b.z - camZ;
 		vx = ay * bz - az* by;
 		vy = az * bx - ax * bz;
 		vz = ax * by - ay * bx;
@@ -86,19 +93,18 @@ class Frustum
 		p.y = vy;
 		p.z = vz;
 		p.w = vx * camX + vy * camY + vz * camZ;
-	//	p.flip();	 // BUG: need to flip  plane for CSS 
-		
+		//p.flip();	 // BUG: need to flip  plane for CSS 
 		o++;
 		
 		p = planes[o];
 		a = pts[1];
 		b = pts[2];
-		ax =b.x - camX;
-		ay = b.y - camY;
-		az = b.z - camZ;
-		bx=a.x - camX;
-		by=a.y - camY;
-		bz = a.z - camZ;
+		ax =a.x - camX;
+		ay = a.y - camY;
+		az = a.z - camZ;
+		bx=b.x - camX;
+		by=b.y - camY;
+		bz = b.z - camZ;
 		vx = ay * bz - az* by;
 		vy = az * bx - ax * bz;
 		vz = ax * by - ay * bx;
@@ -112,12 +118,12 @@ class Frustum
 		p = planes[o];
 		a = pts[2];
 		b = pts[3];
-		ax =b.x - camX;
-		ay = b.y - camY;
-		az = b.z - camZ;
-		bx=a.x - camX;
-		by=a.y - camY;
-		bz = a.z - camZ;
+		ax =a.x - camX;
+		ay = a.y - camY;
+		az = a.z - camZ;
+		bx=b.x - camX;
+		by=b.y - camY;
+		bz = b.z - camZ;
 		vx = ay * bz - az* by;
 		vy = az * bx - ax * bz;
 		vz = ax * by - ay * bx;
@@ -131,12 +137,12 @@ class Frustum
 		p = planes[o];
 		a = pts[3];
 		b = pts[0];
-		ax =b.x - camX;
-		ay = b.y - camY;
-		az = b.z - camZ;
-		bx=a.x - camX;
-		by=a.y - camY;
-		bz = a.z - camZ;
+		ax =a.x - camX;
+		ay = a.y - camY;
+		az = a.z - camZ;
+		bx=b.x - camX;
+		by=b.y - camY;
+		bz = b.z - camZ;
 		vx = ay * bz - az* by;
 		vy = az * bx - ax * bz;
 		vz = ax * by - ay * bx;
@@ -157,6 +163,9 @@ class Frustum
 	 * @return	The culling bitmask
 	 */
 	public  function checkFrustumCulling(a:IAABB, culling:Int):Int {
+		
+		if (planes.length == 4) return -1;
+		
 		var side:Int = 1;
 		var planes = this.planes;
 		var len = planes.length;

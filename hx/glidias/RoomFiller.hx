@@ -323,10 +323,11 @@ package glidias;
 					continue;
 				}
 				
-				
-				portal =  new AABBPortal();
+				var copyDir:Vec3 = AABBPortalPlane.DIRECTIONS[direction];
+				var copyOffset:Float = AABBPortalPlane.isDoorValHorizontal(direction) ? abs(door.z)*gridSize : abs(door.w)*gridSize;
+				portal =  portal.clone(map[target],copyDir.x*copyOffset,copyDir.y*copyOffset,copyDir.z*copyOffset);
 				portal.id  = "c_s2";
-				portal.setup(map[target], new Int4(door.x + door.z, door.y + door.w, -door.z, -door.w), gridSize, gridSize, doorHeight, groundPos); 
+				//portal.setup();  //map[target], new Int4(door.x + door.z, door.y + door.w, -door.z, -door.w), gridSize, gridSize, doorHeight, groundPos
 				sector.addPortal(portal, direction);
 				
 		

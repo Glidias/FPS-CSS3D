@@ -95,6 +95,30 @@ class AABBPortal implements IAABB
 		return meNew;
 	}
 	
+	
+	public function clone(newTarget:AABBSector, ox:Float = 0, oy:Float = 0, oz:Float=0 ):AABBPortal 
+	{
+		var meNew:AABBPortal = new AABBPortal();
+		//AABBUtils.match(meNew, this);
+		AABBUtils.reset(this);
+
+		meNew.width = width;
+		meNew.height = height;
+		meNew.target = newTarget;
+		
+		var len:Int = points.length;
+		for (i in 0...len) {
+			var p:Vec3 = points[i];
+			p.x += ox;
+			p.y += oy;
+			p.z += oz;
+			AABBUtils.expand(p.x,p.y,p.z, this);
+		}
+		
+		
+		return meNew;
+	}
+	
 	public function traceValid():Void {  // to depeciate: temporary method to  test for above ground zero case and diagonal
 		if (points[0].z <= 0) trace("Invalid first point z!" + points[0].z);
 		if (points[0].z == points[2].z) trace("Invalid first point z 2222!");
@@ -246,6 +270,8 @@ class AABBPortal implements IAABB
 		
 		return dir;
 	}
+	
+
 	
 
 
