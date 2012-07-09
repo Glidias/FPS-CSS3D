@@ -284,9 +284,27 @@
 				
 				var counter = 0;
 				var marker = document.getElementById("marker3d");
+				var keyPoll = new glidias.controls.KeyPoll();
+				var KeyCode =  glidias.controls.KeyCode;
 				
 				
 				css3D.preRender( function() {
+				
+				var keyArr = [];
+				if (keyPoll.isDown(KeyCode.W)) {
+					keyArr.push("W");
+				}
+				if (keyPoll.isDown(KeyCode.S)) {
+					keyArr.push("S");
+				}
+				if (keyPoll.isDown(KeyCode.A)) {
+					keyArr.push("A");
+				}
+				if (keyPoll.isDown(KeyCode.D)) {
+					keyArr.push("D");
+				}
+				
+				
 					
 					var focalLen = css3D.getFocalLength();
 					// render radar blip
@@ -307,9 +325,11 @@
 						}
 						else marker.style["-webkit-transform"] = "translate3d("+Math.round(0)+"px,"+Math.round(0)+"px,"+Math.round(0)+"px)";
 						tracer.innerHTML = count > 1 ?  portalViser.sectorStack.arr.slice(0, count).toString().split(",").join("<br/>") : count;//glidias.AABBUtils.getString(sectors[0]);
-						haxeTracer.innerHTML = "";
+						haxeTracer.innerHTML =  "Keys down:"+keyArr.toString();
 						counter++;
-					
+				
+						
+						
 				});
 			});
 		});
@@ -317,7 +337,7 @@
 </head>
 <body>
 	<div id="tracer" style="position:absolute; z-index:99999; right:80px; top:0px; font-size:11px; color:#FF4499"></div>
-	<div id="haxe:trace" style="position:absolute; z-index:99999; right:80px; top:20px; font-size:11px; color:#FF4499"></div>
+	<div id="haxe:trace" style="position:absolute; z-index:99999; left:0px; top:0px; font-size:11px; color:#FF4499"></div>
 	<script src="../glidias.hx.js"></script>
 
 	<div id="testBed" style="position:absolute; z-index:2">

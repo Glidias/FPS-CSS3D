@@ -1,9 +1,8 @@
 $estr = function() { return js.Boot.__string_rec(this,''); }
 if(typeof glidias=='undefined') glidias = {}
-glidias.Frustum = function(p) {
-	if( p === $_ ) return;
+glidias.Frustum = function(p) { if( p === $_ ) return; {
 	this.planes = new Array();
-}
+}}
 glidias.Frustum.__name__ = ["glidias","Frustum"];
 glidias.Frustum.create6 = function() {
 	var me = new glidias.Frustum();
@@ -31,10 +30,12 @@ glidias.Frustum.prototype.toString = function() {
 }
 glidias.Frustum.prototype.fillNewPlanes = function() {
 	var len = this.planes.length;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		this.planes[i] = new glidias.Vec3(0,0,0,0);
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			this.planes[i] = new glidias.Vec3(0,0,0,0);
+		}
 	}
 }
 glidias.Frustum.prototype.debugPts = null;
@@ -151,26 +152,43 @@ glidias.Frustum.prototype.checkVisibility = function(a) {
 	var maxX = a.maxX;
 	var maxY = a.maxY;
 	var maxZ = a.maxZ;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		var plane = planes[i];
-		if(plane.x >= 0) {
-			if(plane.y >= 0) {
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			var plane = planes[i];
+			if(plane.x >= 0) {
+				if(plane.y >= 0) {
+					if(plane.z >= 0) {
+						if(maxX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return false;
+					}
+					else {
+						if(maxX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return false;
+					}
+				}
+				else if(plane.z >= 0) {
+					if(maxX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return false;
+				}
+				else {
+					if(maxX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return false;
+				}
+			}
+			else if(plane.y >= 0) {
 				if(plane.z >= 0) {
-					if(maxX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return false;
-				} else if(maxX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return false;
-			} else if(plane.z >= 0) {
-				if(maxX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return false;
-			} else if(maxX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return false;
-		} else if(plane.y >= 0) {
-			if(plane.z >= 0) {
-				if(minX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return false;
-			} else if(minX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return false;
-		} else if(plane.z >= 0) {
-			if(minX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return false;
-		} else if(minX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return false;
-		side <<= 1;
+					if(minX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return false;
+				}
+				else {
+					if(minX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return false;
+				}
+			}
+			else if(plane.z >= 0) {
+				if(minX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return false;
+			}
+			else {
+				if(minX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return false;
+			}
+			side <<= 1;
+		}
 	}
 	return true;
 }
@@ -185,44 +203,53 @@ glidias.Frustum.prototype.checkFrustumCulling = function(a,culling) {
 	var maxY = a.maxY;
 	var maxZ = a.maxZ;
 	var rootCull = culling;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		var plane = planes[i];
-		if((culling & side) != 0) {
-			if(plane.x >= 0) {
-				if(plane.y >= 0) {
-					if(plane.z >= 0) {
-						if(maxX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return -1;
-						if(minX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
-					} else {
-						if(maxX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return -1;
-						if(minX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			var plane = planes[i];
+			if((culling & side) != 0) {
+				if(plane.x >= 0) {
+					if(plane.y >= 0) {
+						if(plane.z >= 0) {
+							if(maxX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return -1;
+							if(minX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
+						}
+						else {
+							if(maxX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return -1;
+							if(minX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
+						}
 					}
-				} else if(plane.z >= 0) {
-					if(maxX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return -1;
-					if(minX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
-				} else {
-					if(maxX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return -1;
-					if(minX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
+					else if(plane.z >= 0) {
+						if(maxX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return -1;
+						if(minX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
+					}
+					else {
+						if(maxX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return -1;
+						if(minX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
+					}
 				}
-			} else if(plane.y >= 0) {
-				if(plane.z >= 0) {
-					if(minX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return -1;
-					if(maxX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
-				} else {
-					if(minX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return -1;
-					if(maxX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
+				else if(plane.y >= 0) {
+					if(plane.z >= 0) {
+						if(minX * plane.x + maxY * plane.y + maxZ * plane.z <= plane.w) return -1;
+						if(maxX * plane.x + minY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
+					}
+					else {
+						if(minX * plane.x + maxY * plane.y + minZ * plane.z <= plane.w) return -1;
+						if(maxX * plane.x + minY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
+					}
 				}
-			} else if(plane.z >= 0) {
-				if(minX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return -1;
-				if(maxX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
-			} else {
-				if(minX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return -1;
-				if(maxX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
+				else if(plane.z >= 0) {
+					if(minX * plane.x + minY * plane.y + maxZ * plane.z <= plane.w) return -1;
+					if(maxX * plane.x + maxY * plane.y + minZ * plane.z > plane.w) culling &= rootCull & ~side;
+				}
+				else {
+					if(minX * plane.x + minY * plane.y + minZ * plane.z <= plane.w) return -1;
+					if(maxX * plane.x + maxY * plane.y + maxZ * plane.z > plane.w) culling &= rootCull & ~side;
+				}
 			}
+			side <<= 1;
 		}
-		side <<= 1;
 	}
 	return culling;
 }
@@ -356,6 +383,109 @@ glidias.Frustum.prototype.setup6FromWorldMatrix = function(te,screenWhalf,screen
 	p.w = tx * cx + ty * cy + tz * cz;
 }
 glidias.Frustum.prototype.__class__ = glidias.Frustum;
+StringTools = function() { }
+StringTools.__name__ = ["StringTools"];
+StringTools.urlEncode = function(s) {
+	return encodeURIComponent(s);
+}
+StringTools.urlDecode = function(s) {
+	return decodeURIComponent(s.split("+").join(" "));
+}
+StringTools.htmlEscape = function(s) {
+	return s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
+}
+StringTools.htmlUnescape = function(s) {
+	return s.split("&gt;").join(">").split("&lt;").join("<").split("&amp;").join("&");
+}
+StringTools.startsWith = function(s,start) {
+	return s.length >= start.length && s.substr(0,start.length) == start;
+}
+StringTools.endsWith = function(s,end) {
+	var elen = end.length;
+	var slen = s.length;
+	return slen >= elen && s.substr(slen - elen,elen) == end;
+}
+StringTools.isSpace = function(s,pos) {
+	var c = s.charCodeAt(pos);
+	return c >= 9 && c <= 13 || c == 32;
+}
+StringTools.ltrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,r)) {
+		r++;
+	}
+	if(r > 0) return s.substr(r,l - r);
+	else return s;
+}
+StringTools.rtrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,l - r - 1)) {
+		r++;
+	}
+	if(r > 0) {
+		return s.substr(0,l - r);
+	}
+	else {
+		return s;
+	}
+}
+StringTools.trim = function(s) {
+	return StringTools.ltrim(StringTools.rtrim(s));
+}
+StringTools.rpad = function(s,c,l) {
+	var sl = s.length;
+	var cl = c.length;
+	while(sl < l) {
+		if(l - sl < cl) {
+			s += c.substr(0,l - sl);
+			sl = l;
+		}
+		else {
+			s += c;
+			sl += cl;
+		}
+	}
+	return s;
+}
+StringTools.lpad = function(s,c,l) {
+	var ns = "";
+	var sl = s.length;
+	if(sl >= l) return s;
+	var cl = c.length;
+	while(sl < l) {
+		if(l - sl < cl) {
+			ns += c.substr(0,l - sl);
+			sl = l;
+		}
+		else {
+			ns += c;
+			sl += cl;
+		}
+	}
+	return ns + s;
+}
+StringTools.replace = function(s,sub,by) {
+	return s.split(sub).join(by);
+}
+StringTools.hex = function(n,digits) {
+	var s = "";
+	var hexChars = "0123456789ABCDEF";
+	do {
+		s = hexChars.charAt(n & 15) + s;
+		n >>>= 4;
+	} while(n > 0);
+	if(digits != null) while(s.length < digits) s = "0" + s;
+	return s;
+}
+StringTools.fastCodeAt = function(s,index) {
+	return s.cca(index);
+}
+StringTools.isEOF = function(c) {
+	return c != c;
+}
+StringTools.prototype.__class__ = StringTools;
 glidias.IAABB = function() { }
 glidias.IAABB.__name__ = ["glidias","IAABB"];
 glidias.IAABB.prototype.minX = null;
@@ -365,10 +495,9 @@ glidias.IAABB.prototype.maxX = null;
 glidias.IAABB.prototype.maxY = null;
 glidias.IAABB.prototype.maxZ = null;
 glidias.IAABB.prototype.__class__ = glidias.IAABB;
-glidias.AABBPortal = function(p) {
-	if( p === $_ ) return;
+glidias.AABBPortal = function(p) { if( p === $_ ) return; {
 	this.points = new Array();
-}
+}}
 glidias.AABBPortal.__name__ = ["glidias","AABBPortal"];
 glidias.AABBPortal.prototype.minX = null;
 glidias.AABBPortal.prototype.minY = null;
@@ -386,10 +515,12 @@ glidias.AABBPortal.prototype.getReverse = function(newTarget,direction,version2)
 	var meNew = new glidias.AABBPortal();
 	glidias.AABBUtils.match(meNew,this);
 	var len = this.points.length;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		meNew.points[i] = this.points[i].clone();
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			meNew.points[i] = this.points[i].clone();
+		}
 	}
 	meNew.points.reverse();
 	meNew.width = this.width;
@@ -416,16 +547,18 @@ glidias.AABBPortal.prototype.clone2 = function(newTarget,ox,oy,oz) {
 	var mePoints = [];
 	var len = this.points.length;
 	var p;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		p = this.points[i];
-		p = new glidias.Vec3(p.x,p.y,p.z,p.w);
-		p.x += ox;
-		p.y += oy;
-		p.z += oz;
-		mePoints[i] = p;
-		glidias.AABBUtils.expand(p.x,p.y,p.z,meNew);
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			p = this.points[i];
+			p = new glidias.Vec3(p.x,p.y,p.z,p.w);
+			p.x += ox;
+			p.y += oy;
+			p.z += oz;
+			mePoints[i] = p;
+			glidias.AABBUtils.expand(p.x,p.y,p.z,meNew);
+		}
 	}
 	meNew.points = mePoints;
 	meNew.points.reverse();
@@ -447,7 +580,12 @@ glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doo
 	var sy = door.y;
 	var reverse = dir == 0 || dir == 1;
 	if(reverse) {
-		if(dir == 1) sx += 1; else sy += 1;
+		if(dir == 1) {
+			sx += 1;
+		}
+		else {
+			sy += 1;
+		}
 	}
 	{
 		this.minX = 1.7976931348623157e+308;
@@ -503,7 +641,12 @@ glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doo
 		if(py > this.maxY) this.maxY = py;
 		if(pz > this.maxZ) this.maxZ = pz;
 	}
-	if((dir & 1) != 0) sy += 1; else sx += 1;
+	if((dir & 1) != 0) {
+		sy += 1;
+	}
+	else {
+		sx += 1;
+	}
 	p = sy * gridSize;
 	px = south.x * p;
 	py = south.y * p;
@@ -553,8 +696,7 @@ glidias.AABBPortal.prototype.setup = function(target,door,gridSize,doorWidth,doo
 }
 glidias.AABBPortal.prototype.__class__ = glidias.AABBPortal;
 glidias.AABBPortal.__interfaces__ = [glidias.IAABB];
-glidias.RoomFiller = function(async) {
-	if( async === $_ ) return;
+glidias.RoomFiller = function(async) { if( async === $_ ) return; {
 	if(async == null) async = 0;
 	this.wallColor = "#3d3c37";
 	this.enableOutdoors = true;
@@ -565,18 +707,22 @@ glidias.RoomFiller = function(async) {
 	this.grid = new Array();
 	this.doors = new Array();
 	this.rooms = new Array();
-	var _g = 0;
-	while(_g < 80) {
-		var i = _g++;
-		this.grid[i] = new Array();
-		var _g1 = 0;
-		while(_g1 < 80) {
-			var j = _g1++;
-			this.grid[i][j] = 0;
+	{
+		var _g = 0;
+		while(_g < 80) {
+			var i = _g++;
+			this.grid[i] = new Array();
+			{
+				var _g1 = 0;
+				while(_g1 < 80) {
+					var j = _g1++;
+					this.grid[i][j] = 0;
+				}
+			}
 		}
 	}
 	this.random = new glidias.PM_PRNG(12345);
-}
+}}
 glidias.RoomFiller.__name__ = ["glidias","RoomFiller"];
 glidias.RoomFiller.prototype.grid = null;
 glidias.RoomFiller.prototype.doors = null;
@@ -594,9 +740,8 @@ glidias.RoomFiller.prototype.run = function(onComplete) {
 	this._onComplete = onComplete;
 	haxe.Log.trace("RUNNING...",{ fileName : "RoomFiller.hx", lineNumber : 89, className : "glidias.RoomFiller", methodName : "run"});
 	this.createFirstRoom();
-	if(this.async == 0) {
-	} else {
-	}
+	if(this.async == 0) null;
+	else null;
 }
 glidias.RoomFiller.prototype.getHTMLFromSectors = function(map,gridSize,wallMat,floorMat,ceilingMat) {
 	if(floorMat == null) floorMat = wallMat;
@@ -608,28 +753,32 @@ glidias.RoomFiller.prototype.getHTMLFromSectors = function(map,gridSize,wallMat,
 	var len = map.length;
 	var pWalls;
 	var p;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		sector = map[i];
-		str += "<div class=\"Mesh Object3D\">";
-		str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP.getReverse(),sector,gridSize).getHTML(ceilingMat);
-		str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP,sector,gridSize).getHTML(floorMat);
-		mask = 0;
-		pWalls = sector.portalWalls;
-		uLen = pWalls.length;
-		var _g1 = 0;
-		while(_g1 < uLen) {
-			var u = _g1++;
-			p = pWalls[u];
-			str += p.getHTML(sector,gridSize,wallMat);
-			mask |= 1 << p.direction;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			sector = map[i];
+			str += "<div class=\"Mesh Object3D\">";
+			str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP.getReverse(),sector,gridSize).getHTML(ceilingMat);
+			str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP,sector,gridSize).getHTML(floorMat);
+			mask = 0;
+			pWalls = sector.portalWalls;
+			uLen = pWalls.length;
+			{
+				var _g1 = 0;
+				while(_g1 < uLen) {
+					var u = _g1++;
+					p = pWalls[u];
+					str += p.getHTML(sector,gridSize,wallMat);
+					mask |= 1 << p.direction;
+				}
+			}
+			if((mask & 1) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[0],sector,gridSize).getHTML(wallMat);
+			if((mask & 4) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[2],sector,gridSize).getHTML(wallMat);
+			if((mask & 2) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[1],sector,gridSize).getHTML(wallMat);
+			if((mask & 8) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[3],sector,gridSize).getHTML(wallMat);
+			str += "</div>";
 		}
-		if((mask & 1) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[0],sector,gridSize).getHTML(wallMat);
-		if((mask & 4) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[2],sector,gridSize).getHTML(wallMat);
-		if((mask & 2) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[1],sector,gridSize).getHTML(wallMat);
-		if((mask & 8) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[3],sector,gridSize).getHTML(wallMat);
-		str += "</div>";
 	}
 	return str;
 }
@@ -646,30 +795,36 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 	var portal;
 	var portalPlane;
 	len = this.rooms.length;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		rect = this.rooms[i];
-		var uLen = Std["int"](rect.width);
-		var vLen = Std["int"](rect.height);
-		var invalid = false;
-		var _g1 = Std["int"](rect.x);
-		while(_g1 < uLen) {
-			var u = _g1++;
-			var _g2 = Std["int"](rect.y);
-			while(_g2 < vLen) {
-				var v = _g2++;
-				if(this.grid[u][v] < 4) {
-					haxe.Log.trace("NOn floor detected over room!  " + i,{ fileName : "RoomFiller.hx", lineNumber : 177, className : "glidias.RoomFiller", methodName : "getSectors"});
-					invalid = true;
-					break;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			rect = this.rooms[i];
+			var uLen = Std["int"](rect.width);
+			var vLen = Std["int"](rect.height);
+			var invalid = false;
+			{
+				var _g1 = Std["int"](rect.x);
+				while(_g1 < uLen) {
+					var u = _g1++;
+					{
+						var _g2 = Std["int"](rect.y);
+						while(_g2 < vLen) {
+							var v = _g2++;
+							if(this.grid[u][v] < 4) {
+								haxe.Log.trace("NOn floor detected over room!  " + i,{ fileName : "RoomFiller.hx", lineNumber : 177, className : "glidias.RoomFiller", methodName : "getSectors"});
+								invalid = true;
+								break;
+							}
+						}
+					}
+					if(invalid) break;
 				}
 			}
-			if(invalid) break;
+			sector = new glidias.AABBSector();
+			sector.setup(rect,gridSize,minRoomHeight + Math.round(Math.random() * possibleRoomHeightAdd),groundPos);
+			map.push(sector);
 		}
-		sector = new glidias.AABBSector();
-		sector.setup(rect,gridSize,minRoomHeight + Math.round(Math.random() * possibleRoomHeightAdd),groundPos);
-		map.push(sector);
 	}
 	len = this.doors.length;
 	var target;
@@ -678,110 +833,120 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 	var c;
 	var exit = false;
 	var addedPortals = [];
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		door = this.doors[i];
-		doorType = this.getDoorType(door);
-		if(doorType >= 4) {
-			target = this.getSectorIndexAt(door.x - door.z,door.y - door.w);
-			haxe.Log.trace("indoors!" + [door.x,door.y] + " : " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 206, className : "glidias.RoomFiller", methodName : "getSectors"});
-		} else if(doorType == 0) {
-			target = -1;
-			if(!this.enableOutdoors) continue;
-			haxe.Log.trace("Outdoors!",{ fileName : "RoomFiller.hx", lineNumber : 211, className : "glidias.RoomFiller", methodName : "getSectors"});
-		} else if(doorType == 1) {
-			this.grid[door.x][door.y] = 3;
-			if(door.z != 0) {
-				d = glidias.AABBPortalPlane.norm(door.z);
-				door.z += d;
-				door.x -= d;
-				while(true) {
-					c = door.x - d;
-					exit = c < 0 || c >= 80;
-					if(exit) break;
-					if(this.grid[c - d][door.y] >= 4) {
-						this.grid[door.x][door.y] = 2;
-						break;
-					}
-					door.z += d;
-					door.x = c;
-					this.grid[c][door.y] = 3;
-					d++;
-				}
-				if(exit) continue;
-			} else {
-				d = glidias.AABBPortalPlane.norm(door.w);
-				door.w += d;
-				door.y -= d;
-				while(true) {
-					c = door.y - d;
-					exit = c < 0 || c >= 80;
-					if(exit) break;
-					if(this.grid[door.x][c - d] >= 4) {
-						this.grid[door.x][door.y] = 2;
-						break;
-					}
-					door.w += d;
-					door.y = c;
-					this.grid[door.x][c] = 3;
-					d++;
-				}
-				if(exit) continue;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			door = this.doors[i];
+			doorType = this.getDoorType(door);
+			if(doorType >= 4) {
+				target = this.getSectorIndexAt(door.x - door.z,door.y - door.w);
+				haxe.Log.trace("indoors!" + [door.x,door.y] + " : " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 206, className : "glidias.RoomFiller", methodName : "getSectors"});
 			}
-			target = !exit?this.getSectorIndexAt(door.x - door.z,door.y - door.w):-1;
-		} else {
-			haxe.Log.trace("Could not resolve door type. " + doorType + ". " + [door.x,door.y] + ": " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 275, className : "glidias.RoomFiller", methodName : "getSectors"});
-			continue;
-		}
-		sector = new glidias.AABBSector();
-		var tarOffset = target >= 0?2:1;
-		rect = new glidias.Rectangle(door.x - (door.z < 0?tarOffset:0),door.y - (door.w < 0?tarOffset:0),door.z != 0?this.abs(door.z) + 1:1,door.w != 0?this.abs(door.w) + 1:1);
-		sector.setup(rect,gridSize,this.doorHeight,groundPos);
-		map.push(sector);
-		portal = new glidias.AABBPortal();
-		portal.id = "c_s";
-		direction = portal.setup(target >= 0?map[target]:null,door,gridSize,gridSize,this.doorHeight,groundPos);
-		sector.addPortal(portal,direction);
-		addedPortals.push(portal);
-		direction = glidias.AABBPortalPlane.getReverse(direction);
-		var p;
-		if(target >= 0) {
-			p = portal.getReverse(sector,direction);
-			p.id = "s_c";
+			else if(doorType == 0) {
+				target = -1;
+				if(!this.enableOutdoors) continue;
+				haxe.Log.trace("Outdoors!",{ fileName : "RoomFiller.hx", lineNumber : 211, className : "glidias.RoomFiller", methodName : "getSectors"});
+			}
+			else if(doorType == 1) {
+				this.grid[door.x][door.y] = 3;
+				if(door.z != 0) {
+					d = glidias.AABBPortalPlane.norm(door.z);
+					door.z += d;
+					door.x -= d;
+					while(true) {
+						c = door.x - d;
+						exit = c < 0 || c >= 80;
+						if(exit) break;
+						if(this.grid[c - d][door.y] >= 4) {
+							this.grid[door.x][door.y] = 2;
+							break;
+						}
+						door.z += d;
+						door.x = c;
+						this.grid[c][door.y] = 3;
+						d++;
+					}
+					if(exit) continue;
+				}
+				else {
+					d = glidias.AABBPortalPlane.norm(door.w);
+					door.w += d;
+					door.y -= d;
+					while(true) {
+						c = door.y - d;
+						exit = c < 0 || c >= 80;
+						if(exit) break;
+						if(this.grid[door.x][c - d] >= 4) {
+							this.grid[door.x][door.y] = 2;
+							break;
+						}
+						door.w += d;
+						door.y = c;
+						this.grid[door.x][c] = 3;
+						d++;
+					}
+					if(exit) continue;
+				}
+				target = !exit?this.getSectorIndexAt(door.x - door.z,door.y - door.w):-1;
+			}
+			else {
+				haxe.Log.trace("Could not resolve door type. " + doorType + ". " + [door.x,door.y] + ": " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 275, className : "glidias.RoomFiller", methodName : "getSectors"});
+				continue;
+			}
+			sector = new glidias.AABBSector();
+			var tarOffset = target >= 0?2:1;
+			rect = new glidias.Rectangle(door.x - (door.z < 0?tarOffset:0),door.y - (door.w < 0?tarOffset:0),door.z != 0?this.abs(door.z) + 1:1,door.w != 0?this.abs(door.w) + 1:1);
+			sector.setup(rect,gridSize,this.doorHeight,groundPos);
+			map.push(sector);
+			portal = new glidias.AABBPortal();
+			portal.id = "c_s";
+			direction = portal.setup(target >= 0?map[target]:null,door,gridSize,gridSize,this.doorHeight,groundPos);
+			sector.addPortal(portal,direction);
+			addedPortals.push(portal);
+			direction = glidias.AABBPortalPlane.getReverse(direction);
+			var p;
+			if(target >= 0) {
+				p = portal.getReverse(sector,direction);
+				p.id = "s_c";
+				map[target].addPortal(p,direction);
+				addedPortals.push(p);
+			}
+			target = this.getSectorIndexAt(door.x + door.z + glidias.AABBPortalPlane.norm(door.z),door.y + door.w + glidias.AABBPortalPlane.norm(door.w));
+			if(target < 0) {
+				haxe.Log.trace("Dead end.",{ fileName : "RoomFiller.hx", lineNumber : 325, className : "glidias.RoomFiller", methodName : "getSectors"});
+				continue;
+			}
+			var copyDir = glidias.AABBPortalPlane.DIRECTIONS[direction];
+			var copyOffset = (direction & 1) != 0?(glidias.AABBPortalPlane.abs(door.z) + 1) * gridSize:(glidias.AABBPortalPlane.abs(door.w) + 1) * gridSize;
+			portal = portal.clone2(map[target],copyDir.x * -copyOffset,copyDir.y * -copyOffset,copyDir.z * -copyOffset);
+			portal.id = "c_s2";
+			sector.addPortal(portal,direction);
+			addedPortals.push(portal);
+			direction = glidias.AABBPortalPlane.getReverse(direction);
+			p = portal.getReverse(sector,direction,true);
+			p.id = "s_c2";
 			map[target].addPortal(p,direction);
 			addedPortals.push(p);
 		}
-		target = this.getSectorIndexAt(door.x + door.z + glidias.AABBPortalPlane.norm(door.z),door.y + door.w + glidias.AABBPortalPlane.norm(door.w));
-		if(target < 0) {
-			haxe.Log.trace("Dead end.",{ fileName : "RoomFiller.hx", lineNumber : 325, className : "glidias.RoomFiller", methodName : "getSectors"});
-			continue;
-		}
-		var copyDir = glidias.AABBPortalPlane.DIRECTIONS[direction];
-		var copyOffset = (direction & 1) != 0?(glidias.AABBPortalPlane.abs(door.z) + 1) * gridSize:(glidias.AABBPortalPlane.abs(door.w) + 1) * gridSize;
-		portal = portal.clone2(map[target],copyDir.x * -copyOffset,copyDir.y * -copyOffset,copyDir.z * -copyOffset);
-		portal.id = "c_s2";
-		sector.addPortal(portal,direction);
-		addedPortals.push(portal);
-		direction = glidias.AABBPortalPlane.getReverse(direction);
-		p = portal.getReverse(sector,direction,true);
-		p.id = "s_c2";
-		map[target].addPortal(p,direction);
-		addedPortals.push(p);
 	}
 	len = addedPortals.length;
 	var points;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		portal = addedPortals[i];
-		points = portal.points;
-		portal.points = [points[3],points[0],points[1],points[2]];
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			portal = addedPortals[i];
+			points = portal.points;
+			portal.points = [points[3],points[0],points[1],points[2]];
+		}
 	}
 	return map;
 }
 glidias.RoomFiller.prototype.getSectorIndexAt = function(tx,ty) {
-	if(tx < 0 || tx >= 80 || ty < 0 || ty >= 80) haxe.Log.trace("out of bound getSectorIndexAt",{ fileName : "RoomFiller.hx", lineNumber : 373, className : "glidias.RoomFiller", methodName : "getSectorIndexAt"});
+	if(tx < 0 || tx >= 80 || ty < 0 || ty >= 80) {
+		haxe.Log.trace("out of bound getSectorIndexAt",{ fileName : "RoomFiller.hx", lineNumber : 373, className : "glidias.RoomFiller", methodName : "getSectorIndexAt"});
+	}
 	return this.grid[tx][ty] - 4;
 }
 glidias.RoomFiller.prototype.abs = function(w) {
@@ -798,29 +963,34 @@ glidias.RoomFiller.prototype.testUpdate = function(callbacker,gridSize) {
 	if(gridSize == null) gridSize = 5;
 	this.drawTile.width = gridSize;
 	this.drawTile.height = gridSize;
-	var _g = 0;
-	while(_g < 80) {
-		var i = _g++;
-		var _g1 = 0;
-		while(_g1 < 80) {
-			var j = _g1++;
-			this.drawTile.x = i * gridSize;
-			this.drawTile.y = j * gridSize;
-			switch(this.grid[i][j]) {
-			case 0:
-				callbacker(this.drawTile.toHTML("background-color:#000000",null));
-				break;
-			case 1:
-				callbacker(this.drawTile.toHTML("background-color:" + this.wallColor,null));
-				break;
-			case 2:
-				callbacker(this.drawTile.toHTML("background-color:#FF0000",null));
-				break;
-			case 3:
-				callbacker(this.drawTile.toHTML("background-color:#733F12",null));
-				break;
-			default:
-				callbacker(this.drawTile.toHTML("background-color:#CCCCCC",null));
+	{
+		var _g = 0;
+		while(_g < 80) {
+			var i = _g++;
+			{
+				var _g1 = 0;
+				while(_g1 < 80) {
+					var j = _g1++;
+					this.drawTile.x = i * gridSize;
+					this.drawTile.y = j * gridSize;
+					switch(this.grid[i][j]) {
+					case 0:{
+						callbacker(this.drawTile.toHTML("background-color:#000000",null));
+					}break;
+					case 1:{
+						callbacker(this.drawTile.toHTML("background-color:" + this.wallColor,null));
+					}break;
+					case 2:{
+						callbacker(this.drawTile.toHTML("background-color:#FF0000",null));
+					}break;
+					case 3:{
+						callbacker(this.drawTile.toHTML("background-color:#733F12",null));
+					}break;
+					default:{
+						callbacker(this.drawTile.toHTML("background-color:#CCCCCC",null));
+					}break;
+					}
+				}
 			}
 		}
 	}
@@ -848,15 +1018,18 @@ glidias.RoomFiller.prototype.createFirstRoom = function() {
 	this.createRoom(Math.floor(80 * .5 - fw * .5),Math.floor(80 * .5 - fh * .5),fw,fh);
 	this.currFeature = 50;
 	if(this.async == 0) {
-		while(this.createFeature()) {
-		}
+		while(this.createFeature()) null;
 		if(this._onComplete) {
 			this._onComplete();
 			return;
 		}
-	} else this.roomInterv = 0;
+	}
+	else {
+		this.roomInterv = 0;
+	}
 }
 glidias.RoomFiller.prototype.clearInterval = function(ier) {
+	null;
 }
 glidias.RoomFiller.prototype.setInterval = function(target,timeMs) {
 	return 0;
@@ -885,101 +1058,119 @@ glidias.RoomFiller.prototype.createFeature = function() {
 				tx = i;
 				ty = j - 1;
 				dir = 0;
-			} else if(tb == 0 && (tl == 1 && tr == 1)) {
+			}
+			else if(tb == 0 && (tl == 1 && tr == 1)) {
 				tx = i;
 				ty = j + 1;
 				dir = 1;
-			} else if(tl == 0 && (tt == 1 && tb == 1)) {
+			}
+			else if(tl == 0 && (tt == 1 && tb == 1)) {
 				tx = i - 1;
 				ty = j;
 				dir = 2;
-			} else if(tr == 0 && (tt == 1 && tb == 1)) {
+			}
+			else if(tr == 0 && (tt == 1 && tb == 1)) {
 				tx = i + 1;
 				ty = j;
 				dir = 3;
 			}
 		}
 	} while(dir == -1 && giveUp++ < 200);
-	if(dir != -1) do {
-		var w, h;
-		var sx, sy;
-		var feature = Math.random();
-		if(feature < .3) {
-			if(dir == 0 || dir == 1) {
-				sx = tx - 1;
-				w = 3;
-				h = this.random.nextIntRange(10,20);
-				if(dir == 0) {
-					sy = ty - h;
-					if(sy < 1) continue;
-				} else {
-					sy = ty + 1;
-					if(ty + h > 79) continue;
+	if(dir != -1) {
+		do {
+			var w, h;
+			var sx, sy;
+			var feature = Math.random();
+			if(feature < .3) {
+				{
+					if(dir == 0 || dir == 1) {
+						sx = tx - 1;
+						w = 3;
+						h = this.random.nextIntRange(10,20);
+						if(dir == 0) {
+							sy = ty - h;
+							if(sy < 1) continue;
+						}
+						else {
+							sy = ty + 1;
+							if(ty + h > 79) continue;
+						}
+					}
+					else {
+						sy = ty - 1;
+						w = this.random.nextIntRange(10,20);
+						h = 3;
+						if(dir == 2) {
+							sx = tx - w;
+							if(sx < 1) continue;
+						}
+						else {
+							sx = tx + 1;
+							if(tx + w > 79) continue;
+						}
+					}
 				}
-			} else {
-				sy = ty - 1;
-				w = this.random.nextIntRange(10,20);
-				h = 3;
-				if(dir == 2) {
-					sx = tx - w;
-					if(sx < 1) continue;
-				} else {
-					sx = tx + 1;
-					if(tx + w > 79) continue;
+			}
+			else {
+				{
+					if(dir == 0 || dir == 1) {
+						w = this.random.nextIntRange(6,14);
+						h = this.random.nextIntRange(6,14);
+						sx = tx - Math.floor(w * .5);
+						if(sx < 1 || sx + w > 79) continue;
+						if(dir == 0) {
+							sy = ty - h;
+							if(sy < 1) continue;
+						}
+						else {
+							sy = ty + 1;
+							if(ty + h > 79) continue;
+						}
+					}
+					else {
+						w = this.random.nextIntRange(6,14);
+						h = this.random.nextIntRange(6,14);
+						sy = ty - Math.floor(h * .5);
+						if(sy < 1 || sy + h > 79) return true;
+						if(dir == 2) {
+							sx = tx - w;
+							if(sx < 1) continue;
+						}
+						else {
+							sx = tx + 1;
+							if(tx + w > 79) continue;
+						}
+					}
 				}
 			}
-		} else if(dir == 0 || dir == 1) {
-			w = this.random.nextIntRange(6,14);
-			h = this.random.nextIntRange(6,14);
-			sx = tx - Math.floor(w * .5);
-			if(sx < 1 || sx + w > 79) continue;
-			if(dir == 0) {
-				sy = ty - h;
-				if(sy < 1) continue;
-			} else {
-				sy = ty + 1;
-				if(ty + h > 79) continue;
-			}
-		} else {
-			w = this.random.nextIntRange(6,14);
-			h = this.random.nextIntRange(6,14);
-			sy = ty - Math.floor(h * .5);
-			if(sy < 1 || sy + h > 79) return true;
-			if(dir == 2) {
-				sx = tx - w;
-				if(sx < 1) continue;
-			} else {
-				sx = tx + 1;
-				if(tx + w > 79) continue;
-			}
-		}
-		if(sx < 1) sx = 2;
-		if(sx + w > 78) w = sx - 80 - 2;
-		if(sy < 1) sy = 1;
-		if(sy + h > 78) h = sy - 80 - 2;
-		if(this.createRoom(sx,sy,w,h)) {
-			this.grid[tx][ty] = 2;
-			switch(dir) {
-			case 0:
-				this.grid[tx][ty + 1] = 3;
-				this.doors.push(new glidias.Int4(tx,ty,0,1));
-				break;
-			case 1:
-				this.grid[tx][ty - 1] = 3;
-				this.doors.push(new glidias.Int4(tx,ty,0,-1));
-				break;
-			case 2:
-				this.grid[tx + 1][ty] = 3;
-				this.doors.push(new glidias.Int4(tx,ty,1,0));
-				break;
-			case 3:
-				this.grid[tx - 1][ty] = 3;
-				this.doors.push(new glidias.Int4(tx,ty,-1,0));
+			if(sx < 1) sx = 2;
+			if(sx + w > 78) w = sx - 80 - 2;
+			if(sy < 1) sy = 1;
+			if(sy + h > 78) h = sy - 80 - 2;
+			if(this.createRoom(sx,sy,w,h)) {
+				this.grid[tx][ty] = 2;
+				switch(dir) {
+				case 0:{
+					this.grid[tx][ty + 1] = 3;
+					this.doors.push(new glidias.Int4(tx,ty,0,1));
+				}break;
+				case 1:{
+					this.grid[tx][ty - 1] = 3;
+					this.doors.push(new glidias.Int4(tx,ty,0,-1));
+				}break;
+				case 2:{
+					this.grid[tx + 1][ty] = 3;
+					this.doors.push(new glidias.Int4(tx,ty,1,0));
+				}break;
+				case 3:{
+					this.grid[tx - 1][ty] = 3;
+					this.doors.push(new glidias.Int4(tx,ty,-1,0));
+				}break;
+				}
 				break;
 			}
-			break;
-		}
-	} while(giveUp++ < 200);
+		} while(giveUp++ < 200);
+	}
 	return true;
 }
 glidias.RoomFiller.prototype.createRoom = function(s,e,w,h) {
@@ -987,14 +1178,19 @@ glidias.RoomFiller.prototype.createRoom = function(s,e,w,h) {
 	h += e;
 	var roomLen = this.rooms.length;
 	if(this.checkArea(s,e,w,h) && (s != w && e != h)) {
-		var _g1 = s, _g = w + 1;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var _g3 = e, _g2 = h + 1;
-			while(_g3 < _g2) {
-				var j = _g3++;
-				if(this.grid[i][j] == 3) haxe.Log.trace("Covered corridoor exception!",{ fileName : "RoomFiller.hx", lineNumber : 714, className : "glidias.RoomFiller", methodName : "createRoom"});
-				if(i == s || i == w || j == e || j == h) this.grid[i][j] = 1; else this.grid[i][j] = 4 + roomLen;
+		{
+			var _g1 = s, _g = w + 1;
+			while(_g1 < _g) {
+				var i = _g1++;
+				{
+					var _g3 = e, _g2 = h + 1;
+					while(_g3 < _g2) {
+						var j = _g3++;
+						if(this.grid[i][j] == 3) haxe.Log.trace("Covered corridoor exception!",{ fileName : "RoomFiller.hx", lineNumber : 714, className : "glidias.RoomFiller", methodName : "createRoom"});
+						if(i == s || i == w || j == e || j == h) this.grid[i][j] = 1;
+						else this.grid[i][j] = 4 + roomLen;
+					}
+				}
 			}
 		}
 		w = w - s - 1;
@@ -1006,13 +1202,17 @@ glidias.RoomFiller.prototype.createRoom = function(s,e,w,h) {
 	return false;
 }
 glidias.RoomFiller.prototype.checkArea = function(s,e,w,h) {
-	var _g1 = s, _g = w + 1;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var _g3 = e, _g2 = h + 1;
-		while(_g3 < _g2) {
-			var j = _g3++;
-			if(this.grid[i][j] != 0) return false;
+	{
+		var _g1 = s, _g = w + 1;
+		while(_g1 < _g) {
+			var i = _g1++;
+			{
+				var _g3 = e, _g2 = h + 1;
+				while(_g3 < _g2) {
+					var j = _g3++;
+					if(this.grid[i][j] != 0) return false;
+				}
+			}
 		}
 	}
 	return true;
@@ -1028,14 +1228,13 @@ haxe.Log.clear = function() {
 	js.Boot.__clear_trace();
 }
 haxe.Log.prototype.__class__ = haxe.Log;
-glidias.Vec3 = function(x,y,z,w) {
-	if( x === $_ ) return;
+glidias.Vec3 = function(x,y,z,w) { if( x === $_ ) return; {
 	if(w == null) w = 0;
 	this.x = x;
 	this.y = y;
 	this.z = z;
 	this.w = w;
-}
+}}
 glidias.Vec3.__name__ = ["glidias","Vec3"];
 glidias.Vec3.prototype.x = null;
 glidias.Vec3.prototype.y = null;
@@ -1118,8 +1317,7 @@ glidias.Vec3.prototype.flip = function() {
 	this.w = -this.w;
 }
 glidias.Vec3.prototype.__class__ = glidias.Vec3;
-glidias.AABBPortalPlane = function(p) {
-	if( p === $_ ) return;
+glidias.AABBPortalPlane = function(p) { if( p === $_ ) return; {
 	{
 		this.minX = 1.7976931348623157e+308;
 		this.minY = 1.7976931348623157e+308;
@@ -1129,7 +1327,7 @@ glidias.AABBPortalPlane = function(p) {
 		this.maxZ = -1.7976931348623157e+308;
 	}
 	this.portals = new Array();
-}
+}}
 glidias.AABBPortalPlane.__name__ = ["glidias","AABBPortalPlane"];
 glidias.AABBPortalPlane.norm = function(w) {
 	return w != 0?w < 0?-1:1:0;
@@ -1147,7 +1345,13 @@ glidias.AABBPortalPlane.getPlaneResult = function(dir,sector,gridSize) {
 	var z;
 	var b;
 	var dirId;
-	if((p = dir.x * south.x + dir.y * south.y + dir.z * south.z) != 0) dirId = p < 0?0:2; else if((p = dir.x * east.x + dir.y * east.y + dir.z * east.z) != 0) dirId = p < 0?1:3; else {
+	if((p = dir.x * south.x + dir.y * south.y + dir.z * south.z) != 0) {
+		dirId = p < 0?0:2;
+	}
+	else if((p = dir.x * east.x + dir.y * east.y + dir.z * east.z) != 0) {
+		dirId = p < 0?1:3;
+	}
+	else {
 		if(!((p = dir.x * upwards.x + dir.y * upwards.y + dir.z * upwards.z) != 0)) haxe.Log.trace("Assumption failed for final dot up/down",{ fileName : "AABBPortalPlane.hx", lineNumber : 74, className : "glidias.AABBPortalPlane", methodName : "getPlaneResult"});
 		dirId = p < 0?5:4;
 	}
@@ -1157,14 +1361,18 @@ glidias.AABBPortalPlane.getPlaneResult = function(dir,sector,gridSize) {
 	if(right.x * right.x + right.y * right.y + right.z * right.z == 0) {
 		right = dir.crossProduct(glidias.AABBPortalPlane.DIRECTIONS[2]);
 		up = right.crossProduct(glidias.AABBPortalPlane.UP);
-	} else up = glidias.AABBPortalPlane.UP.getReverse();
+	}
+	else {
+		up = glidias.AABBPortalPlane.UP.getReverse();
+	}
 	planeResult.up = up;
 	planeResult.right = right;
 	planeResult.look = dir;
 	if(dirId == 4 || dirId == 5) {
 		planeResult.width = rect.width * gridSize;
 		planeResult.height = rect.height * gridSize;
-	} else {
+	}
+	else {
 		planeResult.width = dirId == 3 || dirId == 1?rect.height * gridSize:rect.width * gridSize;
 		planeResult.height = sector.ceilHeight;
 	}
@@ -1251,7 +1459,10 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 	this.portals.sort(function(a,b) {
 		var a2 = right.x * a.minX + right.y * a.minY + right.z * a.minZ;
 		var b2 = right.x * b.minX + right.y * b.minY + right.z * b.minZ;
-		if(a2 < b2) return -1; else if(a2 == b2) return 0;
+		if(a2 < b2) {
+			return -1;
+		}
+		else if(a2 == b2) return 0;
 		return 1;
 	});
 	var len = this.portals.length;
@@ -1260,23 +1471,25 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 	var lastC = -99999999;
 	var o;
 	var m = 0;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		portal = this.portals[i];
-		c = portal.minX * right.x + portal.minY * right.y + portal.minZ * right.z;
-		o = portal.maxX * right.x + portal.maxY * right.y + portal.maxZ * right.z;
-		if(o < c) c = o;
-		if(lastC > c) haxe.Log.trace("WRONG, shoudl be less!",{ fileName : "AABBPortalPlane.hx", lineNumber : 187, className : "glidias.AABBPortalPlane", methodName : "getHTML"});
-		lastC = c;
-		o = baseOffset < c?c - baseOffset:baseOffset - c;
-		p = glidias.PlaneResult.getIdentity();
-		p.pos.x = m;
-		p.pos.y = aboveDoorwayHeight;
-		p.width = o - m;
-		p.height = portal.height;
-		html += "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(p.width) + "px;height:" + Math.round(p.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-p.right.x,-p.right.y,-p.right.z,0,p.up.x,p.up.y,p.up.z,0,p.look.x,p.look.y,p.look.z,0,p.pos.x,p.pos.y,p.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
-		m = p.pos.x + p.width + portal.width;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			portal = this.portals[i];
+			c = portal.minX * right.x + portal.minY * right.y + portal.minZ * right.z;
+			o = portal.maxX * right.x + portal.maxY * right.y + portal.maxZ * right.z;
+			if(o < c) c = o;
+			if(lastC > c) haxe.Log.trace("WRONG, shoudl be less!",{ fileName : "AABBPortalPlane.hx", lineNumber : 187, className : "glidias.AABBPortalPlane", methodName : "getHTML"});
+			lastC = c;
+			o = baseOffset < c?c - baseOffset:baseOffset - c;
+			p = glidias.PlaneResult.getIdentity();
+			p.pos.x = m;
+			p.pos.y = aboveDoorwayHeight;
+			p.width = o - m;
+			p.height = portal.height;
+			html += "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(p.width) + "px;height:" + Math.round(p.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-p.right.x,-p.right.y,-p.right.z,0,p.up.x,p.up.y,p.up.z,0,p.look.x,p.look.y,p.look.z,0,p.pos.x,p.pos.y,p.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
+			m = p.pos.x + p.width + portal.width;
+		}
 	}
 	portal = this.portals[len - 1];
 	p = glidias.PlaneResult.getIdentity();
@@ -1290,22 +1503,22 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 }
 glidias.AABBPortalPlane.prototype.__class__ = glidias.AABBPortalPlane;
 glidias.AABBPortalPlane.__interfaces__ = [glidias.IAABB];
-glidias.Int4 = function(x,y,z,w) {
-	if( x === $_ ) return;
+glidias.Int4 = function(x,y,z,w) { if( x === $_ ) return; {
 	if(w == null) w = 0;
 	this.x = x;
 	this.y = y;
 	this.z = z;
 	this.w = w;
-}
+}}
 glidias.Int4.__name__ = ["glidias","Int4"];
 glidias.Int4.prototype.x = null;
 glidias.Int4.prototype.y = null;
 glidias.Int4.prototype.z = null;
 glidias.Int4.prototype.w = null;
 glidias.Int4.prototype.__class__ = glidias.Int4;
-glidias.PlaneResult = function(p) {
-}
+glidias.PlaneResult = function(p) { if( p === $_ ) return; {
+	null;
+}}
 glidias.PlaneResult.__name__ = ["glidias","PlaneResult"];
 glidias.PlaneResult.getIdentity = function() {
 	var me = new glidias.PlaneResult();
@@ -1338,11 +1551,10 @@ glidias.PlaneResult.prototype.clone = function() {
 	return me;
 }
 glidias.PlaneResult.prototype.__class__ = glidias.PlaneResult;
-glidias.ArrayBuffer = function(p) {
-	if( p === $_ ) return;
+glidias.ArrayBuffer = function(p) { if( p === $_ ) return; {
 	this.i = 0;
 	this.arr = new Array();
-}
+}}
 glidias.ArrayBuffer.__name__ = ["glidias","ArrayBuffer"];
 glidias.ArrayBuffer.prototype.arr = null;
 glidias.ArrayBuffer.prototype.i = null;
@@ -1353,11 +1565,135 @@ glidias.ArrayBuffer.prototype.reset = function() {
 	this.i = 0;
 }
 glidias.ArrayBuffer.prototype.__class__ = glidias.ArrayBuffer;
-IntIter = function(min,max) {
-	if( min === $_ ) return;
+if(!haxe.io) haxe.io = {}
+haxe.io.Bytes = function(length,b) { if( length === $_ ) return; {
+	this.length = length;
+	this.b = b;
+}}
+haxe.io.Bytes.__name__ = ["haxe","io","Bytes"];
+haxe.io.Bytes.alloc = function(length) {
+	var a = new Array();
+	{
+		var _g = 0;
+		while(_g < length) {
+			var i = _g++;
+			a.push(0);
+		}
+	}
+	return new haxe.io.Bytes(length,a);
+}
+haxe.io.Bytes.ofString = function(s) {
+	var a = new Array();
+	{
+		var _g1 = 0, _g = s.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var c = s.cca(i);
+			if(c <= 127) a.push(c);
+			else if(c <= 2047) {
+				a.push(192 | c >> 6);
+				a.push(128 | c & 63);
+			}
+			else if(c <= 65535) {
+				a.push(224 | c >> 12);
+				a.push(128 | c >> 6 & 63);
+				a.push(128 | c & 63);
+			}
+			else {
+				a.push(240 | c >> 18);
+				a.push(128 | c >> 12 & 63);
+				a.push(128 | c >> 6 & 63);
+				a.push(128 | c & 63);
+			}
+		}
+	}
+	return new haxe.io.Bytes(a.length,a);
+}
+haxe.io.Bytes.ofData = function(b) {
+	return new haxe.io.Bytes(b.length,b);
+}
+haxe.io.Bytes.prototype.length = null;
+haxe.io.Bytes.prototype.b = null;
+haxe.io.Bytes.prototype.get = function(pos) {
+	return this.b[pos];
+}
+haxe.io.Bytes.prototype.set = function(pos,v) {
+	this.b[pos] = v & 255;
+}
+haxe.io.Bytes.prototype.blit = function(pos,src,srcpos,len) {
+	if(pos < 0 || srcpos < 0 || len < 0 || pos + len > this.length || srcpos + len > src.length) throw haxe.io.Error.OutsideBounds;
+	var b1 = this.b;
+	var b2 = src.b;
+	if(b1 == b2 && pos > srcpos) {
+		var i = len;
+		while(i > 0) {
+			i--;
+			b1[i + pos] = b2[i + srcpos];
+		}
+		return;
+	}
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			b1[i + pos] = b2[i + srcpos];
+		}
+	}
+}
+haxe.io.Bytes.prototype.sub = function(pos,len) {
+	if(pos < 0 || len < 0 || pos + len > this.length) throw haxe.io.Error.OutsideBounds;
+	return new haxe.io.Bytes(len,this.b.slice(pos,pos + len));
+}
+haxe.io.Bytes.prototype.compare = function(other) {
+	var b1 = this.b;
+	var b2 = other.b;
+	var len = this.length < other.length?this.length:other.length;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			if(b1[i] != b2[i]) return b1[i] - b2[i];
+		}
+	}
+	return this.length - other.length;
+}
+haxe.io.Bytes.prototype.readString = function(pos,len) {
+	if(pos < 0 || len < 0 || pos + len > this.length) throw haxe.io.Error.OutsideBounds;
+	var s = "";
+	var b = this.b;
+	var fcc = $closure(String,"fromCharCode");
+	var i = pos;
+	var max = pos + len;
+	while(i < max) {
+		var c = b[i++];
+		if(c < 128) {
+			if(c == 0) break;
+			s += fcc(c);
+		}
+		else if(c < 224) s += fcc((c & 63) << 6 | b[i++] & 127);
+		else if(c < 240) {
+			var c2 = b[i++];
+			s += fcc((c & 31) << 12 | (c2 & 127) << 6 | b[i++] & 127);
+		}
+		else {
+			var c2 = b[i++];
+			var c3 = b[i++];
+			s += fcc((c & 15) << 18 | (c2 & 127) << 12 | c3 << 6 & 127 | b[i++] & 127);
+		}
+	}
+	return s;
+}
+haxe.io.Bytes.prototype.toString = function() {
+	return this.readString(0,this.length);
+}
+haxe.io.Bytes.prototype.getData = function() {
+	return this.b;
+}
+haxe.io.Bytes.prototype.__class__ = haxe.io.Bytes;
+IntIter = function(min,max) { if( min === $_ ) return; {
 	this.min = min;
 	this.max = max;
-}
+}}
 IntIter.__name__ = ["IntIter"];
 IntIter.prototype.min = null;
 IntIter.prototype.max = null;
@@ -1368,13 +1704,23 @@ IntIter.prototype.next = function() {
 	return this.min++;
 }
 IntIter.prototype.__class__ = IntIter;
-glidias.Rectangle = function(x,y,width,height) {
-	if( x === $_ ) return;
+haxe.io.Error = { __ename__ : ["haxe","io","Error"], __constructs__ : ["Blocked","Overflow","OutsideBounds","Custom"] }
+haxe.io.Error.Blocked = ["Blocked",0];
+haxe.io.Error.Blocked.toString = $estr;
+haxe.io.Error.Blocked.__enum__ = haxe.io.Error;
+haxe.io.Error.Overflow = ["Overflow",1];
+haxe.io.Error.Overflow.toString = $estr;
+haxe.io.Error.Overflow.__enum__ = haxe.io.Error;
+haxe.io.Error.OutsideBounds = ["OutsideBounds",2];
+haxe.io.Error.OutsideBounds.toString = $estr;
+haxe.io.Error.OutsideBounds.__enum__ = haxe.io.Error;
+haxe.io.Error.Custom = function(e) { var $x = ["Custom",3,e]; $x.__enum__ = haxe.io.Error; $x.toString = $estr; return $x; }
+glidias.Rectangle = function(x,y,width,height) { if( x === $_ ) return; {
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
-}
+}}
 glidias.Rectangle.__name__ = ["glidias","Rectangle"];
 glidias.Rectangle.prototype.x = null;
 glidias.Rectangle.prototype.y = null;
@@ -1388,11 +1734,10 @@ glidias.Rectangle.prototype.toString = function() {
 	return "rect:" + [this.x,this.y,this.width,this.height];
 }
 glidias.Rectangle.prototype.__class__ = glidias.Rectangle;
-glidias.AABBSector = function(p) {
-	if( p === $_ ) return;
+glidias.AABBSector = function(p) { if( p === $_ ) return; {
 	this.id = glidias.AABBSector.ID_COUNT++;
 	this.renderId = -999999999;
-}
+}}
 glidias.AABBSector.__name__ = ["glidias","AABBSector"];
 glidias.AABBSector.prototype.minX = null;
 glidias.AABBSector.prototype.minY = null;
@@ -1425,25 +1770,29 @@ glidias.AABBSector.prototype.checkVis = function(camPos,buffer,frus,visibleSecto
 	var len = this.portalWalls.length;
 	var port;
 	var cFrus;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		p = this.portalWalls[i];
-		if(frus.checkVisibility(p)) {
-			ptl = p.portals;
-			pl = ptl.length;
-			var _g1 = 0;
-			while(_g1 < pl) {
-				var u = _g1++;
-				portal = ptl[u];
-				if(frus.checkVisibility(portal)) {
-					port = portal.target;
-					if(port == null) continue;
-					if(port.renderId != renderId) {
-						cFrus = (buffer._i < buffer._len?buffer._vec[buffer._i++]:buffer._vec[buffer._len++] = buffer._method()).setup4FromPortal(camPos.x,camPos.y,camPos.z,portal.points,null);
-						cFrus.planes[4] = frus.planes[4];
-						cFrus.planes[5] = frus.planes[5];
-						port.checkVis(camPos,buffer,cFrus,visibleSectors,renderId);
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			p = this.portalWalls[i];
+			if(frus.checkVisibility(p)) {
+				ptl = p.portals;
+				pl = ptl.length;
+				{
+					var _g1 = 0;
+					while(_g1 < pl) {
+						var u = _g1++;
+						portal = ptl[u];
+						if(frus.checkVisibility(portal)) {
+							port = portal.target;
+							if(port == null) continue;
+							if(port.renderId != renderId) {
+								cFrus = (buffer._i < buffer._len?buffer._vec[buffer._i++]:buffer._vec[buffer._len++] = buffer._method()).setup4FromPortal(camPos.x,camPos.y,camPos.z,portal.points,null);
+								cFrus.planes[4] = frus.planes[4];
+								cFrus.planes[5] = frus.planes[5];
+								port.checkVis(camPos,buffer,cFrus,visibleSectors,renderId);
+							}
+						}
 					}
 				}
 			}
@@ -1565,10 +1914,12 @@ glidias.AABBSector.prototype.getFloorHTML = function(mat,gridSize) {
 }
 glidias.AABBSector.prototype.getPortalPlane = function(direction) {
 	var len = this.portalWalls.length;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		if(this.portalWalls[i].direction == direction) return this.portalWalls[i];
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			if(this.portalWalls[i].direction == direction) return this.portalWalls[i];
+		}
 	}
 	return null;
 }
@@ -1589,15 +1940,19 @@ glidias.AABBSector.prototype.addPortalPlane = function(plane) {
 }
 glidias.AABBSector.prototype.getPortalList = function() {
 	var arr = [];
-	var _g1 = 0, _g = this.portalWalls.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var portalPlane = this.portalWalls[i];
-		var portals = portalPlane.portals;
-		var _g3 = 0, _g2 = portals.length;
-		while(_g3 < _g2) {
-			var u = _g3++;
-			arr.push(portals[u]);
+	{
+		var _g1 = 0, _g = this.portalWalls.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var portalPlane = this.portalWalls[i];
+			var portals = portalPlane.portals;
+			{
+				var _g3 = 0, _g2 = portals.length;
+				while(_g3 < _g2) {
+					var u = _g3++;
+					arr.push(portals[u]);
+				}
+			}
 		}
 	}
 	return arr;
@@ -1629,11 +1984,14 @@ Std.random = function(x) {
 	return Math.floor(Math.random() * x);
 }
 Std.prototype.__class__ = Std;
-glidias.PM_PRNG = function(_seed) {
-	if( _seed === $_ ) return;
+if(!glidias.controls) glidias.controls = {}
+glidias.controls.KeyCode = function() { }
+glidias.controls.KeyCode.__name__ = ["glidias","controls","KeyCode"];
+glidias.controls.KeyCode.prototype.__class__ = glidias.controls.KeyCode;
+glidias.PM_PRNG = function(_seed) { if( _seed === $_ ) return; {
 	if(_seed == null) _seed = 1;
 	this.seed = _seed;
-}
+}}
 glidias.PM_PRNG.__name__ = ["glidias","PM_PRNG"];
 glidias.PM_PRNG.prototype.seed = null;
 glidias.PM_PRNG.prototype.nextInt = function() {
@@ -1680,18 +2038,20 @@ js.Boot.__trace = function(v,i) {
 	var msg = i != null?i.fileName + ":" + i.lineNumber + ": ":"";
 	msg += js.Boot.__unhtml(js.Boot.__string_rec(v,"")) + "<br/>";
 	var d = document.getElementById("haxe:trace");
-	if(d == null) alert("No haxe:trace element defined\n" + msg); else d.innerHTML += msg;
+	if(d == null) alert("No haxe:trace element defined\n" + msg);
+	else d.innerHTML += msg;
 }
 js.Boot.__clear_trace = function() {
 	var d = document.getElementById("haxe:trace");
 	if(d != null) d.innerHTML = "";
+	else null;
 }
 js.Boot.__closure = function(o,f) {
 	var m = o[f];
 	if(m == null) return null;
 	var f1 = function() {
 		return m.apply(o,arguments);
-	};
+	}
 	f1.scope = o;
 	f1.method = m;
 	return f1;
@@ -1702,16 +2062,19 @@ js.Boot.__string_rec = function(o,s) {
 	var t = typeof(o);
 	if(t == "function" && (o.__name__ != null || o.__ename__ != null)) t = "object";
 	switch(t) {
-	case "object":
+	case "object":{
 		if(o instanceof Array) {
 			if(o.__enum__ != null) {
 				if(o.length == 2) return o[0];
 				var str = o[0] + "(";
 				s += "\t";
-				var _g1 = 2, _g = o.length;
-				while(_g1 < _g) {
-					var i = _g1++;
-					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
+				{
+					var _g1 = 2, _g = o.length;
+					while(_g1 < _g) {
+						var i = _g1++;
+						if(i != 2) str += "," + js.Boot.__string_rec(o[i],s);
+						else str += js.Boot.__string_rec(o[i],s);
+					}
 				}
 				return str + ")";
 			}
@@ -1719,10 +2082,12 @@ js.Boot.__string_rec = function(o,s) {
 			var i;
 			var str = "[";
 			s += "\t";
-			var _g = 0;
-			while(_g < l) {
-				var i1 = _g++;
-				str += (i1 > 0?",":"") + js.Boot.__string_rec(o[i1],s);
+			{
+				var _g = 0;
+				while(_g < l) {
+					var i1 = _g++;
+					str += (i1 > 0?",":"") + js.Boot.__string_rec(o[i1],s);
+				}
 			}
 			str += "]";
 			return str;
@@ -1730,8 +2095,14 @@ js.Boot.__string_rec = function(o,s) {
 		var tostr;
 		try {
 			tostr = o.toString;
-		} catch( e ) {
-			return "???";
+		}
+		catch( $e0 ) {
+			{
+				var e = $e0;
+				{
+					return "???";
+				}
+			}
 		}
 		if(tostr != null && tostr != Object.toString) {
 			var s2 = o.toString();
@@ -1742,24 +2113,24 @@ js.Boot.__string_rec = function(o,s) {
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
 		for( var k in o ) { ;
-		if(hasp && !o.hasOwnProperty(k)) {
-			continue;
-		}
-		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__") {
-			continue;
-		}
+		if(hasp && !o.hasOwnProperty(k)) continue;
+		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__") continue;
 		if(str.length != 2) str += ", \n";
 		str += s + k + " : " + js.Boot.__string_rec(o[k],s);
 		}
 		s = s.substring(1);
 		str += "\n" + s + "}";
 		return str;
-	case "function":
+	}break;
+	case "function":{
 		return "<function>";
-	case "string":
+	}break;
+	case "string":{
 		return o;
-	default:
+	}break;
+	default:{
 		return String(o);
+	}break;
 	}
 }
 js.Boot.__interfLoop = function(cc,cl) {
@@ -1783,23 +2154,35 @@ js.Boot.__instanceof = function(o,cl) {
 			return true;
 		}
 		if(js.Boot.__interfLoop(o.__class__,cl)) return true;
-	} catch( e ) {
-		if(cl == null) return false;
+	}
+	catch( $e0 ) {
+		{
+			var e = $e0;
+			{
+				if(cl == null) return false;
+			}
+		}
 	}
 	switch(cl) {
-	case Int:
+	case Int:{
 		return Math.ceil(o%2147483648.0) === o;
-	case Float:
+	}break;
+	case Float:{
 		return typeof(o) == "number";
-	case Bool:
+	}break;
+	case Bool:{
 		return o === true || o === false;
-	case String:
+	}break;
+	case String:{
 		return typeof(o) == "string";
-	case Dynamic:
+	}break;
+	case Dynamic:{
 		return true;
-	default:
+	}break;
+	default:{
 		if(o == null) return false;
 		return o.__enum__ == cl || cl == Class && o.__name__ != null || cl == Enum && o.__ename__ != null;
+	}break;
 	}
 }
 js.Boot.__init = function() {
@@ -1808,7 +2191,7 @@ js.Boot.__init = function() {
 	Array.prototype.copy = Array.prototype.slice;
 	Array.prototype.insert = function(i,x) {
 		this.splice(i,0,x);
-	};
+	}
 	Array.prototype.remove = Array.prototype.indexOf?function(obj) {
 		var idx = this.indexOf(obj);
 		if(idx == -1) return false;
@@ -1825,20 +2208,20 @@ js.Boot.__init = function() {
 			i++;
 		}
 		return false;
-	};
+	}
 	Array.prototype.iterator = function() {
 		return { cur : 0, arr : this, hasNext : function() {
 			return this.cur < this.arr.length;
 		}, next : function() {
 			return this.arr[this.cur++];
 		}};
-	};
+	}
 	if(String.prototype.cca == null) String.prototype.cca = String.prototype.charCodeAt;
 	String.prototype.charCodeAt = function(i) {
 		var x = this.cca(i);
 		if(x != x) return null;
 		return x;
-	};
+	}
 	var oldsub = String.prototype.substr;
 	String.prototype.substr = function(pos,len) {
 		if(pos != null && pos != 0 && len != null && len < 0) return "";
@@ -1846,17 +2229,19 @@ js.Boot.__init = function() {
 		if(pos < 0) {
 			pos = this.length + pos;
 			if(pos < 0) pos = 0;
-		} else if(len < 0) len = this.length + len - pos;
+		}
+		else if(len < 0) {
+			len = this.length + len - pos;
+		}
 		return oldsub.apply(this,[pos,len]);
-	};
+	}
 	$closure = js.Boot.__closure;
 }
 js.Boot.prototype.__class__ = js.Boot;
-glidias.ArrayBuffer_glidias_AABBSector = function(p) {
-	if( p === $_ ) return;
+glidias.ArrayBuffer_glidias_AABBSector = function(p) { if( p === $_ ) return; {
 	this.i = 0;
 	this.arr = new Array();
-}
+}}
 glidias.ArrayBuffer_glidias_AABBSector.__name__ = ["glidias","ArrayBuffer_glidias_AABBSector"];
 glidias.ArrayBuffer_glidias_AABBSector.prototype.arr = null;
 glidias.ArrayBuffer_glidias_AABBSector.prototype.i = null;
@@ -1930,8 +2315,7 @@ glidias.AABBUtils.expandWithPoint = function(vec,aabb) {
 	if(vec.z > aabb.maxZ) aabb.maxZ = vec.z;
 }
 glidias.AABBUtils.prototype.__class__ = glidias.AABBUtils;
-glidias.AllocatorF_glidias_Frustum = function(method,fillAmount,initialCapacity,fixed) {
-	if( method === $_ ) return;
+glidias.AllocatorF_glidias_Frustum = function(method,fillAmount,initialCapacity,fixed) { if( method === $_ ) return; {
 	if(fixed == null) fixed = false;
 	if(initialCapacity == null) initialCapacity = 0;
 	if(fillAmount == null) fillAmount = 0;
@@ -1941,7 +2325,7 @@ glidias.AllocatorF_glidias_Frustum = function(method,fillAmount,initialCapacity,
 	this._i = 0;
 	this._vec = new Array();
 	if(fillAmount > 0) this.fill(fillAmount,fixed);
-}
+}}
 glidias.AllocatorF_glidias_Frustum.__name__ = ["glidias","AllocatorF_glidias_Frustum"];
 glidias.AllocatorF_glidias_Frustum.prototype._method = null;
 glidias.AllocatorF_glidias_Frustum.prototype._i = null;
@@ -1970,10 +2354,12 @@ glidias.AllocatorF_glidias_Frustum.prototype.purgeAndTruncate = function(fixed) 
 glidias.AllocatorF_glidias_Frustum.prototype._purge = function(truncateLength,fixed) {
 	if(fixed == null) fixed = false;
 	if(truncateLength == null) truncateLength = false;
-	var _g1 = this._i, _g = this._len;
-	while(_g1 < _g) {
-		var i = _g1++;
-		this._vec[i] = null;
+	{
+		var _g1 = this._i, _g = this._len;
+		while(_g1 < _g) {
+			var i = _g1++;
+			this._vec[i] = null;
+		}
 	}
 	if(truncateLength) {
 		this._vec.length = this._i;
@@ -1983,7 +2369,9 @@ glidias.AllocatorF_glidias_Frustum.prototype._purge = function(truncateLength,fi
 glidias.AllocatorF_glidias_Frustum.prototype.fill = function(amount,fixed) {
 	this._vec.length = amount;
 	this._len = amount;
-	while(--amount > -1) if(this._vec[amount] == null) this._vec[amount] = this._method();
+	while(--amount > -1) {
+		if(this._vec[amount] == null) this._vec[amount] = this._method();
+	}
 }
 glidias.AllocatorF_glidias_Frustum.prototype.setFixed = function(val) {
 	this.fixed = val;
@@ -1999,10 +2387,42 @@ glidias.AllocatorF_glidias_Frustum.prototype.__class__ = glidias.AllocatorF_glid
 glidias.Package = function() { }
 glidias.Package.__name__ = ["glidias","Package"];
 glidias.Package.main = function() {
+	null;
 }
 glidias.Package.prototype.__class__ = glidias.Package;
-glidias.AllocatorF = function(method,fillAmount,initialCapacity,fixed) {
-	if( method === $_ ) return;
+glidias.controls.KeyPoll = function(displayObj) { if( displayObj === $_ ) return; {
+	this.states = haxe.io.Bytes.alloc(32);
+	this.jDoc = new $(displayObj != null?displayObj:js.Lib.document);
+	this.jDoc.keydown($closure(this,"keyDownListener"));
+	this.jDoc.keyup($closure(this,"keyUpListener"));
+}}
+glidias.controls.KeyPoll.__name__ = ["glidias","controls","KeyPoll"];
+glidias.controls.KeyPoll.prototype.states = null;
+glidias.controls.KeyPoll.prototype.jDoc = null;
+glidias.controls.KeyPoll.prototype.destroy = function() {
+	this.jDoc.unbind("keydown",$closure(this,"keyDownListener"));
+	this.jDoc.unbind("keyup",$closure(this,"keyUpListener"));
+}
+glidias.controls.KeyPoll.prototype.keyDownListener = function(ev) {
+	this.states.b[ev.keyCode >>> 3] = (this.states.b[ev.keyCode >>> 3] | 1 << (ev.keyCode & 7)) & 255;
+}
+glidias.controls.KeyPoll.prototype.keyUpListener = function(ev) {
+	this.states.b[ev.which >>> 3] = this.states.b[ev.which >>> 3] & ~(1 << (ev.which & 7)) & 255;
+}
+glidias.controls.KeyPoll.prototype.clearListener = function(ev) {
+	var i = 0;
+	while(++i < 8) {
+		this.states.b[i] = 0;
+	}
+}
+glidias.controls.KeyPoll.prototype.isDown = function(keyCode) {
+	return (this.states.b[keyCode >>> 3] & 1 << (keyCode & 7)) != 0;
+}
+glidias.controls.KeyPoll.prototype.isUp = function(keyCode) {
+	return (this.states.b[keyCode >>> 3] & 1 << (keyCode & 7)) == 0;
+}
+glidias.controls.KeyPoll.prototype.__class__ = glidias.controls.KeyPoll;
+glidias.AllocatorF = function(method,fillAmount,initialCapacity,fixed) { if( method === $_ ) return; {
 	if(fixed == null) fixed = false;
 	if(initialCapacity == null) initialCapacity = 0;
 	if(fillAmount == null) fillAmount = 0;
@@ -2012,7 +2432,7 @@ glidias.AllocatorF = function(method,fillAmount,initialCapacity,fixed) {
 	this._i = 0;
 	this._vec = new Array();
 	if(fillAmount > 0) this.fill(fillAmount,fixed);
-}
+}}
 glidias.AllocatorF.__name__ = ["glidias","AllocatorF"];
 glidias.AllocatorF.prototype._method = null;
 glidias.AllocatorF.prototype._i = null;
@@ -2041,10 +2461,12 @@ glidias.AllocatorF.prototype.purgeAndTruncate = function(fixed) {
 glidias.AllocatorF.prototype._purge = function(truncateLength,fixed) {
 	if(fixed == null) fixed = false;
 	if(truncateLength == null) truncateLength = false;
-	var _g1 = this._i, _g = this._len;
-	while(_g1 < _g) {
-		var i = _g1++;
-		this._vec[i] = null;
+	{
+		var _g1 = this._i, _g = this._len;
+		while(_g1 < _g) {
+			var i = _g1++;
+			this._vec[i] = null;
+		}
 	}
 	if(truncateLength) {
 		this._vec.length = this._i;
@@ -2054,7 +2476,9 @@ glidias.AllocatorF.prototype._purge = function(truncateLength,fixed) {
 glidias.AllocatorF.prototype.fill = function(amount,fixed) {
 	this._vec.length = amount;
 	this._len = amount;
-	while(--amount > -1) if(this._vec[amount] == null) this._vec[amount] = this._method();
+	while(--amount > -1) {
+		if(this._vec[amount] == null) this._vec[amount] = this._method();
+	}
 }
 glidias.AllocatorF.prototype.setFixed = function(val) {
 	this.fixed = val;
@@ -2067,14 +2491,13 @@ glidias.AllocatorF.prototype.kill = function() {
 	this._i = 0;
 }
 glidias.AllocatorF.prototype.__class__ = glidias.AllocatorF;
-glidias.AABBSectorVisController = function(fillAmount,initialCapacity) {
-	if( fillAmount === $_ ) return;
+glidias.AABBSectorVisController = function(fillAmount,initialCapacity) { if( fillAmount === $_ ) return; {
 	if(initialCapacity == null) initialCapacity = 0;
 	if(fillAmount == null) fillAmount = 0;
 	this.renderId = 0;
 	this.sectorStack = new glidias.ArrayBuffer_glidias_AABBSector();
-	this.frustumStack = new glidias.AllocatorF_glidias_Frustum(glidias.Frustum.create4,fillAmount,initialCapacity);
-}
+	this.frustumStack = new glidias.AllocatorF_glidias_Frustum($closure(glidias.Frustum,"create4"),fillAmount,initialCapacity);
+}}
 glidias.AABBSectorVisController.__name__ = ["glidias","AABBSectorVisController"];
 glidias.AABBSectorVisController.prototype.curSector = null;
 glidias.AABBSectorVisController.prototype.sectorStack = null;
@@ -2088,19 +2511,28 @@ glidias.AABBSectorVisController.prototype.run = function(camPos,camFrus,sectors)
 	this.frustumStack._i = 0;
 	var arr = this.sectorStack.arr;
 	var len = this.sectorStack.i;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		arr[i].dom.style.visibility = "hidden";
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			arr[i].dom.style.visibility = "hidden";
+		}
 	}
 	var s = this.curSector;
 	if(s == null) {
 		s = this.getCurrentSector(camPos,sectors);
-		if(s == null) return;
+		if(s == null) {
+			return;
+		}
 		this.curSector = s;
-	} else if(!!(camPos.x < s.minX || camPos.y < s.minY || camPos.z < s.minZ || camPos.x > s.maxX || camPos.y > s.maxY || camPos.z > s.maxZ)) {
-		s = this.getCurrentSector(camPos,sectors);
-		if(s != null && this.curSector != s) this.curSector = s;
+	}
+	else {
+		if(!!(camPos.x < s.minX || camPos.y < s.minY || camPos.z < s.minZ || camPos.x > s.maxX || camPos.y > s.maxY || camPos.z > s.maxZ)) {
+			s = this.getCurrentSector(camPos,sectors);
+			if(s != null && this.curSector != s) {
+				this.curSector = s;
+			}
+		}
 	}
 	this.sectorStack.i = 0;
 	this.curSector.checkVis(camPos,this.frustumStack,camFrus,this.sectorStack,this.renderId);
@@ -2108,11 +2540,13 @@ glidias.AABBSectorVisController.prototype.run = function(camPos,camFrus,sectors)
 glidias.AABBSectorVisController.prototype.getCurrentSector = function(camPos,sectors) {
 	var len = sectors.length;
 	var s;
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		s = sectors[i];
-		if(!(camPos.x < s.minX || camPos.y < s.minY || camPos.z < s.minZ || camPos.x > s.maxX || camPos.y > s.maxY || camPos.z > s.maxZ)) return s;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			s = sectors[i];
+			if(!(camPos.x < s.minX || camPos.y < s.minY || camPos.z < s.minZ || camPos.x > s.maxX || camPos.y > s.maxY || camPos.z > s.maxZ)) return s;
+		}
 	}
 	return null;
 }
@@ -2141,10 +2575,10 @@ js.Boot.__init();
 	Math.POSITIVE_INFINITY = Number["POSITIVE_INFINITY"];
 	Math.isFinite = function(i) {
 		return isFinite(i);
-	};
+	}
 	Math.isNaN = function(i) {
 		return isNaN(i);
-	};
+	}
 }
 {
 	js.Lib.document = document;
@@ -2155,6 +2589,35 @@ js.Boot.__init();
 			return false;
 		return f(msg,[url+":"+line]);
 	}
+}
+{
+	js["XMLHttpRequest"] = window.XMLHttpRequest?XMLHttpRequest:window.ActiveXObject?function() {
+		try {
+			return new ActiveXObject("Msxml2.XMLHTTP");
+		}
+		catch( $e0 ) {
+			{
+				var e = $e0;
+				{
+					try {
+						return new ActiveXObject("Microsoft.XMLHTTP");
+					}
+					catch( $e1 ) {
+						{
+							var e1 = $e1;
+							{
+								throw "Unable to create XMLHttpRequest object.";
+							}
+						}
+					}
+				}
+			}
+		}
+	}:(function($this) {
+		var $r;
+		throw "Unable to create XMLHttpRequest object.";
+		return $r;
+	}(this));
 }
 glidias.RoomFiller.COLS = 80;
 glidias.RoomFiller.ROWS = 80;
@@ -2193,6 +2656,110 @@ glidias.AABBPortalPlane.OFFSET_BITMASKS = (function($this) {
 glidias.AABBPortalPlane.DIRECTIONS = [new glidias.Vec3(0,-1,0),new glidias.Vec3(-1,0,0),new glidias.Vec3(0,1,0),new glidias.Vec3(1,0,0)];
 glidias.AABBPortalPlane.UP = new glidias.Vec3(0,0,1);
 glidias.AABBSector.ID_COUNT = 0;
+glidias.controls.KeyCode.A = 65;
+glidias.controls.KeyCode.ALTERNATE = 18;
+glidias.controls.KeyCode.APPLICATION_KEY = 93;
+glidias.controls.KeyCode.B = 66;
+glidias.controls.KeyCode.BACKQUOTE = 192;
+glidias.controls.KeyCode.BACKSLASH = 220;
+glidias.controls.KeyCode.BACKSPACE = 8;
+glidias.controls.KeyCode.BREAK = 19;
+glidias.controls.KeyCode.C = 67;
+glidias.controls.KeyCode.CAPS_LOCK = 20;
+glidias.controls.KeyCode.COMMA = 188;
+glidias.controls.KeyCode.COMMAND = 19;
+glidias.controls.KeyCode.CONTROL = 17;
+glidias.controls.KeyCode.D = 68;
+glidias.controls.KeyCode.DELETE = 46;
+glidias.controls.KeyCode.DOWN = 40;
+glidias.controls.KeyCode.E = 69;
+glidias.controls.KeyCode.END = 35;
+glidias.controls.KeyCode.ENTER = 13;
+glidias.controls.KeyCode.EQUAL = 187;
+glidias.controls.KeyCode.ESCAPE = 27;
+glidias.controls.KeyCode.F = 70;
+glidias.controls.KeyCode.F1 = 112;
+glidias.controls.KeyCode.F10 = 121;
+glidias.controls.KeyCode.F11 = 122;
+glidias.controls.KeyCode.F12 = 123;
+glidias.controls.KeyCode.F13 = 124;
+glidias.controls.KeyCode.F14 = 125;
+glidias.controls.KeyCode.F15 = 126;
+glidias.controls.KeyCode.F2 = 113;
+glidias.controls.KeyCode.F3 = 114;
+glidias.controls.KeyCode.F4 = 115;
+glidias.controls.KeyCode.F5 = 116;
+glidias.controls.KeyCode.F6 = 117;
+glidias.controls.KeyCode.F7 = 118;
+glidias.controls.KeyCode.F8 = 119;
+glidias.controls.KeyCode.F9 = 120;
+glidias.controls.KeyCode.G = 71;
+glidias.controls.KeyCode.H = 72;
+glidias.controls.KeyCode.HOME = 36;
+glidias.controls.KeyCode.I = 73;
+glidias.controls.KeyCode.INSERT = 45;
+glidias.controls.KeyCode.J = 74;
+glidias.controls.KeyCode.K = 75;
+glidias.controls.KeyCode.L = 76;
+glidias.controls.KeyCode.LEFT = 37;
+glidias.controls.KeyCode.LEFTBRACKET = 219;
+glidias.controls.KeyCode.M = 77;
+glidias.controls.KeyCode.MINUS = 189;
+glidias.controls.KeyCode.N = 78;
+glidias.controls.KeyCode.NUMBER_0 = 48;
+glidias.controls.KeyCode.NUMBER_1 = 49;
+glidias.controls.KeyCode.NUMBER_2 = 50;
+glidias.controls.KeyCode.NUMBER_3 = 51;
+glidias.controls.KeyCode.NUMBER_4 = 52;
+glidias.controls.KeyCode.NUMBER_5 = 53;
+glidias.controls.KeyCode.NUMBER_6 = 54;
+glidias.controls.KeyCode.NUMBER_7 = 55;
+glidias.controls.KeyCode.NUMBER_8 = 56;
+glidias.controls.KeyCode.NUMBER_9 = 57;
+glidias.controls.KeyCode.NUM_LOCK = 144;
+glidias.controls.KeyCode.NUMPAD = 21;
+glidias.controls.KeyCode.NUMPAD_0 = 96;
+glidias.controls.KeyCode.NUMPAD_1 = 97;
+glidias.controls.KeyCode.NUMPAD_2 = 98;
+glidias.controls.KeyCode.NUMPAD_3 = 99;
+glidias.controls.KeyCode.NUMPAD_4 = 100;
+glidias.controls.KeyCode.NUMPAD_5 = 101;
+glidias.controls.KeyCode.NUMPAD_6 = 102;
+glidias.controls.KeyCode.NUMPAD_7 = 103;
+glidias.controls.KeyCode.NUMPAD_8 = 104;
+glidias.controls.KeyCode.NUMPAD_9 = 105;
+glidias.controls.KeyCode.NUMPAD_ADD = 107;
+glidias.controls.KeyCode.NUMPAD_DECIMAL = 110;
+glidias.controls.KeyCode.NUMPAD_DIVIDE = 111;
+glidias.controls.KeyCode.NUMPAD_ENTER = 108;
+glidias.controls.KeyCode.NUMPAD_MULTIPLY = 106;
+glidias.controls.KeyCode.NUMPAD_SUBTRACT = 109;
+glidias.controls.KeyCode.O = 79;
+glidias.controls.KeyCode.P = 80;
+glidias.controls.KeyCode.PAGE_DOWN = 34;
+glidias.controls.KeyCode.PAGE_UP = 33;
+glidias.controls.KeyCode.PERIOD = 190;
+glidias.controls.KeyCode.PRINT_SCREEN = 124;
+glidias.controls.KeyCode.Q = 81;
+glidias.controls.KeyCode.QUOTE = 222;
+glidias.controls.KeyCode.R = 82;
+glidias.controls.KeyCode.RIGHT = 39;
+glidias.controls.KeyCode.RIGHTBRACKET = 221;
+glidias.controls.KeyCode.S = 83;
+glidias.controls.KeyCode.SCROLL_LOCK = 145;
+glidias.controls.KeyCode.SEMICOLON = 186;
+glidias.controls.KeyCode.SHIFT = 16;
+glidias.controls.KeyCode.SLASH = 191;
+glidias.controls.KeyCode.SPACE = 32;
+glidias.controls.KeyCode.T = 84;
+glidias.controls.KeyCode.TAB = 9;
+glidias.controls.KeyCode.U = 85;
+glidias.controls.KeyCode.UP = 38;
+glidias.controls.KeyCode.V = 86;
+glidias.controls.KeyCode.W = 87;
+glidias.controls.KeyCode.X = 88;
+glidias.controls.KeyCode.Y = 89;
+glidias.controls.KeyCode.Z = 90;
 js.Lib.onerror = null;
 glidias.AABBUtils.MAX_VALUE = 1.7976931348623157e+308;
 glidias.AABBUtils.THRESHOLD = .1;

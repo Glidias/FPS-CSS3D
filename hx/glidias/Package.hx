@@ -7,7 +7,9 @@ import js.Lib;
 import glidias.RoomFiller;
 import glidias.Frustum;
 import glidias.AABBSectorVisController;
-
+import glidias.controls.KeyPoll;
+import glidias.controls.KeyCode;
+#if (jQuery) import jQuery.JQuery; #end
 
 /**
  * ...
