@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-package glidias.controls;
+package glidias.input;
 	#if (usePolygonal || usePolygonalKey)
 	import de.polygonal.ds.mem.ByteMemory;
 	import js.Dom;

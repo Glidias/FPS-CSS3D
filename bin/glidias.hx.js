@@ -1,5 +1,16 @@
 $estr = function() { return js.Boot.__string_rec(this,''); }
 if(typeof glidias=='undefined') glidias = {}
+glidias.XYZ = function() { }
+glidias.XYZ.__name__ = ["glidias","XYZ"];
+glidias.XYZ.prototype.x = null;
+glidias.XYZ.prototype.y = null;
+glidias.XYZ.prototype.z = null;
+glidias.XYZ.prototype.__class__ = glidias.XYZ;
+glidias.XYZW = function() { }
+glidias.XYZW.__name__ = ["glidias","XYZW"];
+glidias.XYZW.prototype.w = null;
+glidias.XYZW.prototype.__class__ = glidias.XYZW;
+glidias.XYZW.__interfaces__ = [glidias.XYZ];
 glidias.Frustum = function(p) { if( p === $_ ) return; {
 	this.planes = new Array();
 }}
@@ -513,7 +524,14 @@ glidias.AABBPortal.prototype.id = null;
 glidias.AABBPortal.prototype.getReverse = function(newTarget,direction,version2) {
 	if(version2 == null) version2 = false;
 	var meNew = new glidias.AABBPortal();
-	glidias.AABBUtils.match(meNew,this);
+	{
+		meNew.minX = this.minX;
+		meNew.minY = this.minY;
+		meNew.minZ = this.minZ;
+		meNew.maxX = this.maxX;
+		meNew.maxY = this.maxY;
+		meNew.maxZ = this.maxZ;
+	}
 	var len = this.points.length;
 	{
 		var _g = 0;
@@ -1228,6 +1246,170 @@ haxe.Log.clear = function() {
 	js.Boot.__clear_trace();
 }
 haxe.Log.prototype.__class__ = haxe.Log;
+if(typeof a3d=='undefined') a3d = {}
+a3d.SimpleObjectController = function(object,speed,speedMultiplier,mouseSensitivity) { if( object === $_ ) return; {
+	if(mouseSensitivity == null) mouseSensitivity = 1;
+	if(speedMultiplier == null) speedMultiplier = 3;
+	if(speed == null) speed = 16;
+	this.eventSource = { };
+	this.maxPitch = 1e+22;
+	this.minPitch = -1e+22;
+	this.mousePoint = new jeash.geom.Point();
+	this._vin = [.0,.0,.0];
+	this._vout = [.0,.0,.0];
+	this._up = false;
+	this._down = false;
+	this._forward = false;
+	this._back = false;
+	this._left = false;
+	this._right = false;
+	this._accelerate = false;
+	this.mouseLook = true;
+	this.displacement = new jeash.geom.Vector3D();
+	this._object = object;
+	this.speed = speed;
+	this.speedMultiplier = speedMultiplier;
+	this.mouseSensitivity = mouseSensitivity;
+}}
+a3d.SimpleObjectController.__name__ = ["a3d","SimpleObjectController"];
+a3d.SimpleObjectController.prototype.speed = null;
+a3d.SimpleObjectController.prototype.speedMultiplier = null;
+a3d.SimpleObjectController.prototype.mouseLook = null;
+a3d.SimpleObjectController.prototype.mouseSensitivity = null;
+a3d.SimpleObjectController.prototype.maxPitch = null;
+a3d.SimpleObjectController.prototype.minPitch = null;
+a3d.SimpleObjectController.prototype._object = null;
+a3d.SimpleObjectController.prototype._up = null;
+a3d.SimpleObjectController.prototype._down = null;
+a3d.SimpleObjectController.prototype._forward = null;
+a3d.SimpleObjectController.prototype._back = null;
+a3d.SimpleObjectController.prototype._left = null;
+a3d.SimpleObjectController.prototype._right = null;
+a3d.SimpleObjectController.prototype._accelerate = null;
+a3d.SimpleObjectController.prototype.displacement = null;
+a3d.SimpleObjectController.prototype.objectTransform = null;
+a3d.SimpleObjectController.prototype.eventSource = null;
+a3d.SimpleObjectController.prototype.mousePoint = null;
+a3d.SimpleObjectController.prototype._vin = null;
+a3d.SimpleObjectController.prototype._vout = null;
+a3d.SimpleObjectController.prototype.startMouseLook = function() {
+	this.mousePoint.x = this.eventSource.mouseX;
+	this.mousePoint.y = this.eventSource.mouseY;
+	this.mouseLook = true;
+}
+a3d.SimpleObjectController.prototype.stopMouseLook = function() {
+	this.mouseLook = false;
+}
+a3d.SimpleObjectController.prototype.getObject = function() {
+	return this._object;
+}
+a3d.SimpleObjectController.prototype.setObject = function(value) {
+	this._object = value;
+	this.updateObjectTransform();
+}
+a3d.SimpleObjectController.prototype.updateObjectTransform = function() {
+	if(this._object != null) this.objectTransform = this._object.get_matrix().decompose();
+}
+a3d.SimpleObjectController.prototype.update = function(frameTime) {
+	if(this._object == null) return;
+	var moved = false;
+	if(this.mouseLook) {
+		var dx = this.eventSource.mouseX - this.mousePoint.x;
+		var dy = this.eventSource.mouseY - this.mousePoint.y;
+		this.mousePoint.x = this.eventSource.mouseX;
+		this.mousePoint.y = this.eventSource.mouseY;
+		var v = this.objectTransform[1];
+		v.x -= dy * Math.PI / 180 * this.mouseSensitivity;
+		if(v.x > this.maxPitch) v.x = this.maxPitch;
+		if(v.x < this.minPitch) v.x = this.minPitch;
+		v.z -= dx * Math.PI / 180 * this.mouseSensitivity;
+		moved = true;
+	}
+	this.displacement.x = this._right?1:this._left?-1:0;
+	this.displacement.y = this._forward?1:this._back?-1:0;
+	this.displacement.z = this._up?1:this._down?-1:0;
+	if(this.displacement.getLengthSquared() > 0) {
+		var tmp = this.displacement.z;
+		this.displacement.z = this.displacement.y;
+		this.displacement.y = -tmp;
+		this.deltaTransformVector(this.displacement);
+		if(this._accelerate) this.displacement.scaleBy(this.speedMultiplier * this.speed * frameTime / Math.abs(jeash.geom.Vector3D.distance(this.displacement,new jeash.geom.Vector3D())));
+		else this.displacement.scaleBy(this.speed * frameTime / Math.abs(jeash.geom.Vector3D.distance(this.displacement,new jeash.geom.Vector3D())));
+		this.objectTransform[0].incrementBy(this.displacement);
+		moved = true;
+	}
+	if(moved) {
+		var m = new jeash.geom.Matrix3D();
+		m.recompose(this.objectTransform);
+		this._object.set_matrix(m);
+	}
+}
+a3d.SimpleObjectController.prototype.setObjectPos = function(pos) {
+	if(this._object != null) {
+		var v = this.objectTransform[0];
+		v.x = pos.x;
+		v.y = pos.y;
+		v.z = pos.z;
+	}
+}
+a3d.SimpleObjectController.prototype.setObjectPosXYZ = function(x,y,z) {
+	if(this._object != null) {
+		var v = this.objectTransform[0];
+		v.x = x;
+		v.y = y;
+		v.z = z;
+	}
+}
+a3d.SimpleObjectController.prototype.lookAt = function(point) {
+	this.lookAtXYZ(point.x,point.y,point.z);
+}
+a3d.SimpleObjectController.prototype.lookAtXYZ = function(x,y,z) {
+	if(this._object == null) return;
+	var v = this.objectTransform[0];
+	var dx = x - v.x;
+	var dy = y - v.y;
+	var dz = z - v.z;
+	v = this.objectTransform[1];
+	v.x = Math.atan2(dz,Math.sqrt(dx * dx + dy * dy));
+	v.x -= 0.5 * Math.PI;
+	v.y = 0;
+	v.z = -Math.atan2(dx,dy);
+	var m = this._object.get_matrix();
+	m.recompose(this.objectTransform);
+	this._object.set_matrix(m);
+}
+a3d.SimpleObjectController.prototype.deltaTransformVector = function(v) {
+	this._vin[0] = v.x;
+	this._vin[1] = v.y;
+	this._vin[2] = v.z;
+	this._object.get_matrix().transformVectors(this._vin,this._vout);
+	var c = this.objectTransform[0];
+	v.x = this._vout[0] - c.x;
+	v.y = this._vout[1] - c.y;
+	v.z = this._vout[2] - c.z;
+}
+a3d.SimpleObjectController.prototype.moveForward = function(value) {
+	this._forward = value;
+}
+a3d.SimpleObjectController.prototype.moveBack = function(value) {
+	this._back = value;
+}
+a3d.SimpleObjectController.prototype.moveLeft = function(value) {
+	this._left = value;
+}
+a3d.SimpleObjectController.prototype.moveRight = function(value) {
+	this._right = value;
+}
+a3d.SimpleObjectController.prototype.moveUp = function(value) {
+	this._up = value;
+}
+a3d.SimpleObjectController.prototype.moveDown = function(value) {
+	this._down = value;
+}
+a3d.SimpleObjectController.prototype.accelerate = function(value) {
+	this._accelerate = value;
+}
+a3d.SimpleObjectController.prototype.__class__ = a3d.SimpleObjectController;
 glidias.Vec3 = function(x,y,z,w) { if( x === $_ ) return; {
 	if(w == null) w = 0;
 	this.x = x;
@@ -1317,6 +1499,7 @@ glidias.Vec3.prototype.flip = function() {
 	this.w = -this.w;
 }
 glidias.Vec3.prototype.__class__ = glidias.Vec3;
+glidias.Vec3.__interfaces__ = [glidias.XYZW];
 glidias.AABBPortalPlane = function(p) { if( p === $_ ) return; {
 	{
 		this.minX = 1.7976931348623157e+308;
@@ -1434,7 +1617,14 @@ glidias.AABBPortalPlane.prototype.maxY = null;
 glidias.AABBPortalPlane.prototype.maxZ = null;
 glidias.AABBPortalPlane.prototype.portals = null;
 glidias.AABBPortalPlane.prototype.addPortal = function(portal) {
-	glidias.AABBUtils.expand2(this,portal);
+	{
+		if(portal.minX < this.minX) this.minX = portal.minX;
+		if(portal.minY < this.minY) this.minY = portal.minY;
+		if(portal.minZ < this.minZ) this.minZ = portal.minZ;
+		if(portal.maxX > this.maxX) this.maxX = portal.maxX;
+		if(portal.maxY > this.maxY) this.maxY = portal.maxY;
+		if(portal.maxZ > this.maxZ) this.maxZ = portal.maxZ;
+	}
 	this.portals.push(portal);
 }
 glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
@@ -1516,6 +1706,422 @@ glidias.Int4.prototype.y = null;
 glidias.Int4.prototype.z = null;
 glidias.Int4.prototype.w = null;
 glidias.Int4.prototype.__class__ = glidias.Int4;
+a3d.ITransform3D = function() { }
+a3d.ITransform3D.__name__ = ["a3d","ITransform3D"];
+a3d.ITransform3D.prototype.a = null;
+a3d.ITransform3D.prototype.b = null;
+a3d.ITransform3D.prototype.c = null;
+a3d.ITransform3D.prototype.d = null;
+a3d.ITransform3D.prototype.e = null;
+a3d.ITransform3D.prototype.f = null;
+a3d.ITransform3D.prototype.g = null;
+a3d.ITransform3D.prototype.h = null;
+a3d.ITransform3D.prototype.i = null;
+a3d.ITransform3D.prototype.j = null;
+a3d.ITransform3D.prototype.k = null;
+a3d.ITransform3D.prototype.l = null;
+a3d.ITransform3D.prototype.__class__ = a3d.ITransform3D;
+a3d.Transform3D = function(p) { if( p === $_ ) return; {
+	this.a = 1;
+	this.b = 0;
+	this.c = 0;
+	this.d = 0;
+	this.e = 0;
+	this.f = 1;
+	this.g = 0;
+	this.h = 0;
+	this.i = 0;
+	this.j = 0;
+	this.k = 1;
+	this.l = 0;
+}}
+a3d.Transform3D.__name__ = ["a3d","Transform3D"];
+a3d.Transform3D.prototype.a = null;
+a3d.Transform3D.prototype.b = null;
+a3d.Transform3D.prototype.c = null;
+a3d.Transform3D.prototype.d = null;
+a3d.Transform3D.prototype.e = null;
+a3d.Transform3D.prototype.f = null;
+a3d.Transform3D.prototype.g = null;
+a3d.Transform3D.prototype.h = null;
+a3d.Transform3D.prototype.i = null;
+a3d.Transform3D.prototype.j = null;
+a3d.Transform3D.prototype.k = null;
+a3d.Transform3D.prototype.l = null;
+a3d.Transform3D.prototype.identity = function() {
+	this.a = 1;
+	this.b = 0;
+	this.c = 0;
+	this.d = 0;
+	this.e = 0;
+	this.f = 1;
+	this.g = 0;
+	this.h = 0;
+	this.i = 0;
+	this.j = 0;
+	this.k = 1;
+	this.l = 0;
+}
+a3d.Transform3D.prototype.compose = function(x,y,z,rotationX,rotationY,rotationZ,scaleX,scaleY,scaleZ) {
+	var cosX = Math.cos(rotationX);
+	var sinX = Math.sin(rotationX);
+	var cosY = Math.cos(rotationY);
+	var sinY = Math.sin(rotationY);
+	var cosZ = Math.cos(rotationZ);
+	var sinZ = Math.sin(rotationZ);
+	var cosZsinY = cosZ * sinY;
+	var sinZsinY = sinZ * sinY;
+	var cosYscaleX = cosY * scaleX;
+	var sinXscaleY = sinX * scaleY;
+	var cosXscaleY = cosX * scaleY;
+	var cosXscaleZ = cosX * scaleZ;
+	var sinXscaleZ = sinX * scaleZ;
+	this.a = cosZ * cosYscaleX;
+	this.b = cosZsinY * sinXscaleY - sinZ * cosXscaleY;
+	this.c = cosZsinY * cosXscaleZ + sinZ * sinXscaleZ;
+	this.d = x;
+	this.e = sinZ * cosYscaleX;
+	this.f = sinZsinY * sinXscaleY + cosZ * cosXscaleY;
+	this.g = sinZsinY * cosXscaleZ - cosZ * sinXscaleZ;
+	this.h = y;
+	this.i = -sinY * scaleX;
+	this.j = cosY * sinXscaleY;
+	this.k = cosY * cosXscaleZ;
+	this.l = z;
+}
+a3d.Transform3D.prototype.composeInverse = function(x,y,z,rotationX,rotationY,rotationZ,scaleX,scaleY,scaleZ) {
+	var cosX = Math.cos(rotationX);
+	var sinX = Math.sin(-rotationX);
+	var cosY = Math.cos(rotationY);
+	var sinY = Math.sin(-rotationY);
+	var cosZ = Math.cos(rotationZ);
+	var sinZ = Math.sin(-rotationZ);
+	var sinXsinY = sinX * sinY;
+	var cosYscaleX = cosY / scaleX;
+	var cosXscaleY = cosX / scaleY;
+	var sinXscaleZ = sinX / scaleZ;
+	var cosXscaleZ = cosX / scaleZ;
+	this.a = cosZ * cosYscaleX;
+	this.b = -sinZ * cosYscaleX;
+	this.c = sinY / scaleX;
+	this.d = -this.a * x - this.b * y - this.c * z;
+	this.e = sinZ * cosXscaleY + sinXsinY * cosZ / scaleY;
+	this.f = cosZ * cosXscaleY - sinXsinY * sinZ / scaleY;
+	this.g = -sinX * cosY / scaleY;
+	this.h = -this.e * x - this.f * y - this.g * z;
+	this.i = sinZ * sinXscaleZ - cosZ * sinY * cosXscaleZ;
+	this.j = cosZ * sinXscaleZ + sinY * sinZ * cosXscaleZ;
+	this.k = cosY * cosXscaleZ;
+	this.l = -this.i * x - this.j * y - this.k * z;
+}
+a3d.Transform3D.prototype.invert = function() {
+	var ta = this.a;
+	var tb = this.b;
+	var tc = this.c;
+	var td = this.d;
+	var te = this.e;
+	var tf = this.f;
+	var tg = this.g;
+	var th = this.h;
+	var ti = this.i;
+	var tj = this.j;
+	var tk = this.k;
+	var tl = this.l;
+	var det = 1 / (-tc * tf * ti + tb * tg * ti + tc * te * tj - ta * tg * tj - tb * te * tk + ta * tf * tk);
+	this.a = (-tg * tj + tf * tk) * det;
+	this.b = (tc * tj - tb * tk) * det;
+	this.c = (-tc * tf + tb * tg) * det;
+	this.d = (td * tg * tj - tc * th * tj - td * tf * tk + tb * th * tk + tc * tf * tl - tb * tg * tl) * det;
+	this.e = (tg * ti - te * tk) * det;
+	this.f = (-tc * ti + ta * tk) * det;
+	this.g = (tc * te - ta * tg) * det;
+	this.h = (tc * th * ti - td * tg * ti + td * te * tk - ta * th * tk - tc * te * tl + ta * tg * tl) * det;
+	this.i = (-tf * ti + te * tj) * det;
+	this.j = (tb * ti - ta * tj) * det;
+	this.k = (-tb * te + ta * tf) * det;
+	this.l = (td * tf * ti - tb * th * ti - td * te * tj + ta * th * tj + tb * te * tl - ta * tf * tl) * det;
+}
+a3d.Transform3D.prototype.initFromVector = function(vector) {
+	this.a = vector[0];
+	this.b = vector[1];
+	this.c = vector[2];
+	this.d = vector[3];
+	this.e = vector[4];
+	this.f = vector[5];
+	this.g = vector[6];
+	this.h = vector[7];
+	this.i = vector[8];
+	this.j = vector[9];
+	this.k = vector[10];
+	this.l = vector[11];
+}
+a3d.Transform3D.prototype.append = function(transform) {
+	var ta = this.a;
+	var tb = this.b;
+	var tc = this.c;
+	var td = this.d;
+	var te = this.e;
+	var tf = this.f;
+	var tg = this.g;
+	var th = this.h;
+	var ti = this.i;
+	var tj = this.j;
+	var tk = this.k;
+	var tl = this.l;
+	this.a = transform.a * ta + transform.b * te + transform.c * ti;
+	this.b = transform.a * tb + transform.b * tf + transform.c * tj;
+	this.c = transform.a * tc + transform.b * tg + transform.c * tk;
+	this.d = transform.a * td + transform.b * th + transform.c * tl + transform.d;
+	this.e = transform.e * ta + transform.f * te + transform.g * ti;
+	this.f = transform.e * tb + transform.f * tf + transform.g * tj;
+	this.g = transform.e * tc + transform.f * tg + transform.g * tk;
+	this.h = transform.e * td + transform.f * th + transform.g * tl + transform.h;
+	this.i = transform.i * ta + transform.j * te + transform.k * ti;
+	this.j = transform.i * tb + transform.j * tf + transform.k * tj;
+	this.k = transform.i * tc + transform.j * tg + transform.k * tk;
+	this.l = transform.i * td + transform.j * th + transform.k * tl + transform.l;
+}
+a3d.Transform3D.prototype.prepend = function(transform) {
+	var ta = this.a;
+	var tb = this.b;
+	var tc = this.c;
+	var td = this.d;
+	var te = this.e;
+	var tf = this.f;
+	var tg = this.g;
+	var th = this.h;
+	var ti = this.i;
+	var tj = this.j;
+	var tk = this.k;
+	var tl = this.l;
+	this.a = ta * transform.a + tb * transform.e + tc * transform.i;
+	this.b = ta * transform.b + tb * transform.f + tc * transform.j;
+	this.c = ta * transform.c + tb * transform.g + tc * transform.k;
+	this.d = ta * transform.d + tb * transform.h + tc * transform.l + td;
+	this.e = te * transform.a + tf * transform.e + tg * transform.i;
+	this.f = te * transform.b + tf * transform.f + tg * transform.j;
+	this.g = te * transform.c + tf * transform.g + tg * transform.k;
+	this.h = te * transform.d + tf * transform.h + tg * transform.l + th;
+	this.i = ti * transform.a + tj * transform.e + tk * transform.i;
+	this.j = ti * transform.b + tj * transform.f + tk * transform.j;
+	this.k = ti * transform.c + tj * transform.g + tk * transform.k;
+	this.l = ti * transform.d + tj * transform.h + tk * transform.l + tl;
+}
+a3d.Transform3D.prototype.combine = function(transformA,transformB) {
+	this.a = transformA.a * transformB.a + transformA.b * transformB.e + transformA.c * transformB.i;
+	this.b = transformA.a * transformB.b + transformA.b * transformB.f + transformA.c * transformB.j;
+	this.c = transformA.a * transformB.c + transformA.b * transformB.g + transformA.c * transformB.k;
+	this.d = transformA.a * transformB.d + transformA.b * transformB.h + transformA.c * transformB.l + transformA.d;
+	this.e = transformA.e * transformB.a + transformA.f * transformB.e + transformA.g * transformB.i;
+	this.f = transformA.e * transformB.b + transformA.f * transformB.f + transformA.g * transformB.j;
+	this.g = transformA.e * transformB.c + transformA.f * transformB.g + transformA.g * transformB.k;
+	this.h = transformA.e * transformB.d + transformA.f * transformB.h + transformA.g * transformB.l + transformA.h;
+	this.i = transformA.i * transformB.a + transformA.j * transformB.e + transformA.k * transformB.i;
+	this.j = transformA.i * transformB.b + transformA.j * transformB.f + transformA.k * transformB.j;
+	this.k = transformA.i * transformB.c + transformA.j * transformB.g + transformA.k * transformB.k;
+	this.l = transformA.i * transformB.d + transformA.j * transformB.h + transformA.k * transformB.l + transformA.l;
+}
+a3d.Transform3D.prototype.calculateInversion = function(source) {
+	var ta = source.a;
+	var tb = source.b;
+	var tc = source.c;
+	var td = source.d;
+	var te = source.e;
+	var tf = source.f;
+	var tg = source.g;
+	var th = source.h;
+	var ti = source.i;
+	var tj = source.j;
+	var tk = source.k;
+	var tl = source.l;
+	var det = 1 / (-tc * tf * ti + tb * tg * ti + tc * te * tj - ta * tg * tj - tb * te * tk + ta * tf * tk);
+	this.a = (-tg * tj + tf * tk) * det;
+	this.b = (tc * tj - tb * tk) * det;
+	this.c = (-tc * tf + tb * tg) * det;
+	this.d = (td * tg * tj - tc * th * tj - td * tf * tk + tb * th * tk + tc * tf * tl - tb * tg * tl) * det;
+	this.e = (tg * ti - te * tk) * det;
+	this.f = (-tc * ti + ta * tk) * det;
+	this.g = (tc * te - ta * tg) * det;
+	this.h = (tc * th * ti - td * tg * ti + td * te * tk - ta * th * tk - tc * te * tl + ta * tg * tl) * det;
+	this.i = (-tf * ti + te * tj) * det;
+	this.j = (tb * ti - ta * tj) * det;
+	this.k = (-tb * te + ta * tf) * det;
+	this.l = (td * tf * ti - tb * th * ti - td * te * tj + ta * th * tj + tb * te * tl - ta * tf * tl) * det;
+}
+a3d.Transform3D.prototype.copy = function(source) {
+	this.a = source.a;
+	this.b = source.b;
+	this.c = source.c;
+	this.d = source.d;
+	this.e = source.e;
+	this.f = source.f;
+	this.g = source.g;
+	this.h = source.h;
+	this.i = source.i;
+	this.j = source.j;
+	this.k = source.k;
+	this.l = source.l;
+}
+a3d.Transform3D.prototype.__class__ = a3d.Transform3D;
+a3d.Transform3D.__interfaces__ = [a3d.ITransform3D];
+a3d.Geometry = function(p) { if( p === $_ ) return; {
+	this.nSides = 3;
+	this.vertices = [];
+	this.indices = [];
+	this.normals = [];
+	this.numVertices = 0;
+}}
+a3d.Geometry.__name__ = ["a3d","Geometry"];
+a3d.Geometry.prototype.vertices = null;
+a3d.Geometry.prototype.indices = null;
+a3d.Geometry.prototype.normals = null;
+a3d.Geometry.prototype.numVertices = null;
+a3d.Geometry.prototype.nSides = null;
+a3d.Geometry.prototype.__class__ = a3d.Geometry;
+if(!glidias.input) glidias.input = {}
+glidias.input.KeyPoll = function(displayObj) { if( displayObj === $_ ) return; {
+	this.states = haxe.io.Bytes.alloc(32);
+	this.jDoc = new $(displayObj != null?displayObj:js.Lib.document);
+	this.jDoc.keydown($closure(this,"keyDownListener"));
+	this.jDoc.keyup($closure(this,"keyUpListener"));
+}}
+glidias.input.KeyPoll.__name__ = ["glidias","input","KeyPoll"];
+glidias.input.KeyPoll.prototype.states = null;
+glidias.input.KeyPoll.prototype.jDoc = null;
+glidias.input.KeyPoll.prototype.destroy = function() {
+	this.jDoc.unbind("keydown",$closure(this,"keyDownListener"));
+	this.jDoc.unbind("keyup",$closure(this,"keyUpListener"));
+}
+glidias.input.KeyPoll.prototype.keyDownListener = function(ev) {
+	this.states.b[ev.keyCode >>> 3] = (this.states.b[ev.keyCode >>> 3] | 1 << (ev.keyCode & 7)) & 255;
+}
+glidias.input.KeyPoll.prototype.keyUpListener = function(ev) {
+	this.states.b[ev.which >>> 3] = this.states.b[ev.which >>> 3] & ~(1 << (ev.which & 7)) & 255;
+}
+glidias.input.KeyPoll.prototype.clearListener = function(ev) {
+	var i = 0;
+	while(++i < 8) {
+		this.states.b[i] = 0;
+	}
+}
+glidias.input.KeyPoll.prototype.isDown = function(keyCode) {
+	return (this.states.b[keyCode >>> 3] & 1 << (keyCode & 7)) != 0;
+}
+glidias.input.KeyPoll.prototype.isUp = function(keyCode) {
+	return (this.states.b[keyCode >>> 3] & 1 << (keyCode & 7)) == 0;
+}
+glidias.input.KeyPoll.prototype.__class__ = glidias.input.KeyPoll;
+if(typeof jeash=='undefined') jeash = {}
+if(!jeash.geom) jeash.geom = {}
+jeash.geom.Vector3D = function(x,y,z,w) { if( x === $_ ) return; {
+	if(w == null) w = 0.;
+	if(z == null) z = 0.;
+	if(y == null) y = 0.;
+	if(x == null) x = 0.;
+	this.w = w;
+	this.x = x;
+	this.y = y;
+	this.z = z;
+}}
+jeash.geom.Vector3D.__name__ = ["jeash","geom","Vector3D"];
+jeash.geom.Vector3D.angleBetween = function(a,b) {
+	var a0 = new jeash.geom.Vector3D(a.x,a.y,a.z,a.w);
+	a0.normalize();
+	var b0 = new jeash.geom.Vector3D(b.x,b.y,b.z,b.w);
+	b0.normalize();
+	return Math.acos(a0.x * b0.x + a0.y * b0.y + a0.z * b0.z);
+}
+jeash.geom.Vector3D.distance = function(pt1,pt2) {
+	var x = pt2.x - pt1.x;
+	var y = pt2.y - pt1.y;
+	var z = pt2.z - pt1.z;
+	return Math.sqrt(x * x + y * y + z * z);
+}
+jeash.geom.Vector3D.X_AXIS = null;
+jeash.geom.Vector3D.getX_AXIS = function() {
+	return new jeash.geom.Vector3D(1,0,0);
+}
+jeash.geom.Vector3D.Y_AXIS = null;
+jeash.geom.Vector3D.getY_AXIS = function() {
+	return new jeash.geom.Vector3D(0,1,0);
+}
+jeash.geom.Vector3D.Z_AXIS = null;
+jeash.geom.Vector3D.getZ_AXIS = function() {
+	return new jeash.geom.Vector3D(0,0,1);
+}
+jeash.geom.Vector3D.prototype.length = null;
+jeash.geom.Vector3D.prototype.getLength = function() {
+	return Math.abs(jeash.geom.Vector3D.distance(this,new jeash.geom.Vector3D()));
+}
+jeash.geom.Vector3D.prototype.lengthSquared = null;
+jeash.geom.Vector3D.prototype.getLengthSquared = function() {
+	return Math.abs(jeash.geom.Vector3D.distance(this,new jeash.geom.Vector3D())) * Math.abs(jeash.geom.Vector3D.distance(this,new jeash.geom.Vector3D()));
+}
+jeash.geom.Vector3D.prototype.w = null;
+jeash.geom.Vector3D.prototype.x = null;
+jeash.geom.Vector3D.prototype.y = null;
+jeash.geom.Vector3D.prototype.z = null;
+jeash.geom.Vector3D.prototype.add = function(a) {
+	return new jeash.geom.Vector3D(this.x + a.x,this.y + a.y,this.z + a.z);
+}
+jeash.geom.Vector3D.prototype.clone = function() {
+	return new jeash.geom.Vector3D(this.x,this.y,this.z,this.w);
+}
+jeash.geom.Vector3D.prototype.crossProduct = function(a) {
+	return new jeash.geom.Vector3D(this.y * a.z - this.z * a.y,this.z * a.x - this.x * a.z,this.x * a.y - this.y * a.x,1);
+}
+jeash.geom.Vector3D.prototype.decrementBy = function(a) {
+	this.x -= a.x;
+	this.y -= a.y;
+	this.z -= a.z;
+}
+jeash.geom.Vector3D.prototype.dotProduct = function(a) {
+	return this.x * a.x + this.y * a.y + this.z * a.z;
+}
+jeash.geom.Vector3D.prototype.equals = function(toCompare,allFour) {
+	if(allFour == null) allFour = false;
+	return this.x == toCompare.x && this.y == toCompare.y && this.z == toCompare.z && (!allFour || this.w == toCompare.w);
+}
+jeash.geom.Vector3D.prototype.incrementBy = function(a) {
+	this.x += a.x;
+	this.y += a.y;
+	this.z += a.z;
+}
+jeash.geom.Vector3D.prototype.nearEquals = function(toCompare,tolerance,allFour) {
+	if(allFour == null) allFour = false;
+	return Math.abs(this.x - toCompare.x) < tolerance && Math.abs(this.y - toCompare.y) < tolerance && Math.abs(this.z - toCompare.z) < tolerance && (!allFour || Math.abs(this.w - toCompare.w) < tolerance);
+}
+jeash.geom.Vector3D.prototype.negate = function() {
+	this.x *= -1;
+	this.y *= -1;
+	this.z *= -1;
+}
+jeash.geom.Vector3D.prototype.normalize = function() {
+	var l = Math.abs(jeash.geom.Vector3D.distance(this,new jeash.geom.Vector3D()));
+	if(l != 0) {
+		this.x /= l;
+		this.y /= l;
+		this.z /= l;
+	}
+	return l;
+}
+jeash.geom.Vector3D.prototype.project = function() {
+	this.x /= this.w;
+	this.y /= this.w;
+	this.z /= this.w;
+}
+jeash.geom.Vector3D.prototype.scaleBy = function(s) {
+	this.x *= s;
+	this.y *= s;
+	this.z *= s;
+}
+jeash.geom.Vector3D.prototype.subtract = function(a) {
+	return new jeash.geom.Vector3D(this.x - a.x,this.y - a.y,this.z - a.z);
+}
+jeash.geom.Vector3D.prototype.toString = function() {
+	return "Vector3D(" + this.x + ", " + this.y + ", " + this.z + ")";
+}
+jeash.geom.Vector3D.prototype.__class__ = jeash.geom.Vector3D;
 glidias.PlaneResult = function(p) { if( p === $_ ) return; {
 	null;
 }}
@@ -1551,6 +2157,237 @@ glidias.PlaneResult.prototype.clone = function() {
 	return me;
 }
 glidias.PlaneResult.prototype.__class__ = glidias.PlaneResult;
+a3d.EllipsoidCollider = function() { }
+a3d.EllipsoidCollider.__name__ = ["a3d","EllipsoidCollider"];
+a3d.EllipsoidCollider.prototype.radiusX = null;
+a3d.EllipsoidCollider.prototype.radiusY = null;
+a3d.EllipsoidCollider.prototype.radiusZ = null;
+a3d.EllipsoidCollider.prototype.threshold = null;
+a3d.EllipsoidCollider.prototype.matrix = null;
+a3d.EllipsoidCollider.prototype.inverseMatrix = null;
+a3d.EllipsoidCollider.prototype.geometries = null;
+a3d.EllipsoidCollider.prototype.vertices = null;
+a3d.EllipsoidCollider.prototype.normals = null;
+a3d.EllipsoidCollider.prototype.indices = null;
+a3d.EllipsoidCollider.prototype.numTriangles = null;
+a3d.EllipsoidCollider.prototype.radius = null;
+a3d.EllipsoidCollider.prototype.src = null;
+a3d.EllipsoidCollider.prototype.displ = null;
+a3d.EllipsoidCollider.prototype.dest = null;
+a3d.EllipsoidCollider.prototype.collisionPoint = null;
+a3d.EllipsoidCollider.prototype.collisionPlane = null;
+a3d.EllipsoidCollider.prototype.sphere = null;
+a3d.EllipsoidCollider.prototype.cornerA = null;
+a3d.EllipsoidCollider.prototype.cornerB = null;
+a3d.EllipsoidCollider.prototype.cornerC = null;
+a3d.EllipsoidCollider.prototype.cornerD = null;
+a3d.EllipsoidCollider.prototype.EllipsoidCollider = function(radiusX,radiusY,radiusZ,threshold) {
+	if(threshold == null) threshold = 0.001;
+	this.threshold = threshold;
+	this.radiusX = radiusX;
+	this.radiusY = radiusY;
+	this.radiusZ = radiusZ;
+	this.matrix = new a3d.Transform3D();
+	this.inverseMatrix = new a3d.Transform3D();
+	this.sphere = new jeash.geom.Vector3D();
+	this.cornerA = new jeash.geom.Vector3D();
+	this.cornerB = new jeash.geom.Vector3D();
+	this.cornerC = new jeash.geom.Vector3D();
+	this.cornerD = new jeash.geom.Vector3D();
+	this.collisionPoint = new jeash.geom.Vector3D();
+	this.collisionPlane = new jeash.geom.Vector3D();
+	this.geometries = new Array();
+	this.vertices = new Array();
+	this.normals = new Array();
+	this.indices = new Array();
+	this.displ = new jeash.geom.Vector3D();
+	this.dest = new jeash.geom.Vector3D();
+	this.src = new jeash.geom.Vector3D();
+}
+a3d.EllipsoidCollider.prototype.calculateSphere = function(transform) {
+	this.sphere.x = transform.d;
+	this.sphere.y = transform.h;
+	this.sphere.z = transform.l;
+	var sax = transform.a * this.cornerA.x + transform.b * this.cornerA.y + transform.c * this.cornerA.z + transform.d;
+	var say = transform.e * this.cornerA.x + transform.f * this.cornerA.y + transform.g * this.cornerA.z + transform.h;
+	var saz = transform.i * this.cornerA.x + transform.j * this.cornerA.y + transform.k * this.cornerA.z + transform.l;
+	var sbx = transform.a * this.cornerB.x + transform.b * this.cornerB.y + transform.c * this.cornerB.z + transform.d;
+	var sby = transform.e * this.cornerB.x + transform.f * this.cornerB.y + transform.g * this.cornerB.z + transform.h;
+	var sbz = transform.i * this.cornerB.x + transform.j * this.cornerB.y + transform.k * this.cornerB.z + transform.l;
+	var scx = transform.a * this.cornerC.x + transform.b * this.cornerC.y + transform.c * this.cornerC.z + transform.d;
+	var scy = transform.e * this.cornerC.x + transform.f * this.cornerC.y + transform.g * this.cornerC.z + transform.h;
+	var scz = transform.i * this.cornerC.x + transform.j * this.cornerC.y + transform.k * this.cornerC.z + transform.l;
+	var sdx = transform.a * this.cornerD.x + transform.b * this.cornerD.y + transform.c * this.cornerD.z + transform.d;
+	var sdy = transform.e * this.cornerD.x + transform.f * this.cornerD.y + transform.g * this.cornerD.z + transform.h;
+	var sdz = transform.i * this.cornerD.x + transform.j * this.cornerD.y + transform.k * this.cornerD.z + transform.l;
+	var dx = sax - this.sphere.x;
+	var dy = say - this.sphere.y;
+	var dz = saz - this.sphere.z;
+	this.sphere.w = dx * dx + dy * dy + dz * dz;
+	dx = sbx - this.sphere.x;
+	dy = sby - this.sphere.y;
+	dz = sbz - this.sphere.z;
+	var dxyz = dx * dx + dy * dy + dz * dz;
+	if(dxyz > this.sphere.w) this.sphere.w = dxyz;
+	dx = scx - this.sphere.x;
+	dy = scy - this.sphere.y;
+	dz = scz - this.sphere.z;
+	dxyz = dx * dx + dy * dy + dz * dz;
+	if(dxyz > this.sphere.w) this.sphere.w = dxyz;
+	dx = sdx - this.sphere.x;
+	dy = sdy - this.sphere.y;
+	dz = sdz - this.sphere.z;
+	dxyz = dx * dx + dy * dy + dz * dz;
+	if(dxyz > this.sphere.w) this.sphere.w = dxyz;
+	this.sphere.w = Math.sqrt(this.sphere.w);
+}
+a3d.EllipsoidCollider.prototype.prepare = function(source,displacement) {
+	this.radius = this.radiusX;
+	if(this.radiusY > this.radius) this.radius = this.radiusY;
+	if(this.radiusZ > this.radius) this.radius = this.radiusZ;
+	this.matrix.compose(source.x,source.y,source.z,0,0,0,this.radiusX / this.radius,this.radiusY / this.radius,this.radiusZ / this.radius);
+	this.inverseMatrix.copy(this.matrix);
+	this.inverseMatrix.invert();
+	this.src.x = 0;
+	this.src.y = 0;
+	this.src.z = 0;
+	this.displ.x = this.inverseMatrix.a * displacement.x + this.inverseMatrix.b * displacement.y + this.inverseMatrix.c * displacement.z;
+	this.displ.y = this.inverseMatrix.e * displacement.x + this.inverseMatrix.f * displacement.y + this.inverseMatrix.g * displacement.z;
+	this.displ.z = this.inverseMatrix.i * displacement.x + this.inverseMatrix.j * displacement.y + this.inverseMatrix.k * displacement.z;
+	this.dest.x = this.src.x + this.displ.x;
+	this.dest.y = this.src.y + this.displ.y;
+	this.dest.z = this.src.z + this.displ.z;
+	var rad = this.radius + Math.abs(jeash.geom.Vector3D.distance(this.displ,new jeash.geom.Vector3D()));
+	this.cornerA.x = -rad;
+	this.cornerA.y = -rad;
+	this.cornerA.z = -rad;
+	this.cornerB.x = rad;
+	this.cornerB.y = -rad;
+	this.cornerB.z = -rad;
+	this.cornerC.x = rad;
+	this.cornerC.y = rad;
+	this.cornerC.z = -rad;
+	this.cornerD.x = -rad;
+	this.cornerD.y = rad;
+	this.cornerD.z = -rad;
+	this.calculateSphere(this.matrix);
+}
+a3d.EllipsoidCollider.prototype.prepare2 = function() {
+	null;
+}
+a3d.EllipsoidCollider.prototype.loopGeometries = function() {
+	var rad = this.radius + Math.abs(jeash.geom.Vector3D.distance(this.displ,new jeash.geom.Vector3D()));
+	this.numTriangles = 0;
+	var indicesLength = 0;
+	var normalsLength = 0;
+	var j;
+	var verticesLength = 0;
+	var geometriesLength = this.geometries.length;
+	var transform = this.inverseMatrix;
+	var vx;
+	var vy;
+	var vz;
+	var numVertices;
+	var geometryIndicesLength;
+	var verts;
+	var geometry;
+	var nSides;
+	var geometryIndices;
+	{
+		var _g = 0;
+		while(_g < geometriesLength) {
+			var i = _g++;
+			geometry = this.geometries[i];
+			geometryIndices = geometry.indices;
+			geometryIndicesLength = geometryIndices.length;
+			nSides = geometry.nSides;
+			verts = geometry.vertices;
+			numVertices = geometry.numVertices;
+			{
+				var _g1 = 0;
+				while(_g1 < numVertices) {
+					var j1 = _g1++;
+					vx = verts[j1 * 3];
+					vy = verts[j1 * 3 + 1];
+					vz = verts[j1 * 3 + 2];
+					this.vertices[verticesLength] = transform.a * vx + transform.b * vy + transform.c * vz + transform.d;
+					verticesLength++;
+					this.vertices[verticesLength] = transform.e * vx + transform.f * vy + transform.g * vz + transform.h;
+					verticesLength++;
+					this.vertices[verticesLength] = transform.i * vx + transform.j * vy + transform.k * vz + transform.l;
+					verticesLength++;
+				}
+			}
+			j = 0;
+			while(j < geometryIndicesLength) {
+				var a = geometryIndices[j];
+				j++;
+				var index = a * 3;
+				var ax = this.vertices[index];
+				index++;
+				var ay = this.vertices[index];
+				index++;
+				var az = this.vertices[index];
+				var b = geometryIndices[j];
+				j++;
+				index = b * 3;
+				var bx = this.vertices[index];
+				index++;
+				var by = this.vertices[index];
+				index++;
+				var bz = this.vertices[index];
+				var c = geometryIndices[j];
+				j++;
+				index = c * 3;
+				var cx = this.vertices[index];
+				index++;
+				var cy = this.vertices[index];
+				index++;
+				var cz = this.vertices[index];
+				var abx = bx - ax;
+				var aby = by - ay;
+				var abz = bz - az;
+				var acx = cx - ax;
+				var acy = cy - ay;
+				var acz = cz - az;
+				var normalX = acz * aby - acy * abz;
+				var normalY = acx * abz - acz * abx;
+				var normalZ = acy * abx - acx * aby;
+				var len = normalX * normalX + normalY * normalY + normalZ * normalZ;
+				if(len < 0.001) continue;
+				len = 1 / Math.sqrt(len);
+				normalX *= len;
+				normalY *= len;
+				normalZ *= len;
+				var offset = ax * normalX + ay * normalY + az * normalZ;
+				if(offset > rad || offset < -rad) continue;
+				this.indices[indicesLength] = a;
+				indicesLength++;
+				this.indices[indicesLength] = b;
+				indicesLength++;
+				this.indices[indicesLength] = c;
+				indicesLength++;
+				this.normals[normalsLength] = normalX;
+				normalsLength++;
+				this.normals[normalsLength] = normalY;
+				normalsLength++;
+				this.normals[normalsLength] = normalZ;
+				normalsLength++;
+				this.normals[normalsLength] = offset;
+				normalsLength++;
+				{
+					var _g1 = 3;
+					while(_g1 < nSides) {
+						var n = _g1++;
+					}
+				}
+				this.numTriangles++;
+			}
+		}
+	}
+	this.geometries.length = 0;
+}
+a3d.EllipsoidCollider.prototype.__class__ = a3d.EllipsoidCollider;
 glidias.ArrayBuffer = function(p) { if( p === $_ ) return; {
 	this.i = 0;
 	this.arr = new Array();
@@ -1931,7 +2768,14 @@ glidias.AABBSector.prototype.addPortal = function(portal,direction) {
 		this.portalWalls.push(portalPlane);
 	}
 	{
-		glidias.AABBUtils.expand2(portalPlane,portal);
+		{
+			if(portal.minX < portalPlane.minX) portalPlane.minX = portal.minX;
+			if(portal.minY < portalPlane.minY) portalPlane.minY = portal.minY;
+			if(portal.minZ < portalPlane.minZ) portalPlane.minZ = portal.minZ;
+			if(portal.maxX > portalPlane.maxX) portalPlane.maxX = portal.maxX;
+			if(portal.maxY > portalPlane.maxY) portalPlane.maxY = portal.maxY;
+			if(portal.maxZ > portalPlane.maxZ) portalPlane.maxZ = portal.maxZ;
+		}
 		portalPlane.portals.push(portal);
 	}
 }
@@ -1984,10 +2828,240 @@ Std.random = function(x) {
 	return Math.floor(Math.random() * x);
 }
 Std.prototype.__class__ = Std;
-if(!glidias.controls) glidias.controls = {}
-glidias.controls.KeyCode = function() { }
-glidias.controls.KeyCode.__name__ = ["glidias","controls","KeyCode"];
-glidias.controls.KeyCode.prototype.__class__ = glidias.controls.KeyCode;
+a3d.TransformUtil = function() { }
+a3d.TransformUtil.__name__ = ["a3d","TransformUtil"];
+a3d.TransformUtil.identity = function(targ) {
+	targ.a = 1;
+	targ.b = 0;
+	targ.c = 0;
+	targ.d = 0;
+	targ.e = 0;
+	targ.f = 1;
+	targ.g = 0;
+	targ.h = 0;
+	targ.i = 0;
+	targ.j = 0;
+	targ.k = 1;
+	targ.l = 0;
+}
+a3d.TransformUtil.compose = function(targ,x,y,z,rotationX,rotationY,rotationZ,scaleX,scaleY,scaleZ) {
+	var cosX = Math.cos(rotationX);
+	var sinX = Math.sin(rotationX);
+	var cosY = Math.cos(rotationY);
+	var sinY = Math.sin(rotationY);
+	var cosZ = Math.cos(rotationZ);
+	var sinZ = Math.sin(rotationZ);
+	var cosZsinY = cosZ * sinY;
+	var sinZsinY = sinZ * sinY;
+	var cosYscaleX = cosY * scaleX;
+	var sinXscaleY = sinX * scaleY;
+	var cosXscaleY = cosX * scaleY;
+	var cosXscaleZ = cosX * scaleZ;
+	var sinXscaleZ = sinX * scaleZ;
+	targ.a = cosZ * cosYscaleX;
+	targ.b = cosZsinY * sinXscaleY - sinZ * cosXscaleY;
+	targ.c = cosZsinY * cosXscaleZ + sinZ * sinXscaleZ;
+	targ.d = x;
+	targ.e = sinZ * cosYscaleX;
+	targ.f = sinZsinY * sinXscaleY + cosZ * cosXscaleY;
+	targ.g = sinZsinY * cosXscaleZ - cosZ * sinXscaleZ;
+	targ.h = y;
+	targ.i = -sinY * scaleX;
+	targ.j = cosY * sinXscaleY;
+	targ.k = cosY * cosXscaleZ;
+	targ.l = z;
+}
+a3d.TransformUtil.composeInverse = function(targ,x,y,z,rotationX,rotationY,rotationZ,scaleX,scaleY,scaleZ) {
+	var cosX = Math.cos(rotationX);
+	var sinX = Math.sin(-rotationX);
+	var cosY = Math.cos(rotationY);
+	var sinY = Math.sin(-rotationY);
+	var cosZ = Math.cos(rotationZ);
+	var sinZ = Math.sin(-rotationZ);
+	var sinXsinY = sinX * sinY;
+	var cosYscaleX = cosY / scaleX;
+	var cosXscaleY = cosX / scaleY;
+	var sinXscaleZ = sinX / scaleZ;
+	var cosXscaleZ = cosX / scaleZ;
+	targ.a = cosZ * cosYscaleX;
+	targ.b = -sinZ * cosYscaleX;
+	targ.c = sinY / scaleX;
+	targ.d = -targ.a * x - targ.b * y - targ.c * z;
+	targ.e = sinZ * cosXscaleY + sinXsinY * cosZ / scaleY;
+	targ.f = cosZ * cosXscaleY - sinXsinY * sinZ / scaleY;
+	targ.g = -sinX * cosY / scaleY;
+	targ.h = -targ.e * x - targ.f * y - targ.g * z;
+	targ.i = sinZ * sinXscaleZ - cosZ * sinY * cosXscaleZ;
+	targ.j = cosZ * sinXscaleZ + sinY * sinZ * cosXscaleZ;
+	targ.k = cosY * cosXscaleZ;
+	targ.l = -targ.i * x - targ.j * y - targ.k * z;
+}
+a3d.TransformUtil.invert = function(targ) {
+	var ta = targ.a;
+	var tb = targ.b;
+	var tc = targ.c;
+	var td = targ.d;
+	var te = targ.e;
+	var tf = targ.f;
+	var tg = targ.g;
+	var th = targ.h;
+	var ti = targ.i;
+	var tj = targ.j;
+	var tk = targ.k;
+	var tl = targ.l;
+	var det = 1 / (-tc * tf * ti + tb * tg * ti + tc * te * tj - ta * tg * tj - tb * te * tk + ta * tf * tk);
+	targ.a = (-tg * tj + tf * tk) * det;
+	targ.b = (tc * tj - tb * tk) * det;
+	targ.c = (-tc * tf + tb * tg) * det;
+	targ.d = (td * tg * tj - tc * th * tj - td * tf * tk + tb * th * tk + tc * tf * tl - tb * tg * tl) * det;
+	targ.e = (tg * ti - te * tk) * det;
+	targ.f = (-tc * ti + ta * tk) * det;
+	targ.g = (tc * te - ta * tg) * det;
+	targ.h = (tc * th * ti - td * tg * ti + td * te * tk - ta * th * tk - tc * te * tl + ta * tg * tl) * det;
+	targ.i = (-tf * ti + te * tj) * det;
+	targ.j = (tb * ti - ta * tj) * det;
+	targ.k = (-tb * te + ta * tf) * det;
+	targ.l = (td * tf * ti - tb * th * ti - td * te * tj + ta * th * tj + tb * te * tl - ta * tf * tl) * det;
+}
+a3d.TransformUtil.initFromVector = function(targ,vector) {
+	targ.a = vector[0];
+	targ.b = vector[1];
+	targ.c = vector[2];
+	targ.d = vector[3];
+	targ.e = vector[4];
+	targ.f = vector[5];
+	targ.g = vector[6];
+	targ.h = vector[7];
+	targ.i = vector[8];
+	targ.j = vector[9];
+	targ.k = vector[10];
+	targ.l = vector[11];
+}
+a3d.TransformUtil.append = function(targ,transform) {
+	var ta = targ.a;
+	var tb = targ.b;
+	var tc = targ.c;
+	var td = targ.d;
+	var te = targ.e;
+	var tf = targ.f;
+	var tg = targ.g;
+	var th = targ.h;
+	var ti = targ.i;
+	var tj = targ.j;
+	var tk = targ.k;
+	var tl = targ.l;
+	targ.a = transform.a * ta + transform.b * te + transform.c * ti;
+	targ.b = transform.a * tb + transform.b * tf + transform.c * tj;
+	targ.c = transform.a * tc + transform.b * tg + transform.c * tk;
+	targ.d = transform.a * td + transform.b * th + transform.c * tl + transform.d;
+	targ.e = transform.e * ta + transform.f * te + transform.g * ti;
+	targ.f = transform.e * tb + transform.f * tf + transform.g * tj;
+	targ.g = transform.e * tc + transform.f * tg + transform.g * tk;
+	targ.h = transform.e * td + transform.f * th + transform.g * tl + transform.h;
+	targ.i = transform.i * ta + transform.j * te + transform.k * ti;
+	targ.j = transform.i * tb + transform.j * tf + transform.k * tj;
+	targ.k = transform.i * tc + transform.j * tg + transform.k * tk;
+	targ.l = transform.i * td + transform.j * th + transform.k * tl + transform.l;
+}
+a3d.TransformUtil.prepend = function(targ,transform) {
+	var ta = targ.a;
+	var tb = targ.b;
+	var tc = targ.c;
+	var td = targ.d;
+	var te = targ.e;
+	var tf = targ.f;
+	var tg = targ.g;
+	var th = targ.h;
+	var ti = targ.i;
+	var tj = targ.j;
+	var tk = targ.k;
+	var tl = targ.l;
+	targ.a = ta * transform.a + tb * transform.e + tc * transform.i;
+	targ.b = ta * transform.b + tb * transform.f + tc * transform.j;
+	targ.c = ta * transform.c + tb * transform.g + tc * transform.k;
+	targ.d = ta * transform.d + tb * transform.h + tc * transform.l + td;
+	targ.e = te * transform.a + tf * transform.e + tg * transform.i;
+	targ.f = te * transform.b + tf * transform.f + tg * transform.j;
+	targ.g = te * transform.c + tf * transform.g + tg * transform.k;
+	targ.h = te * transform.d + tf * transform.h + tg * transform.l + th;
+	targ.i = ti * transform.a + tj * transform.e + tk * transform.i;
+	targ.j = ti * transform.b + tj * transform.f + tk * transform.j;
+	targ.k = ti * transform.c + tj * transform.g + tk * transform.k;
+	targ.l = ti * transform.d + tj * transform.h + tk * transform.l + tl;
+}
+a3d.TransformUtil.combine = function(targ,transformA,transformB) {
+	targ.a = transformA.a * transformB.a + transformA.b * transformB.e + transformA.c * transformB.i;
+	targ.b = transformA.a * transformB.b + transformA.b * transformB.f + transformA.c * transformB.j;
+	targ.c = transformA.a * transformB.c + transformA.b * transformB.g + transformA.c * transformB.k;
+	targ.d = transformA.a * transformB.d + transformA.b * transformB.h + transformA.c * transformB.l + transformA.d;
+	targ.e = transformA.e * transformB.a + transformA.f * transformB.e + transformA.g * transformB.i;
+	targ.f = transformA.e * transformB.b + transformA.f * transformB.f + transformA.g * transformB.j;
+	targ.g = transformA.e * transformB.c + transformA.f * transformB.g + transformA.g * transformB.k;
+	targ.h = transformA.e * transformB.d + transformA.f * transformB.h + transformA.g * transformB.l + transformA.h;
+	targ.i = transformA.i * transformB.a + transformA.j * transformB.e + transformA.k * transformB.i;
+	targ.j = transformA.i * transformB.b + transformA.j * transformB.f + transformA.k * transformB.j;
+	targ.k = transformA.i * transformB.c + transformA.j * transformB.g + transformA.k * transformB.k;
+	targ.l = transformA.i * transformB.d + transformA.j * transformB.h + transformA.k * transformB.l + transformA.l;
+}
+a3d.TransformUtil.calculateInversion = function(targ,source) {
+	var ta = source.a;
+	var tb = source.b;
+	var tc = source.c;
+	var td = source.d;
+	var te = source.e;
+	var tf = source.f;
+	var tg = source.g;
+	var th = source.h;
+	var ti = source.i;
+	var tj = source.j;
+	var tk = source.k;
+	var tl = source.l;
+	var det = 1 / (-tc * tf * ti + tb * tg * ti + tc * te * tj - ta * tg * tj - tb * te * tk + ta * tf * tk);
+	targ.a = (-tg * tj + tf * tk) * det;
+	targ.b = (tc * tj - tb * tk) * det;
+	targ.c = (-tc * tf + tb * tg) * det;
+	targ.d = (td * tg * tj - tc * th * tj - td * tf * tk + tb * th * tk + tc * tf * tl - tb * tg * tl) * det;
+	targ.e = (tg * ti - te * tk) * det;
+	targ.f = (-tc * ti + ta * tk) * det;
+	targ.g = (tc * te - ta * tg) * det;
+	targ.h = (tc * th * ti - td * tg * ti + td * te * tk - ta * th * tk - tc * te * tl + ta * tg * tl) * det;
+	targ.i = (-tf * ti + te * tj) * det;
+	targ.j = (tb * ti - ta * tj) * det;
+	targ.k = (-tb * te + ta * tf) * det;
+	targ.l = (td * tf * ti - tb * th * ti - td * te * tj + ta * th * tj + tb * te * tl - ta * tf * tl) * det;
+}
+a3d.TransformUtil.copy = function(targ,source) {
+	targ.a = source.a;
+	targ.b = source.b;
+	targ.c = source.c;
+	targ.d = source.d;
+	targ.e = source.e;
+	targ.f = source.f;
+	targ.g = source.g;
+	targ.h = source.h;
+	targ.i = source.i;
+	targ.j = source.j;
+	targ.k = source.k;
+	targ.l = source.l;
+}
+a3d.TransformUtil.prototype.__class__ = a3d.TransformUtil;
+a3d.BoundBox = function(p) { if( p === $_ ) return; {
+	this.minX = 1.7976931348623157e+308;
+	this.minY = 1.7976931348623157e+308;
+	this.minZ = 1.7976931348623157e+308;
+	this.maxX = -1.7976931348623157e+308;
+	this.maxY = -1.7976931348623157e+308;
+	this.maxZ = -1.7976931348623157e+308;
+}}
+a3d.BoundBox.__name__ = ["a3d","BoundBox"];
+a3d.BoundBox.prototype.minX = null;
+a3d.BoundBox.prototype.minY = null;
+a3d.BoundBox.prototype.minZ = null;
+a3d.BoundBox.prototype.maxX = null;
+a3d.BoundBox.prototype.maxY = null;
+a3d.BoundBox.prototype.maxZ = null;
+a3d.BoundBox.prototype.__class__ = a3d.BoundBox;
+a3d.BoundBox.__interfaces__ = [glidias.IAABB];
 glidias.PM_PRNG = function(_seed) { if( _seed === $_ ) return; {
 	if(_seed == null) _seed = 1;
 	this.seed = _seed;
@@ -2238,6 +3312,53 @@ js.Boot.__init = function() {
 	$closure = js.Boot.__closure;
 }
 js.Boot.prototype.__class__ = js.Boot;
+jeash.geom.Point = function(inX,inY) { if( inX === $_ ) return; {
+	this.x = inX == null?0.0:inX;
+	this.y = inY == null?0.0:inY;
+}}
+jeash.geom.Point.__name__ = ["jeash","geom","Point"];
+jeash.geom.Point.distance = function(pt1,pt2) {
+	var dx = pt1.x - pt2.x;
+	var dy = pt1.y - pt2.y;
+	return Math.sqrt(dx * dx + dy * dy);
+}
+jeash.geom.Point.interpolate = function(pt1,pt2,f) {
+	return new jeash.geom.Point(pt2.x + f * (pt1.x - pt2.x),pt2.y + f * (pt1.y - pt2.y));
+}
+jeash.geom.Point.polar = function(len,angle) {
+	return new jeash.geom.Point(len * Math.cos(angle),len * Math.sin(angle));
+}
+jeash.geom.Point.prototype.x = null;
+jeash.geom.Point.prototype.y = null;
+jeash.geom.Point.prototype.add = function(v) {
+	return new jeash.geom.Point(v.x + this.x,v.y + this.y);
+}
+jeash.geom.Point.prototype.clone = function() {
+	return new jeash.geom.Point(this.x,this.y);
+}
+jeash.geom.Point.prototype.equals = function(toCompare) {
+	return toCompare.x == this.x && toCompare.y == this.y;
+}
+jeash.geom.Point.prototype.length = null;
+jeash.geom.Point.prototype.get_length = function() {
+	return Math.sqrt(this.x * this.x + this.y * this.y);
+}
+jeash.geom.Point.prototype.normalize = function(thickness) {
+	if(this.x == 0 && this.y == 0) this.x = thickness;
+	else {
+		var norm = thickness / Math.sqrt(this.x * this.x + this.y * this.y);
+		this.x *= norm;
+		this.y *= norm;
+	}
+}
+jeash.geom.Point.prototype.offset = function(dx,dy) {
+	this.x += dx;
+	this.y += dy;
+}
+jeash.geom.Point.prototype.subtract = function(v) {
+	return new jeash.geom.Point(this.x - v.x,this.y - v.y);
+}
+jeash.geom.Point.prototype.__class__ = jeash.geom.Point;
 glidias.ArrayBuffer_glidias_AABBSector = function(p) { if( p === $_ ) return; {
 	this.i = 0;
 	this.arr = new Array();
@@ -2252,6 +3373,18 @@ glidias.ArrayBuffer_glidias_AABBSector.prototype.reset = function() {
 	this.i = 0;
 }
 glidias.ArrayBuffer_glidias_AABBSector.prototype.__class__ = glidias.ArrayBuffer_glidias_AABBSector;
+a3d.IEuler = function() { }
+a3d.IEuler.__name__ = ["a3d","IEuler"];
+a3d.IEuler.prototype.x = null;
+a3d.IEuler.prototype.y = null;
+a3d.IEuler.prototype.z = null;
+a3d.IEuler.prototype.rotationX = null;
+a3d.IEuler.prototype.rotationY = null;
+a3d.IEuler.prototype.rotationZ = null;
+a3d.IEuler.prototype.scaleX = null;
+a3d.IEuler.prototype.scaleY = null;
+a3d.IEuler.prototype.scaleZ = null;
+a3d.IEuler.prototype.__class__ = a3d.IEuler;
 glidias.AABBUtils = function() { }
 glidias.AABBUtils.__name__ = ["glidias","AABBUtils"];
 glidias.AABBUtils.getRect = function(aabb,threshold) {
@@ -2313,6 +3446,69 @@ glidias.AABBUtils.expandWithPoint = function(vec,aabb) {
 	if(vec.x > aabb.maxX) aabb.maxX = vec.x;
 	if(vec.y > aabb.maxY) aabb.maxY = vec.y;
 	if(vec.z > aabb.maxZ) aabb.maxZ = vec.z;
+}
+glidias.AABBUtils.checkSphere = function(aabb,sphere) {
+	return sphere.x + sphere.w > aabb.minX && sphere.x - sphere.w < aabb.maxX && sphere.y + sphere.w > aabb.minY && sphere.y - sphere.w < aabb.maxY && sphere.z + sphere.w > aabb.minZ && sphere.z - sphere.w < aabb.maxZ;
+}
+glidias.AABBUtils.intersectRay = function(aabb,origin,direction) {
+	if(origin.x >= aabb.minX && origin.x <= aabb.maxX && origin.y >= aabb.minY && origin.y <= aabb.maxY && origin.z >= aabb.minZ && origin.z <= aabb.maxZ) return true;
+	if(origin.x < aabb.minX && direction.x <= 0) return false;
+	if(origin.x > aabb.maxX && direction.x >= 0) return false;
+	if(origin.y < aabb.minY && direction.y <= 0) return false;
+	if(origin.y > aabb.maxY && direction.y >= 0) return false;
+	if(origin.z < aabb.minZ && direction.z <= 0) return false;
+	if(origin.z > aabb.maxZ && direction.z >= 0) return false;
+	var a;
+	var b;
+	var c;
+	var d;
+	var threshold = 0.000001;
+	if(direction.x > threshold) {
+		a = (aabb.minX - origin.x) / direction.x;
+		b = (aabb.maxX - origin.x) / direction.x;
+	}
+	else if(direction.x < -threshold) {
+		a = (aabb.maxX - origin.x) / direction.x;
+		b = (aabb.minX - origin.x) / direction.x;
+	}
+	else {
+		a = -1e+22;
+		b = 1e+22;
+	}
+	if(direction.y > threshold) {
+		c = (aabb.minY - origin.y) / direction.y;
+		d = (aabb.maxY - origin.y) / direction.y;
+	}
+	else if(direction.y < -threshold) {
+		c = (aabb.maxY - origin.y) / direction.y;
+		d = (aabb.minY - origin.y) / direction.y;
+	}
+	else {
+		c = -1e+22;
+		d = 1e+22;
+	}
+	if(c >= b || d <= a) return false;
+	if(c < a) {
+		if(d < b) b = d;
+	}
+	else {
+		a = c;
+		if(d < b) b = d;
+	}
+	if(direction.z > threshold) {
+		c = (aabb.minZ - origin.z) / direction.z;
+		d = (aabb.maxZ - origin.z) / direction.z;
+	}
+	else if(direction.z < -threshold) {
+		c = (aabb.maxZ - origin.z) / direction.z;
+		d = (aabb.minZ - origin.z) / direction.z;
+	}
+	else {
+		c = -1e+22;
+		d = 1e+22;
+	}
+	if(c >= b || d <= a) return false;
+	return true;
 }
 glidias.AABBUtils.prototype.__class__ = glidias.AABBUtils;
 glidias.AllocatorF_glidias_Frustum = function(method,fillAmount,initialCapacity,fixed) { if( method === $_ ) return; {
@@ -2384,44 +3580,393 @@ glidias.AllocatorF_glidias_Frustum.prototype.kill = function() {
 	this._i = 0;
 }
 glidias.AllocatorF_glidias_Frustum.prototype.__class__ = glidias.AllocatorF_glidias_Frustum;
+jeash.geom.Matrix3D = function(v) { if( v === $_ ) return; {
+	if(v != null && v.length == 16) {
+		this.rawData = v;
+	}
+	else {
+		this.rawData = [1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0];
+	}
+}}
+jeash.geom.Matrix3D.__name__ = ["jeash","geom","Matrix3D"];
+jeash.geom.Matrix3D.interpolate = function(thisMat,toMat,percent) {
+	var m = new jeash.geom.Matrix3D();
+	{
+		var _g = 0;
+		while(_g < 16) {
+			var i = _g++;
+			m.rawData[i] = thisMat.rawData[i] + (toMat.rawData[i] - thisMat.rawData[i]) * percent;
+		}
+	}
+	return m;
+}
+jeash.geom.Matrix3D.getAxisRotation = function(x,y,z,degrees) {
+	var m = new jeash.geom.Matrix3D();
+	var a1 = new jeash.geom.Vector3D(x,y,z);
+	var rad = -degrees * (Math.PI / 180);
+	var c = Math.cos(rad);
+	var s = Math.sin(rad);
+	var t = 1.0 - c;
+	m.rawData[0] = c + a1.x * a1.x * t;
+	m.rawData[5] = c + a1.y * a1.y * t;
+	m.rawData[10] = c + a1.z * a1.z * t;
+	var tmp1 = a1.x * a1.y * t;
+	var tmp2 = a1.z * s;
+	m.rawData[4] = tmp1 + tmp2;
+	m.rawData[1] = tmp1 - tmp2;
+	tmp1 = a1.x * a1.z * t;
+	tmp2 = a1.y * s;
+	m.rawData[8] = tmp1 - tmp2;
+	m.rawData[2] = tmp1 + tmp2;
+	tmp1 = a1.y * a1.z * t;
+	tmp2 = a1.x * s;
+	m.rawData[9] = tmp1 + tmp2;
+	m.rawData[6] = tmp1 - tmp2;
+	return m;
+}
+jeash.geom.Matrix3D.prototype.determinant = null;
+jeash.geom.Matrix3D.prototype.position = null;
+jeash.geom.Matrix3D.prototype.rawData = null;
+jeash.geom.Matrix3D.prototype.getPosition = function() {
+	return new jeash.geom.Vector3D(this.rawData[12],this.rawData[13],this.rawData[14]);
+}
+jeash.geom.Matrix3D.prototype.setPosition = function(val) {
+	this.rawData[12] = val.x;
+	this.rawData[13] = val.y;
+	this.rawData[14] = val.z;
+	return val;
+}
+jeash.geom.Matrix3D.prototype.getDeterminant = function() {
+	return -1 * ((this.rawData[0] * this.rawData[5] - this.rawData[4] * this.rawData[1]) * (this.rawData[10] * this.rawData[15] - this.rawData[14] * this.rawData[11]) - (this.rawData[0] * this.rawData[9] - this.rawData[8] * this.rawData[1]) * (this.rawData[6] * this.rawData[15] - this.rawData[14] * this.rawData[7]) + (this.rawData[0] * this.rawData[13] - this.rawData[12] * this.rawData[1]) * (this.rawData[6] * this.rawData[11] - this.rawData[10] * this.rawData[7]) + (this.rawData[4] * this.rawData[9] - this.rawData[8] * this.rawData[5]) * (this.rawData[2] * this.rawData[15] - this.rawData[14] * this.rawData[3]) - (this.rawData[4] * this.rawData[13] - this.rawData[12] * this.rawData[5]) * (this.rawData[2] * this.rawData[11] - this.rawData[10] * this.rawData[3]) + (this.rawData[8] * this.rawData[13] - this.rawData[12] * this.rawData[9]) * (this.rawData[2] * this.rawData[7] - this.rawData[6] * this.rawData[3]));
+}
+jeash.geom.Matrix3D.prototype.append = function(lhs) {
+	var m111 = this.rawData[0], m121 = this.rawData[4], m131 = this.rawData[8], m141 = this.rawData[12], m112 = this.rawData[1], m122 = this.rawData[5], m132 = this.rawData[9], m142 = this.rawData[13], m113 = this.rawData[2], m123 = this.rawData[6], m133 = this.rawData[10], m143 = this.rawData[14], m114 = this.rawData[3], m124 = this.rawData[7], m134 = this.rawData[11], m144 = this.rawData[15], m211 = lhs.rawData[0], m221 = lhs.rawData[4], m231 = lhs.rawData[8], m241 = lhs.rawData[12], m212 = lhs.rawData[1], m222 = lhs.rawData[5], m232 = lhs.rawData[9], m242 = lhs.rawData[13], m213 = lhs.rawData[2], m223 = lhs.rawData[6], m233 = lhs.rawData[10], m243 = lhs.rawData[14], m214 = lhs.rawData[3], m224 = lhs.rawData[7], m234 = lhs.rawData[11], m244 = lhs.rawData[15];
+	this.rawData[0] = m111 * m211 + m112 * m221 + m113 * m231 + m114 * m241;
+	this.rawData[1] = m111 * m212 + m112 * m222 + m113 * m232 + m114 * m242;
+	this.rawData[2] = m111 * m213 + m112 * m223 + m113 * m233 + m114 * m243;
+	this.rawData[3] = m111 * m214 + m112 * m224 + m113 * m234 + m114 * m244;
+	this.rawData[4] = m121 * m211 + m122 * m221 + m123 * m231 + m124 * m241;
+	this.rawData[5] = m121 * m212 + m122 * m222 + m123 * m232 + m124 * m242;
+	this.rawData[6] = m121 * m213 + m122 * m223 + m123 * m233 + m124 * m243;
+	this.rawData[7] = m121 * m214 + m122 * m224 + m123 * m234 + m124 * m244;
+	this.rawData[8] = m131 * m211 + m132 * m221 + m133 * m231 + m134 * m241;
+	this.rawData[9] = m131 * m212 + m132 * m222 + m133 * m232 + m134 * m242;
+	this.rawData[10] = m131 * m213 + m132 * m223 + m133 * m233 + m134 * m243;
+	this.rawData[11] = m131 * m214 + m132 * m224 + m133 * m234 + m134 * m244;
+	this.rawData[12] = m141 * m211 + m142 * m221 + m143 * m231 + m144 * m241;
+	this.rawData[13] = m141 * m212 + m142 * m222 + m143 * m232 + m144 * m242;
+	this.rawData[14] = m141 * m213 + m142 * m223 + m143 * m233 + m144 * m243;
+	this.rawData[15] = m141 * m214 + m142 * m224 + m143 * m234 + m144 * m244;
+}
+jeash.geom.Matrix3D.prototype.appendRotation = function(degrees,axis,pivotPoint) {
+	var m = jeash.geom.Matrix3D.getAxisRotation(axis.x,axis.y,axis.z,degrees);
+	if(pivotPoint != null) {
+		var p = pivotPoint;
+		{
+			m.rawData[12] += p.x;
+			m.rawData[13] += p.y;
+			m.rawData[14] += p.z;
+		}
+	}
+	this.append(m);
+}
+jeash.geom.Matrix3D.prototype.appendScale = function(xScale,yScale,zScale) {
+	this.append(new jeash.geom.Matrix3D([xScale,0.0,0.0,0.0,0.0,yScale,0.0,0.0,0.0,0.0,zScale,0.0,0.0,0.0,0.0,1.0]));
+}
+jeash.geom.Matrix3D.prototype.appendTranslation = function(x,y,z) {
+	this.rawData[12] += x;
+	this.rawData[13] += y;
+	this.rawData[14] += z;
+}
+jeash.geom.Matrix3D.prototype.clone = function() {
+	return new jeash.geom.Matrix3D(this.rawData.copy());
+}
+jeash.geom.Matrix3D.prototype.decompose = function() {
+	var vec = new Array();
+	var m = new jeash.geom.Matrix3D(this.rawData.copy());
+	var mr = m.rawData;
+	var pos = new jeash.geom.Vector3D(mr[12],mr[13],mr[14]);
+	mr[12] = 0;
+	mr[13] = 0;
+	mr[14] = 0;
+	var scale = new jeash.geom.Vector3D();
+	scale.x = Math.sqrt(mr[0] * mr[0] + mr[1] * mr[1] + mr[2] * mr[2]);
+	scale.y = Math.sqrt(mr[4] * mr[4] + mr[5] * mr[5] + mr[6] * mr[6]);
+	scale.z = Math.sqrt(mr[8] * mr[8] + mr[9] * mr[9] + mr[10] * mr[10]);
+	if(mr[0] * (mr[5] * mr[10] - mr[6] * mr[9]) - mr[1] * (mr[4] * mr[10] - mr[6] * mr[8]) + mr[2] * (mr[4] * mr[9] - mr[5] * mr[8]) < 0) scale.z = -scale.z;
+	mr[0] /= scale.x;
+	mr[1] /= scale.x;
+	mr[2] /= scale.x;
+	mr[4] /= scale.y;
+	mr[5] /= scale.y;
+	mr[6] /= scale.y;
+	mr[8] /= scale.z;
+	mr[9] /= scale.z;
+	mr[10] /= scale.z;
+	var rot = new jeash.geom.Vector3D();
+	rot.y = Math.asin(-mr[2]);
+	var C = Math.cos(rot.y);
+	if(C > 0) {
+		rot.x = Math.atan2(mr[6],mr[10]);
+		rot.z = Math.atan2(mr[1],mr[0]);
+	}
+	else {
+		rot.z = 0;
+		rot.x = Math.atan2(mr[4],mr[5]);
+	}
+	vec.push(pos);
+	vec.push(rot);
+	vec.push(scale);
+	return vec;
+}
+jeash.geom.Matrix3D.prototype.deltaTransformVector = function(v) {
+	var x = v.x, y = v.y, z = v.z;
+	return new jeash.geom.Vector3D(x * this.rawData[0] + y * this.rawData[1] + z * this.rawData[2] + this.rawData[3],x * this.rawData[4] + y * this.rawData[5] + z * this.rawData[6] + this.rawData[7],x * this.rawData[8] + y * this.rawData[9] + z * this.rawData[10] + this.rawData[11],0);
+}
+jeash.geom.Matrix3D.prototype.identity = function() {
+	this.rawData[0] = 1;
+	this.rawData[1] = 0;
+	this.rawData[2] = 0;
+	this.rawData[3] = 0;
+	this.rawData[4] = 0;
+	this.rawData[5] = 1;
+	this.rawData[6] = 0;
+	this.rawData[7] = 0;
+	this.rawData[8] = 0;
+	this.rawData[9] = 0;
+	this.rawData[10] = 1;
+	this.rawData[11] = 0;
+	this.rawData[12] = 0;
+	this.rawData[13] = 0;
+	this.rawData[14] = 0;
+	this.rawData[15] = 1;
+}
+jeash.geom.Matrix3D.prototype.interpolateTo = function(toMat,percent) {
+	var _g = 0;
+	while(_g < 16) {
+		var i = _g++;
+		this.rawData[i] = this.rawData[i] + (toMat.rawData[i] - this.rawData[i]) * percent;
+	}
+}
+jeash.geom.Matrix3D.prototype.invert = function() {
+	var d = -1 * ((this.rawData[0] * this.rawData[5] - this.rawData[4] * this.rawData[1]) * (this.rawData[10] * this.rawData[15] - this.rawData[14] * this.rawData[11]) - (this.rawData[0] * this.rawData[9] - this.rawData[8] * this.rawData[1]) * (this.rawData[6] * this.rawData[15] - this.rawData[14] * this.rawData[7]) + (this.rawData[0] * this.rawData[13] - this.rawData[12] * this.rawData[1]) * (this.rawData[6] * this.rawData[11] - this.rawData[10] * this.rawData[7]) + (this.rawData[4] * this.rawData[9] - this.rawData[8] * this.rawData[5]) * (this.rawData[2] * this.rawData[15] - this.rawData[14] * this.rawData[3]) - (this.rawData[4] * this.rawData[13] - this.rawData[12] * this.rawData[5]) * (this.rawData[2] * this.rawData[11] - this.rawData[10] * this.rawData[3]) + (this.rawData[8] * this.rawData[13] - this.rawData[12] * this.rawData[9]) * (this.rawData[2] * this.rawData[7] - this.rawData[6] * this.rawData[3]));
+	var invertable = Math.abs(d) > 0.00000000001;
+	if(invertable) {
+		d = -1 / d;
+		var m11 = this.rawData[0];
+		var m21 = this.rawData[4];
+		var m31 = this.rawData[8];
+		var m41 = this.rawData[12];
+		var m12 = this.rawData[1];
+		var m22 = this.rawData[5];
+		var m32 = this.rawData[9];
+		var m42 = this.rawData[13];
+		var m13 = this.rawData[2];
+		var m23 = this.rawData[6];
+		var m33 = this.rawData[10];
+		var m43 = this.rawData[14];
+		var m14 = this.rawData[3];
+		var m24 = this.rawData[7];
+		var m34 = this.rawData[11];
+		var m44 = this.rawData[15];
+		this.rawData[0] = d * (m22 * (m33 * m44 - m43 * m34) - m32 * (m23 * m44 - m43 * m24) + m42 * (m23 * m34 - m33 * m24));
+		this.rawData[1] = -d * (m12 * (m33 * m44 - m43 * m34) - m32 * (m13 * m44 - m43 * m14) + m42 * (m13 * m34 - m33 * m14));
+		this.rawData[2] = d * (m12 * (m23 * m44 - m43 * m24) - m22 * (m13 * m44 - m43 * m14) + m42 * (m13 * m24 - m23 * m14));
+		this.rawData[3] = -d * (m12 * (m23 * m34 - m33 * m24) - m22 * (m13 * m34 - m33 * m14) + m32 * (m13 * m24 - m23 * m14));
+		this.rawData[4] = -d * (m21 * (m33 * m44 - m43 * m34) - m31 * (m23 * m44 - m43 * m24) + m41 * (m23 * m34 - m33 * m24));
+		this.rawData[5] = d * (m11 * (m33 * m44 - m43 * m34) - m31 * (m13 * m44 - m43 * m14) + m41 * (m13 * m34 - m33 * m14));
+		this.rawData[6] = -d * (m11 * (m23 * m44 - m43 * m24) - m21 * (m13 * m44 - m43 * m14) + m41 * (m13 * m24 - m23 * m14));
+		this.rawData[7] = d * (m11 * (m23 * m34 - m33 * m24) - m21 * (m13 * m34 - m33 * m14) + m31 * (m13 * m24 - m23 * m14));
+		this.rawData[8] = d * (m21 * (m32 * m44 - m42 * m34) - m31 * (m22 * m44 - m42 * m24) + m41 * (m22 * m34 - m32 * m24));
+		this.rawData[9] = -d * (m11 * (m32 * m44 - m42 * m34) - m31 * (m12 * m44 - m42 * m14) + m41 * (m12 * m34 - m32 * m14));
+		this.rawData[10] = d * (m11 * (m22 * m44 - m42 * m24) - m21 * (m12 * m44 - m42 * m14) + m41 * (m12 * m24 - m22 * m14));
+		this.rawData[11] = -d * (m11 * (m22 * m34 - m32 * m24) - m21 * (m12 * m34 - m32 * m14) + m31 * (m12 * m24 - m22 * m14));
+		this.rawData[12] = -d * (m21 * (m32 * m43 - m42 * m33) - m31 * (m22 * m43 - m42 * m23) + m41 * (m22 * m33 - m32 * m23));
+		this.rawData[13] = d * (m11 * (m32 * m43 - m42 * m33) - m31 * (m12 * m43 - m42 * m13) + m41 * (m12 * m33 - m32 * m13));
+		this.rawData[14] = -d * (m11 * (m22 * m43 - m42 * m23) - m21 * (m12 * m43 - m42 * m13) + m41 * (m12 * m23 - m22 * m13));
+		this.rawData[15] = d * (m11 * (m22 * m33 - m32 * m23) - m21 * (m12 * m33 - m32 * m13) + m31 * (m12 * m23 - m22 * m13));
+	}
+	return invertable;
+}
+jeash.geom.Matrix3D.prototype.prepend = function(rhs) {
+	var m111 = rhs.rawData[0], m121 = rhs.rawData[4], m131 = rhs.rawData[8], m141 = rhs.rawData[12], m112 = rhs.rawData[1], m122 = rhs.rawData[5], m132 = rhs.rawData[9], m142 = rhs.rawData[13], m113 = rhs.rawData[2], m123 = rhs.rawData[6], m133 = rhs.rawData[10], m143 = rhs.rawData[14], m114 = rhs.rawData[3], m124 = rhs.rawData[7], m134 = rhs.rawData[11], m144 = rhs.rawData[15], m211 = this.rawData[0], m221 = this.rawData[4], m231 = this.rawData[8], m241 = this.rawData[12], m212 = this.rawData[1], m222 = this.rawData[5], m232 = this.rawData[9], m242 = this.rawData[13], m213 = this.rawData[2], m223 = this.rawData[6], m233 = this.rawData[10], m243 = this.rawData[14], m214 = this.rawData[3], m224 = this.rawData[7], m234 = this.rawData[11], m244 = this.rawData[15];
+	this.rawData[0] = m111 * m211 + m112 * m221 + m113 * m231 + m114 * m241;
+	this.rawData[1] = m111 * m212 + m112 * m222 + m113 * m232 + m114 * m242;
+	this.rawData[2] = m111 * m213 + m112 * m223 + m113 * m233 + m114 * m243;
+	this.rawData[3] = m111 * m214 + m112 * m224 + m113 * m234 + m114 * m244;
+	this.rawData[4] = m121 * m211 + m122 * m221 + m123 * m231 + m124 * m241;
+	this.rawData[5] = m121 * m212 + m122 * m222 + m123 * m232 + m124 * m242;
+	this.rawData[6] = m121 * m213 + m122 * m223 + m123 * m233 + m124 * m243;
+	this.rawData[7] = m121 * m214 + m122 * m224 + m123 * m234 + m124 * m244;
+	this.rawData[8] = m131 * m211 + m132 * m221 + m133 * m231 + m134 * m241;
+	this.rawData[9] = m131 * m212 + m132 * m222 + m133 * m232 + m134 * m242;
+	this.rawData[10] = m131 * m213 + m132 * m223 + m133 * m233 + m134 * m243;
+	this.rawData[11] = m131 * m214 + m132 * m224 + m133 * m234 + m134 * m244;
+	this.rawData[12] = m141 * m211 + m142 * m221 + m143 * m231 + m144 * m241;
+	this.rawData[13] = m141 * m212 + m142 * m222 + m143 * m232 + m144 * m242;
+	this.rawData[14] = m141 * m213 + m142 * m223 + m143 * m233 + m144 * m243;
+	this.rawData[15] = m141 * m214 + m142 * m224 + m143 * m234 + m144 * m244;
+}
+jeash.geom.Matrix3D.prototype.prependRotation = function(degrees,axis,pivotPoint) {
+	var m = jeash.geom.Matrix3D.getAxisRotation(axis.x,axis.y,axis.z,degrees);
+	if(pivotPoint != null) {
+		var p = pivotPoint;
+		{
+			m.rawData[12] += p.x;
+			m.rawData[13] += p.y;
+			m.rawData[14] += p.z;
+		}
+	}
+	this.prepend(m);
+}
+jeash.geom.Matrix3D.prototype.prependScale = function(xScale,yScale,zScale) {
+	this.prepend(new jeash.geom.Matrix3D([xScale,0.0,0.0,0.0,0.0,yScale,0.0,0.0,0.0,0.0,zScale,0.0,0.0,0.0,0.0,1.0]));
+}
+jeash.geom.Matrix3D.prototype.prependTranslation = function(x,y,z) {
+	var m = new jeash.geom.Matrix3D();
+	m.setPosition(new jeash.geom.Vector3D(x,y,z));
+	this.prepend(m);
+}
+jeash.geom.Matrix3D.prototype.recompose = function(components) {
+	if(components.length < 3 || components[2].x == 0 || components[2].y == 0 || components[2].z == 0) return false;
+	{
+		this.rawData[0] = 1;
+		this.rawData[1] = 0;
+		this.rawData[2] = 0;
+		this.rawData[3] = 0;
+		this.rawData[4] = 0;
+		this.rawData[5] = 1;
+		this.rawData[6] = 0;
+		this.rawData[7] = 0;
+		this.rawData[8] = 0;
+		this.rawData[9] = 0;
+		this.rawData[10] = 1;
+		this.rawData[11] = 0;
+		this.rawData[12] = 0;
+		this.rawData[13] = 0;
+		this.rawData[14] = 0;
+		this.rawData[15] = 1;
+	}
+	this.append(new jeash.geom.Matrix3D([components[2].x,0.0,0.0,0.0,0.0,components[2].y,0.0,0.0,0.0,0.0,components[2].z,0.0,0.0,0.0,0.0,1.0]));
+	var angle;
+	angle = -components[1].x;
+	this.append(new jeash.geom.Matrix3D([1,0,0,0,0,Math.cos(angle),-Math.sin(angle),0,0,Math.sin(angle),Math.cos(angle),0,0,0,0,0]));
+	angle = -components[1].y;
+	this.append(new jeash.geom.Matrix3D([Math.cos(angle),0,Math.sin(angle),0,0,1,0,0,-Math.sin(angle),0,Math.cos(angle),0,0,0,0,0]));
+	angle = -components[1].z;
+	this.append(new jeash.geom.Matrix3D([Math.cos(angle),-Math.sin(angle),0,0,Math.sin(angle),Math.cos(angle),0,0,0,0,1,0,0,0,0,0]));
+	this.setPosition(components[0]);
+	this.rawData[15] = 1;
+	return true;
+}
+jeash.geom.Matrix3D.prototype.transformVector = function(v) {
+	var x = v.x, y = v.y, z = v.z;
+	return new jeash.geom.Vector3D(x * this.rawData[0] + y * this.rawData[4] + z * this.rawData[8] + this.rawData[12],x * this.rawData[1] + y * this.rawData[5] + z * this.rawData[9] + this.rawData[13],x * this.rawData[2] + y * this.rawData[6] + z * this.rawData[10] + this.rawData[14],1);
+}
+jeash.geom.Matrix3D.prototype.transformVectors = function(vin,vout) {
+	var i = 0;
+	while(i + 3 <= vin.length) {
+		var x = vin[i], y = vin[i + 1], z = vin[i + 2];
+		vout[i] = x * this.rawData[0] + y * this.rawData[4] + z * this.rawData[8] + this.rawData[12];
+		vout[i + 1] = x * this.rawData[1] + y * this.rawData[5] + z * this.rawData[9] + this.rawData[13];
+		vout[i + 2] = x * this.rawData[2] + y * this.rawData[6] + z * this.rawData[10] + this.rawData[14];
+		i += 3;
+	}
+}
+jeash.geom.Matrix3D.prototype.transpose = function() {
+	var oRawData = this.rawData.copy();
+	this.rawData[1] = oRawData[4];
+	this.rawData[2] = oRawData[8];
+	this.rawData[3] = oRawData[12];
+	this.rawData[4] = oRawData[1];
+	this.rawData[6] = oRawData[9];
+	this.rawData[7] = oRawData[13];
+	this.rawData[8] = oRawData[2];
+	this.rawData[9] = oRawData[6];
+	this.rawData[11] = oRawData[14];
+	this.rawData[12] = oRawData[3];
+	this.rawData[13] = oRawData[7];
+	this.rawData[14] = oRawData[11];
+}
+jeash.geom.Matrix3D.prototype.__class__ = jeash.geom.Matrix3D;
+a3d.Object3D = function(p) { if( p === $_ ) return; {
+	{
+		this.a = 1;
+		this.b = 0;
+		this.c = 0;
+		this.d = 0;
+		this.e = 0;
+		this.f = 1;
+		this.g = 0;
+		this.h = 0;
+		this.i = 0;
+		this.j = 0;
+		this.k = 1;
+		this.l = 0;
+	}
+	this.x = 0;
+	this.y = 0;
+	this.z = 0;
+	this.rotationX = 0;
+	this.rotationY = 0;
+	this.rotationZ = 0;
+	this.scaleX = 0;
+	this.scaleY = 0;
+	this.scaleZ = 0;
+}}
+a3d.Object3D.__name__ = ["a3d","Object3D"];
+a3d.Object3D.prototype.a = null;
+a3d.Object3D.prototype.b = null;
+a3d.Object3D.prototype.c = null;
+a3d.Object3D.prototype.d = null;
+a3d.Object3D.prototype.e = null;
+a3d.Object3D.prototype.f = null;
+a3d.Object3D.prototype.g = null;
+a3d.Object3D.prototype.h = null;
+a3d.Object3D.prototype.i = null;
+a3d.Object3D.prototype.j = null;
+a3d.Object3D.prototype.k = null;
+a3d.Object3D.prototype.l = null;
+a3d.Object3D.prototype.x = null;
+a3d.Object3D.prototype.y = null;
+a3d.Object3D.prototype.z = null;
+a3d.Object3D.prototype.rotationX = null;
+a3d.Object3D.prototype.rotationY = null;
+a3d.Object3D.prototype.rotationZ = null;
+a3d.Object3D.prototype.scaleX = null;
+a3d.Object3D.prototype.scaleY = null;
+a3d.Object3D.prototype.scaleZ = null;
+a3d.Object3D.prototype.geometry = null;
+a3d.Object3D.prototype.boundBox = null;
+a3d.Object3D.prototype.get_matrix = function() {
+	a3d.TransformUtil.compose(this,this.x,this.y,this.z,this.rotationX,this.rotationY,this.rotationZ,this.scaleX,this.scaleY,this.scaleZ);
+	return new jeash.geom.Matrix3D([this.a,this.e,this.i,0,this.b,this.f,this.j,0,this.c,this.g,this.k,0,this.d,this.h,this.l,1]);
+}
+a3d.Object3D.prototype.set_matrix = function(value) {
+	var v = value.decompose();
+	var t = v[0];
+	var r = v[1];
+	var s = v[2];
+	this.x = t.x;
+	this.y = t.y;
+	this.z = t.z;
+	this.rotationX = r.x;
+	this.rotationY = r.y;
+	this.rotationZ = r.z;
+	this.scaleX = s.x;
+	this.scaleY = s.y;
+	this.scaleZ = s.z;
+	return value;
+}
+a3d.Object3D.prototype.matrix = null;
+a3d.Object3D.prototype.__class__ = a3d.Object3D;
+a3d.Object3D.__interfaces__ = [a3d.IEuler,a3d.ITransform3D];
 glidias.Package = function() { }
 glidias.Package.__name__ = ["glidias","Package"];
 glidias.Package.main = function() {
 	null;
 }
 glidias.Package.prototype.__class__ = glidias.Package;
-glidias.controls.KeyPoll = function(displayObj) { if( displayObj === $_ ) return; {
-	this.states = haxe.io.Bytes.alloc(32);
-	this.jDoc = new $(displayObj != null?displayObj:js.Lib.document);
-	this.jDoc.keydown($closure(this,"keyDownListener"));
-	this.jDoc.keyup($closure(this,"keyUpListener"));
-}}
-glidias.controls.KeyPoll.__name__ = ["glidias","controls","KeyPoll"];
-glidias.controls.KeyPoll.prototype.states = null;
-glidias.controls.KeyPoll.prototype.jDoc = null;
-glidias.controls.KeyPoll.prototype.destroy = function() {
-	this.jDoc.unbind("keydown",$closure(this,"keyDownListener"));
-	this.jDoc.unbind("keyup",$closure(this,"keyUpListener"));
-}
-glidias.controls.KeyPoll.prototype.keyDownListener = function(ev) {
-	this.states.b[ev.keyCode >>> 3] = (this.states.b[ev.keyCode >>> 3] | 1 << (ev.keyCode & 7)) & 255;
-}
-glidias.controls.KeyPoll.prototype.keyUpListener = function(ev) {
-	this.states.b[ev.which >>> 3] = this.states.b[ev.which >>> 3] & ~(1 << (ev.which & 7)) & 255;
-}
-glidias.controls.KeyPoll.prototype.clearListener = function(ev) {
-	var i = 0;
-	while(++i < 8) {
-		this.states.b[i] = 0;
-	}
-}
-glidias.controls.KeyPoll.prototype.isDown = function(keyCode) {
-	return (this.states.b[keyCode >>> 3] & 1 << (keyCode & 7)) != 0;
-}
-glidias.controls.KeyPoll.prototype.isUp = function(keyCode) {
-	return (this.states.b[keyCode >>> 3] & 1 << (keyCode & 7)) == 0;
-}
-glidias.controls.KeyPoll.prototype.__class__ = glidias.controls.KeyPoll;
 glidias.AllocatorF = function(method,fillAmount,initialCapacity,fixed) { if( method === $_ ) return; {
 	if(fixed == null) fixed = false;
 	if(initialCapacity == null) initialCapacity = 0;
@@ -2551,6 +4096,9 @@ glidias.AABBSectorVisController.prototype.getCurrentSector = function(camPos,sec
 	return null;
 }
 glidias.AABBSectorVisController.prototype.__class__ = glidias.AABBSectorVisController;
+glidias.input.KeyCode = function() { }
+glidias.input.KeyCode.__name__ = ["glidias","input","KeyCode"];
+glidias.input.KeyCode.prototype.__class__ = glidias.input.KeyCode;
 $_ = {}
 js.Boot.__res = {}
 js.Boot.__init();
@@ -2656,111 +4204,111 @@ glidias.AABBPortalPlane.OFFSET_BITMASKS = (function($this) {
 glidias.AABBPortalPlane.DIRECTIONS = [new glidias.Vec3(0,-1,0),new glidias.Vec3(-1,0,0),new glidias.Vec3(0,1,0),new glidias.Vec3(1,0,0)];
 glidias.AABBPortalPlane.UP = new glidias.Vec3(0,0,1);
 glidias.AABBSector.ID_COUNT = 0;
-glidias.controls.KeyCode.A = 65;
-glidias.controls.KeyCode.ALTERNATE = 18;
-glidias.controls.KeyCode.APPLICATION_KEY = 93;
-glidias.controls.KeyCode.B = 66;
-glidias.controls.KeyCode.BACKQUOTE = 192;
-glidias.controls.KeyCode.BACKSLASH = 220;
-glidias.controls.KeyCode.BACKSPACE = 8;
-glidias.controls.KeyCode.BREAK = 19;
-glidias.controls.KeyCode.C = 67;
-glidias.controls.KeyCode.CAPS_LOCK = 20;
-glidias.controls.KeyCode.COMMA = 188;
-glidias.controls.KeyCode.COMMAND = 19;
-glidias.controls.KeyCode.CONTROL = 17;
-glidias.controls.KeyCode.D = 68;
-glidias.controls.KeyCode.DELETE = 46;
-glidias.controls.KeyCode.DOWN = 40;
-glidias.controls.KeyCode.E = 69;
-glidias.controls.KeyCode.END = 35;
-glidias.controls.KeyCode.ENTER = 13;
-glidias.controls.KeyCode.EQUAL = 187;
-glidias.controls.KeyCode.ESCAPE = 27;
-glidias.controls.KeyCode.F = 70;
-glidias.controls.KeyCode.F1 = 112;
-glidias.controls.KeyCode.F10 = 121;
-glidias.controls.KeyCode.F11 = 122;
-glidias.controls.KeyCode.F12 = 123;
-glidias.controls.KeyCode.F13 = 124;
-glidias.controls.KeyCode.F14 = 125;
-glidias.controls.KeyCode.F15 = 126;
-glidias.controls.KeyCode.F2 = 113;
-glidias.controls.KeyCode.F3 = 114;
-glidias.controls.KeyCode.F4 = 115;
-glidias.controls.KeyCode.F5 = 116;
-glidias.controls.KeyCode.F6 = 117;
-glidias.controls.KeyCode.F7 = 118;
-glidias.controls.KeyCode.F8 = 119;
-glidias.controls.KeyCode.F9 = 120;
-glidias.controls.KeyCode.G = 71;
-glidias.controls.KeyCode.H = 72;
-glidias.controls.KeyCode.HOME = 36;
-glidias.controls.KeyCode.I = 73;
-glidias.controls.KeyCode.INSERT = 45;
-glidias.controls.KeyCode.J = 74;
-glidias.controls.KeyCode.K = 75;
-glidias.controls.KeyCode.L = 76;
-glidias.controls.KeyCode.LEFT = 37;
-glidias.controls.KeyCode.LEFTBRACKET = 219;
-glidias.controls.KeyCode.M = 77;
-glidias.controls.KeyCode.MINUS = 189;
-glidias.controls.KeyCode.N = 78;
-glidias.controls.KeyCode.NUMBER_0 = 48;
-glidias.controls.KeyCode.NUMBER_1 = 49;
-glidias.controls.KeyCode.NUMBER_2 = 50;
-glidias.controls.KeyCode.NUMBER_3 = 51;
-glidias.controls.KeyCode.NUMBER_4 = 52;
-glidias.controls.KeyCode.NUMBER_5 = 53;
-glidias.controls.KeyCode.NUMBER_6 = 54;
-glidias.controls.KeyCode.NUMBER_7 = 55;
-glidias.controls.KeyCode.NUMBER_8 = 56;
-glidias.controls.KeyCode.NUMBER_9 = 57;
-glidias.controls.KeyCode.NUM_LOCK = 144;
-glidias.controls.KeyCode.NUMPAD = 21;
-glidias.controls.KeyCode.NUMPAD_0 = 96;
-glidias.controls.KeyCode.NUMPAD_1 = 97;
-glidias.controls.KeyCode.NUMPAD_2 = 98;
-glidias.controls.KeyCode.NUMPAD_3 = 99;
-glidias.controls.KeyCode.NUMPAD_4 = 100;
-glidias.controls.KeyCode.NUMPAD_5 = 101;
-glidias.controls.KeyCode.NUMPAD_6 = 102;
-glidias.controls.KeyCode.NUMPAD_7 = 103;
-glidias.controls.KeyCode.NUMPAD_8 = 104;
-glidias.controls.KeyCode.NUMPAD_9 = 105;
-glidias.controls.KeyCode.NUMPAD_ADD = 107;
-glidias.controls.KeyCode.NUMPAD_DECIMAL = 110;
-glidias.controls.KeyCode.NUMPAD_DIVIDE = 111;
-glidias.controls.KeyCode.NUMPAD_ENTER = 108;
-glidias.controls.KeyCode.NUMPAD_MULTIPLY = 106;
-glidias.controls.KeyCode.NUMPAD_SUBTRACT = 109;
-glidias.controls.KeyCode.O = 79;
-glidias.controls.KeyCode.P = 80;
-glidias.controls.KeyCode.PAGE_DOWN = 34;
-glidias.controls.KeyCode.PAGE_UP = 33;
-glidias.controls.KeyCode.PERIOD = 190;
-glidias.controls.KeyCode.PRINT_SCREEN = 124;
-glidias.controls.KeyCode.Q = 81;
-glidias.controls.KeyCode.QUOTE = 222;
-glidias.controls.KeyCode.R = 82;
-glidias.controls.KeyCode.RIGHT = 39;
-glidias.controls.KeyCode.RIGHTBRACKET = 221;
-glidias.controls.KeyCode.S = 83;
-glidias.controls.KeyCode.SCROLL_LOCK = 145;
-glidias.controls.KeyCode.SEMICOLON = 186;
-glidias.controls.KeyCode.SHIFT = 16;
-glidias.controls.KeyCode.SLASH = 191;
-glidias.controls.KeyCode.SPACE = 32;
-glidias.controls.KeyCode.T = 84;
-glidias.controls.KeyCode.TAB = 9;
-glidias.controls.KeyCode.U = 85;
-glidias.controls.KeyCode.UP = 38;
-glidias.controls.KeyCode.V = 86;
-glidias.controls.KeyCode.W = 87;
-glidias.controls.KeyCode.X = 88;
-glidias.controls.KeyCode.Y = 89;
-glidias.controls.KeyCode.Z = 90;
 js.Lib.onerror = null;
 glidias.AABBUtils.MAX_VALUE = 1.7976931348623157e+308;
 glidias.AABBUtils.THRESHOLD = .1;
+glidias.input.KeyCode.A = 65;
+glidias.input.KeyCode.ALTERNATE = 18;
+glidias.input.KeyCode.APPLICATION_KEY = 93;
+glidias.input.KeyCode.B = 66;
+glidias.input.KeyCode.BACKQUOTE = 192;
+glidias.input.KeyCode.BACKSLASH = 220;
+glidias.input.KeyCode.BACKSPACE = 8;
+glidias.input.KeyCode.BREAK = 19;
+glidias.input.KeyCode.C = 67;
+glidias.input.KeyCode.CAPS_LOCK = 20;
+glidias.input.KeyCode.COMMA = 188;
+glidias.input.KeyCode.COMMAND = 19;
+glidias.input.KeyCode.CONTROL = 17;
+glidias.input.KeyCode.D = 68;
+glidias.input.KeyCode.DELETE = 46;
+glidias.input.KeyCode.DOWN = 40;
+glidias.input.KeyCode.E = 69;
+glidias.input.KeyCode.END = 35;
+glidias.input.KeyCode.ENTER = 13;
+glidias.input.KeyCode.EQUAL = 187;
+glidias.input.KeyCode.ESCAPE = 27;
+glidias.input.KeyCode.F = 70;
+glidias.input.KeyCode.F1 = 112;
+glidias.input.KeyCode.F10 = 121;
+glidias.input.KeyCode.F11 = 122;
+glidias.input.KeyCode.F12 = 123;
+glidias.input.KeyCode.F13 = 124;
+glidias.input.KeyCode.F14 = 125;
+glidias.input.KeyCode.F15 = 126;
+glidias.input.KeyCode.F2 = 113;
+glidias.input.KeyCode.F3 = 114;
+glidias.input.KeyCode.F4 = 115;
+glidias.input.KeyCode.F5 = 116;
+glidias.input.KeyCode.F6 = 117;
+glidias.input.KeyCode.F7 = 118;
+glidias.input.KeyCode.F8 = 119;
+glidias.input.KeyCode.F9 = 120;
+glidias.input.KeyCode.G = 71;
+glidias.input.KeyCode.H = 72;
+glidias.input.KeyCode.HOME = 36;
+glidias.input.KeyCode.I = 73;
+glidias.input.KeyCode.INSERT = 45;
+glidias.input.KeyCode.J = 74;
+glidias.input.KeyCode.K = 75;
+glidias.input.KeyCode.L = 76;
+glidias.input.KeyCode.LEFT = 37;
+glidias.input.KeyCode.LEFTBRACKET = 219;
+glidias.input.KeyCode.M = 77;
+glidias.input.KeyCode.MINUS = 189;
+glidias.input.KeyCode.N = 78;
+glidias.input.KeyCode.NUMBER_0 = 48;
+glidias.input.KeyCode.NUMBER_1 = 49;
+glidias.input.KeyCode.NUMBER_2 = 50;
+glidias.input.KeyCode.NUMBER_3 = 51;
+glidias.input.KeyCode.NUMBER_4 = 52;
+glidias.input.KeyCode.NUMBER_5 = 53;
+glidias.input.KeyCode.NUMBER_6 = 54;
+glidias.input.KeyCode.NUMBER_7 = 55;
+glidias.input.KeyCode.NUMBER_8 = 56;
+glidias.input.KeyCode.NUMBER_9 = 57;
+glidias.input.KeyCode.NUM_LOCK = 144;
+glidias.input.KeyCode.NUMPAD = 21;
+glidias.input.KeyCode.NUMPAD_0 = 96;
+glidias.input.KeyCode.NUMPAD_1 = 97;
+glidias.input.KeyCode.NUMPAD_2 = 98;
+glidias.input.KeyCode.NUMPAD_3 = 99;
+glidias.input.KeyCode.NUMPAD_4 = 100;
+glidias.input.KeyCode.NUMPAD_5 = 101;
+glidias.input.KeyCode.NUMPAD_6 = 102;
+glidias.input.KeyCode.NUMPAD_7 = 103;
+glidias.input.KeyCode.NUMPAD_8 = 104;
+glidias.input.KeyCode.NUMPAD_9 = 105;
+glidias.input.KeyCode.NUMPAD_ADD = 107;
+glidias.input.KeyCode.NUMPAD_DECIMAL = 110;
+glidias.input.KeyCode.NUMPAD_DIVIDE = 111;
+glidias.input.KeyCode.NUMPAD_ENTER = 108;
+glidias.input.KeyCode.NUMPAD_MULTIPLY = 106;
+glidias.input.KeyCode.NUMPAD_SUBTRACT = 109;
+glidias.input.KeyCode.O = 79;
+glidias.input.KeyCode.P = 80;
+glidias.input.KeyCode.PAGE_DOWN = 34;
+glidias.input.KeyCode.PAGE_UP = 33;
+glidias.input.KeyCode.PERIOD = 190;
+glidias.input.KeyCode.PRINT_SCREEN = 124;
+glidias.input.KeyCode.Q = 81;
+glidias.input.KeyCode.QUOTE = 222;
+glidias.input.KeyCode.R = 82;
+glidias.input.KeyCode.RIGHT = 39;
+glidias.input.KeyCode.RIGHTBRACKET = 221;
+glidias.input.KeyCode.S = 83;
+glidias.input.KeyCode.SCROLL_LOCK = 145;
+glidias.input.KeyCode.SEMICOLON = 186;
+glidias.input.KeyCode.SHIFT = 16;
+glidias.input.KeyCode.SLASH = 191;
+glidias.input.KeyCode.SPACE = 32;
+glidias.input.KeyCode.T = 84;
+glidias.input.KeyCode.TAB = 9;
+glidias.input.KeyCode.U = 85;
+glidias.input.KeyCode.UP = 38;
+glidias.input.KeyCode.V = 86;
+glidias.input.KeyCode.W = 87;
+glidias.input.KeyCode.X = 88;
+glidias.input.KeyCode.Y = 89;
+glidias.input.KeyCode.Z = 90;
 glidias.Package.main()

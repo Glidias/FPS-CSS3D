@@ -7,9 +7,14 @@ import js.Lib;
 import glidias.RoomFiller;
 import glidias.Frustum;
 import glidias.AABBSectorVisController;
-import glidias.controls.KeyPoll;
-import glidias.controls.KeyCode;
+import glidias.input.KeyPoll;
+import glidias.input.KeyCode;
 #if (jQuery) import jQuery.JQuery; #end
+
+import a3d.Object3D;
+import a3d.SimpleObjectController;
+import a3d.Transform3D;
+import a3d.EllipsoidCollider;
 
 /**
  * ...

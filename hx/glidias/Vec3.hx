@@ -6,7 +6,7 @@ import glidias.Vec3;
  * @author Glenn Ko
  */
 
-class Vec3 
+class Vec3 implements XYZW
 {
 
 	public var x:Float;

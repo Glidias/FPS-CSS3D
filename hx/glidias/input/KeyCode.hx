@@ -3,7 +3,7 @@
  * @author Glenn Ko
  */
 
-package glidias.controls;
+package glidias.input;
 import glidias.TypeDefs;
 
 class KeyCode 
