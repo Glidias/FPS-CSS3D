@@ -48,9 +48,18 @@ package a3d;
 		private var geometries:Vector<Geometry>;
 		
 		private var vertices:Vector<Float>;
+		
+		// this 3 items to depeciate with faceBuffers instead.
 		private var normals:Vector<Float>;
 		private var indices:Vector<Int>;
 		private var numTriangles:Int;
+		
+		private var faceBuffers:Vector<FaceBuffer>;
+		public var fnMask:Int;  // to keep track of n-gon types being rendered (supports up to 32 sided n-gons!)
+		public var fnArray:Vector<Int>;
+		public var fnI:Int;
+		
+		
 		
 		private var radius:Float;
 		private var src:Vector3D;
@@ -104,6 +113,24 @@ package a3d;
 			
 			src =  new Vector3D();
 			
+			faceBuffers = new Vector<FaceBuffer>();
+			faceBuffers[0] = null;
+			faceBuffers[1] = null;
+			faceBuffers[2] = null;  // first 3 slots unused
+			faceBuffers[3] = new FaceBuffer();  // for tris
+			faceBuffers[4] = new FaceBuffer();  // for quads
+			// subsequent face buffers added on demand for n-gons using growMethod()
+			fnArray = new Vector<Int>();
+
+		}
+		
+		public inline function grow(nSides:Int):Void { // grow on demand the number of nSides required!
+			if (nSides < faceBuffers.length) {
+				var i:Int = faceBuffers.length - 1;
+				while ( --nSides > i) {
+					faceBuffers.push( new FaceBuffer() );
+				}
+			}
 		}
 		
 		/**
@@ -442,6 +469,9 @@ package a3d;
 		private function checkCollision():Bool {
 			var minTime:Float = 1;
 			var displacementLength:Float = displ.length;
+			
+			// Loop FaceNBuffer (fnArray)  faceBuffers[fnArray[n]]
+			
 			// Loop triangles
 			var indicesLength:Int = numTriangles*3;
 			for (var i:Int = 0, j:Int = 0; i < indicesLength;) {
