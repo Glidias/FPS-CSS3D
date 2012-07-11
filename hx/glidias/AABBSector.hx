@@ -98,7 +98,7 @@ class AABBSector implements IAABB, implements IECollidable
 			
 			for (i in 0...len) {
 				p = portalWalls[i];
-				if ( AABBUtils.checkSphere(p, sphere) ) {
+				//if ( AABBUtils.checkSphere(p, sphere) ) { // too unnecessary in most cases. opt out for now.
 					ptl = p.portals;
 					pl = ptl.length;
 					for (u in 0...pl) {
@@ -111,7 +111,7 @@ class AABBSector implements IAABB, implements IECollidable
 							}
 						}
 					}
-				}
+				//}
 			}
 		}
 	}
