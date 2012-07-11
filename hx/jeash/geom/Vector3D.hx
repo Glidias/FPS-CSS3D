@@ -27,8 +27,9 @@
 // @r587
 
 package jeash.geom;
+import glidias.XYZW;
 
-class Vector3D {
+class Vector3D implements XYZW {
 	inline public var length(getLength,null):Float;
 	inline public function getLength():Float {
 		return Math.abs(Vector3D.distance(this,new Vector3D()));

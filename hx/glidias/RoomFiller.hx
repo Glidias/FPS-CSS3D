@@ -101,6 +101,39 @@ package glidias;
 			 
 		}
 		
+		public function setupFacesFromSectors(map:Array<AABBSector>, gridSize:Float):Void {
+		
+			var mask:Int;
+			
+			var sector:AABBSector;
+			var uLen:Int;
+			var len = map.length;
+			var pWalls;
+			var p:AABBPortalPlane;
+			for (i in 0...len) {
+				sector = map[i];
+				
+				//str += sector.getCeilingHTML(ceilingMat,gridSize);
+				//str += sector.getFloorHTML(floorMat, gridSize);
+				sector.addWallFace( AABBPortalPlane.DOWNWARDS);
+				sector.addWallFace( AABBPortalPlane.UPWARDS);
+				
+				mask = 0;  // keeps track of portaled walls
+				pWalls = sector.portalWalls;
+				uLen = pWalls.length;
+				for (u in 0...uLen) {
+					p = pWalls[u];
+					//str += p.getHTML(sector, gridSize, wallMat);
+		
+					mask |= (1 << p.direction);
+				}
+				if ( (mask & (1<< AABBPortalPlane.NORTH)) == 0) sector.addWallFace(AABBPortalPlane.NORTH);
+				if ( (mask & (1<< AABBPortalPlane.SOUTH)) == 0) sector.addWallFace(AABBPortalPlane.SOUTH);
+				if ( (mask & (1<< AABBPortalPlane.WEST)) == 0) sector.addWallFace(AABBPortalPlane.WEST);
+				if ( (mask & (1<< AABBPortalPlane.EAST)) == 0) sector.addWallFace(AABBPortalPlane.EAST);
+				
+			}
+		}
 		
 		/**
 		 * Javascript method to generate CSSPlanes definitnation from sector map

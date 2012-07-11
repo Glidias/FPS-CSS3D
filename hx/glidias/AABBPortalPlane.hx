@@ -1,4 +1,5 @@
 package glidias;
+import a3d.Geometry;
 import glidias.Int4;
 
 /**
@@ -131,6 +132,15 @@ class AABBPortalPlane implements IAABB
 		return planeResult;
 	}
 
+	public function addFaces(sector:AABBSector, gridSize:Float):Void {
+		var geom:Geometry = sector.geom;
+		var doorwayHeight:Float = portals[0].height;  // ASSUMPTION, all portals same height.., this might change later
+		var aboveDoorwayHeight:Float = sector.ceilHeight - doorwayHeight;
+		
+		//geom.addVertex();
+		//geom.addFace();
+		// todo:
+	}
 		
 	public function getHTML(sector:AABBSector, gridSize:Float, mat:String):String { // Gets html of aabb portal plane wall, ie. a wall with portal openings..
 		
@@ -150,7 +160,7 @@ class AABBPortalPlane implements IAABB
 		
 			p.width = planeResult.width;
 			p.height = aboveDoorwayHeight;
-			
+		
 			html += p.getHTML(mat);
 		}
 		

@@ -7,10 +7,11 @@
  * */
 
  /**
-  * This source code is modified and re-factored in Haxe to support varied situations across different target platforms, including n-gon situations.
+  * This source code is modified and re-factored in Haxe to support varied situations across different target platforms, including n-gons.
   */
 package a3d;
 
+	import a3d.EllipsoidCollider;
 	import jeash.geom.Vector3D;
 	import glidias.TypeDefs;
 
@@ -43,23 +44,20 @@ package a3d;
 		
 		private var matrix:Transform3D;
 		private var inverseMatrix:Transform3D;
-
+		
+		// flag header 4 bits in 32 bit integer, for determining number of sides for convex n-gons. (up to 16 sides), leaving behind 28 bits (up to 268435456) possible vertex indices per geometry. 
+		// You can add /reduce space if required in the inline variable, but 16 sides should be sufficient for most cases.
+		private static inline var _NMASK_:Int = A3DConst._NMASK_; 
+		private static inline var _FMASK_:Int = A3DConst._FMASK_;
 		
 		private var geometries:Vector<Geometry>;
 		
 		private var vertices:Vector<Float>;
 		
-		// this 3 items to depeciate with faceBuffers instead.
+		
 		private var normals:Vector<Float>;
 		private var indices:Vector<Int>;
-		private var numTriangles:Int;
-		
-		private var faceBuffers:Vector<FaceBuffer>;
-		public var fnMask:Int;  // to keep track of n-gon types being rendered (supports up to 32 sided n-gons!)
-		public var fnArray:Vector<Int>;
-		public var fnI:Int;
-		
-		
+		private var numFaces:Int;
 		
 		private var radius:Float;
 		private var src:Vector3D;
@@ -78,6 +76,8 @@ package a3d;
 		private var cornerC:Vector3D;
 		private var cornerD:Vector3D;
 		
+		public var timestamp:Int;
+		
 		/**
 		 * Creates a EllipsoidCollider object.
 		 *
@@ -87,6 +87,8 @@ package a3d;
 		 */
 		public function EllipsoidCollider(radiusX:Float, radiusY:Float, radiusZ:Float, threshold:Float=0.001) {
 			this.threshold = threshold;
+			
+			this.timestamp = 0;
 			
 			this.radiusX = radiusX;
 			this.radiusY = radiusY;
@@ -113,25 +115,9 @@ package a3d;
 			
 			src =  new Vector3D();
 			
-			faceBuffers = new Vector<FaceBuffer>();
-			faceBuffers[0] = null;
-			faceBuffers[1] = null;
-			faceBuffers[2] = null;  // first 3 slots unused
-			faceBuffers[3] = new FaceBuffer();  // for tris
-			faceBuffers[4] = new FaceBuffer();  // for quads
-			// subsequent face buffers added on demand for n-gons using growMethod()
-			fnArray = new Vector<Int>();
 
 		}
-		
-		public inline function grow(nSides:Int):Void { // grow on demand the number of nSides required!
-			if (nSides < faceBuffers.length) {
-				var i:Int = faceBuffers.length - 1;
-				while ( --nSides > i) {
-					faceBuffers.push( new FaceBuffer() );
-				}
-			}
-		}
+
 		
 		/**
 		 * @private 
@@ -218,24 +204,12 @@ package a3d;
 			calculateSphere(matrix);
 		}
 		
-		public function prepare2():Void {
-				// (linear or hierachical search per object) check sphere
-				/*
-				intersects = object.boundBox.checkSphere(sphere);
-				if (intersects) {
-					//object.localToGlobalTransform.combine(inverseMatrix, object.transform);
-					object.collectGeometry(this, excludedObjects); // with inverseMatrix as it's localToGlobalTransform
-				}
-				*/
-				// Check children
-				//if (object.childrenList != null) object.collectChildrenGeometry(this, excludedObjects);
-			
-		}
+		
 		
 		public function loopGeometries():Void {
 			var rad:Float = radius + displ.length;
 			
-			numTriangles = 0;
+			numFaces = 0;
 			var indicesLength:Int = 0;
 			var normalsLength:Int = 0;
 			
@@ -258,7 +232,7 @@ package a3d;
 				geometry = geometries[i];	
 				geometryIndices = geometry.indices;
 				 geometryIndicesLength = geometryIndices.length;
-				 nSides = geometry.nSides;
+				 
 					verts = geometry.vertices;
 					numVertices = geometry.numVertices;
 					for (j in 0...numVertices) {
@@ -273,7 +247,10 @@ package a3d;
 				// Loop faces  
 				j = 0;
 				while (j < geometryIndicesLength) {   
+					
 					var a:Int = geometryIndices[j]; j++;
+					nSides = (a & _NMASK_);
+					a &= _FMASK_;
 					var index:Int = a*3;
 					var ax:Float = vertices[index]; index++;
 					var ay:Float = vertices[index]; index++;
@@ -289,11 +266,12 @@ package a3d;
 					var cy:Float = vertices[index]; index++;
 					var cz:Float = vertices[index];
 					
-					// Exclusion by bound   // TODO: does n-gons allow for exclusion by bound?  Else remove this test
-					//if (ax > rad && bx > rad && cx > rad || ax < -rad && bx < -rad && cx < -rad) continue;
-					//if (ay > rad && by > rad && cy > rad || ay < -rad && by < -rad && cy < -rad) continue;
-					//if (az > rad && bz > rad && cz > rad || az < -rad && bz < -rad && cz < -rad) continue;
-					
+					// Exclusion by bound   // TODO: does n-gons allow for exclusion by bound without looping?  Else remove this test
+					if (nSides == 3) {
+						if (ax > rad && bx > rad && cx > rad || ax < -rad && bx < -rad && cx < -rad) continue;
+						if (ay > rad && by > rad && cy > rad || ay < -rad && by < -rad && cy < -rad) continue;
+						if (az > rad && bz > rad && cz > rad || az < -rad && bz < -rad && cz < -rad) continue;
+					}
 					// The normal
 					var abx:Float = bx - ax;
 					var aby:Float = by - ay;
@@ -319,20 +297,11 @@ package a3d;
 					normals[normalsLength] = normalY; normalsLength++;
 					normals[normalsLength] = normalZ; normalsLength++;
 					normals[normalsLength] = offset; normalsLength++;
-					for (n in 3...nSides) {
-						
-						
-						/*
-						indices[indicesLength] = a; indicesLength++;
-						indices[indicesLength] = b; indicesLength++;
+					for (n in 3...nSides) {  // add more indices if required
+						c =  geometryIndices[j]; j++;
 						indices[indicesLength] = c; indicesLength++;
-						normals[normalsLength] = normalX; normalsLength++;
-						normals[normalsLength] = normalY; normalsLength++;
-						normals[normalsLength] = normalZ; normalsLength++;
-						normals[normalsLength] = offset; normalsLength++;	
-						*/
 					}
-					numTriangles++;
+					numFaces++;
 				}
 				
 			
@@ -351,21 +320,22 @@ package a3d;
 		 * Calculates destination point from given start position and displacement vector.
 		 * @param source Starting point.
 		 * @param displacement Displacement vector.
-		 * @param object An object at crossing which will be checked. If this is a container, the application will participate and its child objects
-		 * @param excludedObjects An associative array whose keys are instances of <code>Object3D</code> and its children.
-		 * The objects that are keys of this dictionary will be excluded from intersection test.
+		 * @param collidable An IECollidable implementation responsible for collecting geometry for this instance.
 		 * @return Destination point.
 		 */
-		/*
-		public function calculateDestination(source:Vector3D, displacement:Vector3D, object:Object3D):Vector3D {
+		///*
+		public function calculateDestination(source:Vector3D, displacement:Vector3D, collidable:IECollidable):Vector3D {
 			
 			if (displacement.length <= threshold) return source.clone();
 			
-			prepare(source, displacement, object, excludedObjects);
+			timestamp++;
+			prepare(source, displacement);
+			collidable.collectGeometry(this);
+			loopGeometries();
 			
-			if (numTriangles > 0) {
-				var limit:Int = 50;
-				for (var i:Int = 0; i < limit; i++) {
+			if (numFaces > 0) {
+			//	var limit:Int = 50;  // Max tries before timing out
+				for (i in 0...50) {
 					if (checkCollision()) {
 						// Offset destination point from behind collision plane by radius of the sphere over plane, along the normal
 						var offset:Float = radius + threshold + collisionPlane.w - dest.x*collisionPlane.x - dest.y*collisionPlane.y - dest.z*collisionPlane.z;
@@ -389,7 +359,12 @@ package a3d;
 				return new Vector3D(source.x + displacement.x, source.y + displacement.y, source.z + displacement.z);
 			}
 		}
-		*/
+		
+		public inline function addGeometry(g:Geometry) 
+		{
+			geometries.push(g);
+		}
+	//	*/
 		
 		/**
 		 * Finds first collision from given starting point aling displacement vector.
@@ -408,7 +383,7 @@ package a3d;
 			
 			prepare(source, displacement, object, excludedObjects);
 			
-			if (numTriangles > 0) {
+			if (numFaces > 0) {
 				if (checkCollision()) {
 					
 					// Transform the point to the global space
@@ -465,18 +440,36 @@ package a3d;
 			}
 			return false;
 		}
+		*/
 		
 		private function checkCollision():Bool {
 			var minTime:Float = 1;
 			var displacementLength:Float = displ.length;
-			
-			// Loop FaceNBuffer (fnArray)  faceBuffers[fnArray[n]]
-			
+			var t:Float;
+
 			// Loop triangles
-			var indicesLength:Int = numTriangles*3;
-			for (var i:Int = 0, j:Int = 0; i < indicesLength;) {
+			var indicesLength:Int = indices.length;
+			var j:Int = 0;
+			var i:Int = 0;
+			
+			var p1x:Float;
+			var p1y:Float;
+			var p1z:Float;
+			var p2x:Float;
+			var p2y:Float;
+			var p2z:Float;
+		
+			var nSides:Int;
+			
+			var baseI:Int;
+			
+			while (i < indicesLength) {
 				// Points
-				var index:Int = indices[i]*3; i++;
+				baseI = i;
+				var index:Int = indices[i]; i++;
+				nSides = index & _NMASK_; 	// get number of n-sides from header
+				index &= _FMASK_;  			// flag out first point header n-side value
+				index *= 3; 
 				var ax:Float = vertices[index]; index++;
 				var ay:Float = vertices[index]; index++;
 				var az:Float = vertices[index];
@@ -509,41 +502,23 @@ package a3d;
 					pointZ = src.z + displ.z*t - normalZ*radius;
 				}
 				// Closest polygon vertex
-				var faceX:Float;
-				var faceY:Float;
-				var faceZ:Float;
+				var faceX:Float = 0;
+				var faceY:Float = 0;
+				var faceZ:Float = 0;
+				
 				var min:Float = 1e+22;
 				// Loop edges
 				var inside:Bool = true;
-				for (var k:Int = 0; k < 3; k++) {
-					var p1x:Float;
-					var p1y:Float;
-					var p1z:Float;
-					var p2x:Float;
-					var p2y:Float;
-					var p2z:Float;
-					if (k == 0) {
-						p1x = ax;
-						p1y = ay;
-						p1z = az;
-						p2x = bx;
-						p2y = by;
-						p2z = bz;
-					} else if (k == 1) {
-						p1x = bx;
-						p1y = by;
-						p1z = bz;
-						p2x = cx;
-						p2y = cy;
-						p2z = cz;
-					} else {
-						p1x = cx;
-						p1y = cy;
-						p1z = cz;
-						p2x = ax;
-						p2y = ay;
-						p2z = az;
-					}
+				p1x = ax;
+				p1y = ay;
+				p1z = az;
+				for (k in 0...nSides) { 
+					index = indices[baseI] * 3;
+					p2x = vertices[index]; index++; 
+					p2y = vertices[index]; index++;
+					p2z = vertices[index]; 
+					baseI++;
+					
 					var abx:Float = p2x - p1x;
 					var aby:Float = p2y - p1y;
 					var abz:Float = p2z - p1z;
@@ -594,9 +569,14 @@ package a3d;
 								faceY = p1y + aby*t;
 								faceZ = p1z + abz*t;
 							}
+							
 						}
 						inside = false;
 					}
+					
+					p1x = p2x;
+					p1y = p2y;
+					p1z = p2z;
 				}
 				// Case of point is inside polygon
 				if (inside) {
@@ -644,9 +624,10 @@ package a3d;
 					}
 				}
 			}
+		
 			return minTime < 1;
 		}
-		*/
+		
 		
 		
 		
