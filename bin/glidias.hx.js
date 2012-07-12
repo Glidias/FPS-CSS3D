@@ -394,10 +394,6 @@ glidias.Frustum.prototype.setup6FromWorldMatrix = function(te,screenWhalf,screen
 	p.w = tx * cx + ty * cy + tz * cz;
 }
 glidias.Frustum.prototype.__class__ = glidias.Frustum;
-if(typeof a3d=='undefined') a3d = {}
-a3d.A3DConst = function() { }
-a3d.A3DConst.__name__ = ["a3d","A3DConst"];
-a3d.A3DConst.prototype.__class__ = a3d.A3DConst;
 StringTools = function() { }
 StringTools.__name__ = ["StringTools"];
 StringTools.urlEncode = function(s) {
@@ -501,6 +497,10 @@ StringTools.isEOF = function(c) {
 	return c != c;
 }
 StringTools.prototype.__class__ = StringTools;
+if(typeof a3d=='undefined') a3d = {}
+a3d.A3DConst = function() { }
+a3d.A3DConst.__name__ = ["a3d","A3DConst"];
+a3d.A3DConst.prototype.__class__ = a3d.A3DConst;
 glidias.IAABB = function() { }
 glidias.IAABB.__name__ = ["glidias","IAABB"];
 glidias.IAABB.prototype.minX = null;
@@ -765,7 +765,7 @@ glidias.RoomFiller.prototype.run = function(onComplete) {
 	if(this.async == 0) null;
 	else null;
 }
-glidias.RoomFiller.prototype.setupFacesFromSectors = function(map,gridSize) {
+glidias.RoomFiller.prototype.setupGeometryOfSectors = function(map,gridSize) {
 	var mask;
 	var sector;
 	var uLen;
@@ -790,10 +790,10 @@ glidias.RoomFiller.prototype.setupFacesFromSectors = function(map,gridSize) {
 					mask |= 1 << p.direction;
 				}
 			}
-			if((mask & 1) == 0) sector.geom.addFace(glidias.AABBSector.INDICES_LOOKUP[0]);
-			if((mask & 4) == 0) sector.geom.addFace(glidias.AABBSector.INDICES_LOOKUP[2]);
-			if((mask & 2) == 0) sector.geom.addFace(glidias.AABBSector.INDICES_LOOKUP[1]);
-			if((mask & 8) == 0) sector.geom.addFace(glidias.AABBSector.INDICES_LOOKUP[3]);
+			sector.geom.addFace(glidias.AABBSector.INDICES_LOOKUP[0]);
+			sector.geom.addFace(glidias.AABBSector.INDICES_LOOKUP[2]);
+			sector.geom.addFace(glidias.AABBSector.INDICES_LOOKUP[1]);
+			sector.geom.addFace(glidias.AABBSector.INDICES_LOOKUP[3]);
 		}
 	}
 }
@@ -866,7 +866,7 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 						while(_g2 < vLen) {
 							var v = _g2++;
 							if(this.grid[u][v] < 4) {
-								haxe.Log.trace("NOn floor detected over room!  " + i,{ fileName : "RoomFiller.hx", lineNumber : 210, className : "glidias.RoomFiller", methodName : "getSectors"});
+								haxe.Log.trace("NOn floor detected over room!  " + i,{ fileName : "RoomFiller.hx", lineNumber : 216, className : "glidias.RoomFiller", methodName : "getSectors"});
 								invalid = true;
 								break;
 							}
@@ -895,12 +895,12 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 			doorType = this.getDoorType(door);
 			if(doorType >= 4) {
 				target = this.getSectorIndexAt(door.x - door.z,door.y - door.w);
-				haxe.Log.trace("indoors!" + [door.x,door.y] + " : " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 239, className : "glidias.RoomFiller", methodName : "getSectors"});
+				haxe.Log.trace("indoors!" + [door.x,door.y] + " : " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 245, className : "glidias.RoomFiller", methodName : "getSectors"});
 			}
 			else if(doorType == 0) {
 				target = -1;
 				if(!this.enableOutdoors) continue;
-				haxe.Log.trace("Outdoors!",{ fileName : "RoomFiller.hx", lineNumber : 244, className : "glidias.RoomFiller", methodName : "getSectors"});
+				haxe.Log.trace("Outdoors!",{ fileName : "RoomFiller.hx", lineNumber : 250, className : "glidias.RoomFiller", methodName : "getSectors"});
 			}
 			else if(doorType == 1) {
 				this.grid[door.x][door.y] = 3;
@@ -945,7 +945,7 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 				target = !exit?this.getSectorIndexAt(door.x - door.z,door.y - door.w):-1;
 			}
 			else {
-				haxe.Log.trace("Could not resolve door type. " + doorType + ". " + [door.x,door.y] + ": " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 308, className : "glidias.RoomFiller", methodName : "getSectors"});
+				haxe.Log.trace("Could not resolve door type. " + doorType + ". " + [door.x,door.y] + ": " + [door.z,door.w],{ fileName : "RoomFiller.hx", lineNumber : 314, className : "glidias.RoomFiller", methodName : "getSectors"});
 				continue;
 			}
 			sector = new glidias.AABBSector();
@@ -968,7 +968,7 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 			}
 			target = this.getSectorIndexAt(door.x + door.z + glidias.AABBPortalPlane.norm(door.z),door.y + door.w + glidias.AABBPortalPlane.norm(door.w));
 			if(target < 0) {
-				haxe.Log.trace("Dead end.",{ fileName : "RoomFiller.hx", lineNumber : 358, className : "glidias.RoomFiller", methodName : "getSectors"});
+				haxe.Log.trace("Dead end.",{ fileName : "RoomFiller.hx", lineNumber : 364, className : "glidias.RoomFiller", methodName : "getSectors"});
 				continue;
 			}
 			var copyDir = glidias.AABBPortalPlane.DIRECTIONS[direction];
@@ -999,7 +999,7 @@ glidias.RoomFiller.prototype.getSectors = function(gridSize,minRoomHeight,possib
 }
 glidias.RoomFiller.prototype.getSectorIndexAt = function(tx,ty) {
 	if(tx < 0 || tx >= 80 || ty < 0 || ty >= 80) {
-		haxe.Log.trace("out of bound getSectorIndexAt",{ fileName : "RoomFiller.hx", lineNumber : 406, className : "glidias.RoomFiller", methodName : "getSectorIndexAt"});
+		haxe.Log.trace("out of bound getSectorIndexAt",{ fileName : "RoomFiller.hx", lineNumber : 412, className : "glidias.RoomFiller", methodName : "getSectorIndexAt"});
 	}
 	return this.grid[tx][ty] - 4;
 }
@@ -1091,7 +1091,7 @@ glidias.RoomFiller.prototype.setInterval = function(target,timeMs) {
 glidias.RoomFiller.prototype.createFeature = function() {
 	if(this.currFeature-- == 0) {
 		if(this.roomInterv != -1) null;
-		haxe.Log.trace("Done.",{ fileName : "RoomFiller.hx", lineNumber : 534, className : "glidias.RoomFiller", methodName : "createFeature"});
+		haxe.Log.trace("Done.",{ fileName : "RoomFiller.hx", lineNumber : 540, className : "glidias.RoomFiller", methodName : "createFeature"});
 		return false;
 	}
 	var i, j;
@@ -1240,7 +1240,7 @@ glidias.RoomFiller.prototype.createRoom = function(s,e,w,h) {
 					var _g3 = e, _g2 = h + 1;
 					while(_g3 < _g2) {
 						var j = _g3++;
-						if(this.grid[i][j] == 3) haxe.Log.trace("Covered corridoor exception!",{ fileName : "RoomFiller.hx", lineNumber : 747, className : "glidias.RoomFiller", methodName : "createRoom"});
+						if(this.grid[i][j] == 3) haxe.Log.trace("Covered corridoor exception!",{ fileName : "RoomFiller.hx", lineNumber : 753, className : "glidias.RoomFiller", methodName : "createRoom"});
 						if(i == s || i == w || j == e || j == h) this.grid[i][j] = 1;
 						else this.grid[i][j] = 4 + roomLen;
 					}
@@ -1663,9 +1663,84 @@ glidias.AABBPortalPlane.prototype.addPortal = function(portal) {
 	this.portals.push(portal);
 }
 glidias.AABBPortalPlane.prototype.addFaces = function(sector,gridSize) {
-	var geom = sector.geom;
+	var planeResult = glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[this.direction],sector,gridSize);
+	var p;
+	var x = 0;
+	var y = 0;
+	var z = 0;
+	var width = planeResult.width;
 	var doorwayHeight = this.portals[0].height;
-	var aboveDoorwayHeight = sector.ceilHeight - doorwayHeight;
+	var aboveDoorwayHeight = planeResult.height - doorwayHeight;
+	var geom = sector.geom;
+	var pos = planeResult.pos;
+	var right = planeResult.right.getReverse();
+	var baseOffset = pos.x * right.x + pos.y * right.y + pos.z * right.z;
+	var down = planeResult.up;
+	var a;
+	var b;
+	var INDEX_LOOKUP = glidias.AABBSector.INDICES_LOOKUP[this.direction];
+	if(aboveDoorwayHeight > 0) {
+		p = glidias.PlaneResult.getIdentity();
+		x = pos.x + down.x * aboveDoorwayHeight;
+		y = pos.y + down.y * aboveDoorwayHeight;
+		z = pos.z + down.z * aboveDoorwayHeight;
+		a = geom.addVertex(x,y,z);
+		x += right.x * planeResult.width;
+		y += right.y * planeResult.width;
+		z += right.z * planeResult.width;
+		b = geom.addVertex(x,y,z);
+		geom.addFace([INDEX_LOOKUP[0],a,b,INDEX_LOOKUP[3]]);
+	}
+	this.portals.sort(function(a1,b1) {
+		var a2 = right.x * a1.minX + right.y * a1.minY + right.z * a1.minZ;
+		var b2 = right.x * b1.minX + right.y * b1.minY + right.z * b1.minZ;
+		if(a2 < b2) {
+			return -1;
+		}
+		else if(a2 == b2) return 0;
+		return 1;
+	});
+	var len = this.portals.length;
+	var portal;
+	var c;
+	var lastC = -99999999;
+	var o;
+	var m = 0;
+	{
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
+			portal = this.portals[i];
+			c = portal.minX * right.x + portal.minY * right.y + portal.minZ * right.z;
+			o = portal.maxX * right.x + portal.maxY * right.y + portal.maxZ * right.z;
+			if(o < c) c = o;
+			if(lastC > c) haxe.Log.trace("WRONG, shoudl be less!",{ fileName : "AABBPortalPlane.hx", lineNumber : 210, className : "glidias.AABBPortalPlane", methodName : "addFaces"});
+			lastC = c;
+			o = baseOffset < c?c - baseOffset:baseOffset - c;
+			p = planeResult.clone();
+			p.pos.x += m * right.x;
+			p.pos.y += m * right.y;
+			p.pos.z += m * right.z;
+			p.pos.x += aboveDoorwayHeight * down.x;
+			p.pos.y += aboveDoorwayHeight * down.y;
+			p.pos.z += aboveDoorwayHeight * down.z;
+			p.width = o - m;
+			p.height = portal.height;
+			if(!(p.width == 0 || p.height == 0)) p.addToGeometry(geom);
+			m += p.width + portal.width;
+		}
+	}
+	portal = this.portals[len - 1];
+	p = planeResult.clone();
+	p.pos.x += m * right.x;
+	p.pos.y += m * right.y;
+	p.pos.z += m * right.z;
+	p.pos.x += aboveDoorwayHeight * down.x;
+	p.pos.y += aboveDoorwayHeight * down.y;
+	p.pos.z += aboveDoorwayHeight * down.z;
+	p.width = planeResult.width - m;
+	p.height = portal.height;
+	if(!(p.width == 0 || p.height == 0)) p.addToGeometry(geom);
 }
 glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 	var planeResult = glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[this.direction],sector,gridSize);
@@ -1685,7 +1760,6 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 	var pos = planeResult.pos;
 	var right = planeResult.right.getReverse();
 	var baseOffset = pos.x * right.x + pos.y * right.y + pos.z * right.z;
-	var up = glidias.AABBPortalPlane.UP;
 	this.portals.sort(function(a,b) {
 		var a2 = right.x * a.minX + right.y * a.minY + right.z * a.minZ;
 		var b2 = right.x * b.minX + right.y * b.minY + right.z * b.minZ;
@@ -1709,7 +1783,7 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 			c = portal.minX * right.x + portal.minY * right.y + portal.minZ * right.z;
 			o = portal.maxX * right.x + portal.maxY * right.y + portal.maxZ * right.z;
 			if(o < c) c = o;
-			if(lastC > c) haxe.Log.trace("WRONG, shoudl be less!",{ fileName : "AABBPortalPlane.hx", lineNumber : 197, className : "glidias.AABBPortalPlane", methodName : "getHTML"});
+			if(lastC > c) haxe.Log.trace("WRONG, shoudl be less!",{ fileName : "AABBPortalPlane.hx", lineNumber : 319, className : "glidias.AABBPortalPlane", methodName : "getHTML"});
 			lastC = c;
 			o = baseOffset < c?c - baseOffset:baseOffset - c;
 			p = glidias.PlaneResult.getIdentity();
@@ -1717,8 +1791,8 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 			p.pos.y = aboveDoorwayHeight;
 			p.width = o - m;
 			p.height = portal.height;
-			html += "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(p.width) + "px;height:" + Math.round(p.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-p.right.x,-p.right.y,-p.right.z,0,p.up.x,p.up.y,p.up.z,0,p.look.x,p.look.y,p.look.z,0,p.pos.x,p.pos.y,p.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
-			m = p.pos.x + p.width + portal.width;
+			if(!(p.width == 0 || p.height == 0)) html += "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(p.width) + "px;height:" + Math.round(p.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-p.right.x,-p.right.y,-p.right.z,0,p.up.x,p.up.y,p.up.z,0,p.look.x,p.look.y,p.look.z,0,p.pos.x,p.pos.y,p.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
+			m += p.width + portal.width;
 		}
 	}
 	portal = this.portals[len - 1];
@@ -1727,7 +1801,7 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 	p.pos.y = aboveDoorwayHeight;
 	p.width = planeResult.width - m;
 	p.height = portal.height;
-	html += "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(p.width) + "px;height:" + Math.round(p.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-p.right.x,-p.right.y,-p.right.z,0,p.up.x,p.up.y,p.up.z,0,p.look.x,p.look.y,p.look.z,0,p.pos.x,p.pos.y,p.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
+	if(!(p.width == 0 || p.height == 0)) html += "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(p.width) + "px;height:" + Math.round(p.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-p.right.x,-p.right.y,-p.right.z,0,p.up.x,p.up.y,p.up.z,0,p.look.x,p.look.y,p.look.z,0,p.pos.x,p.pos.y,p.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
 	html += "</div>";
 	return html;
 }
@@ -2040,13 +2114,11 @@ glidias.input.KeyPoll.prototype.__class__ = glidias.input.KeyPoll;
 a3d.Geometry = function(p) { if( p === $_ ) return; {
 	this.vertices = [];
 	this.indices = [];
-	this.normals = [];
 	this.numVertices = 0;
 }}
 a3d.Geometry.__name__ = ["a3d","Geometry"];
 a3d.Geometry.prototype.vertices = null;
 a3d.Geometry.prototype.indices = null;
-a3d.Geometry.prototype.normals = null;
 a3d.Geometry.prototype.numVertices = null;
 a3d.Geometry.prototype.addVertex = function(x,y,z) {
 	var b = this.numVertices * 3;
@@ -2055,14 +2127,16 @@ a3d.Geometry.prototype.addVertex = function(x,y,z) {
 	this.vertices[b] = y;
 	b++;
 	this.vertices[b] = z;
+	b = this.numVertices;
 	this.numVertices++;
+	return b;
 }
 a3d.Geometry.prototype.pushVertices = function(values) {
 	var len = values.length;
 	var numVF = len / 3;
 	len = Math.floor(numVF);
 	if(len != numVF) {
-		haxe.Log.trace("Invalid push vertices. Values not divisible by 3!",{ fileName : "Geometry.hx", lineNumber : 41, className : "a3d.Geometry", methodName : "pushVertices"});
+		haxe.Log.trace("Invalid push vertices. Values not divisible by 3!",{ fileName : "Geometry.hx", lineNumber : 44, className : "a3d.Geometry", methodName : "pushVertices"});
 		return;
 	}
 	len = values.length;
@@ -2071,25 +2145,57 @@ a3d.Geometry.prototype.pushVertices = function(values) {
 		while(_g < len) {
 			var i = _g++;
 			this.vertices.push(values[i]);
+			this.numVertices++;
 		}
 	}
 }
-a3d.Geometry.prototype.addFace = function(indices) {
-	var d;
-	var len = d = indices.length;
-	var header = 1 << len << 28 | indices[0];
-	indices[d] = header;
-	d++;
+a3d.Geometry.prototype.addFace = function(valIndices) {
+	if(valIndices.length < 3) haxe.Log.trace("Invalid n-gon length:" + valIndices.length,{ fileName : "Geometry.hx", lineNumber : 55, className : "a3d.Geometry", methodName : "addFace"});
+	valIndices = valIndices.slice(0);
+	valIndices.reverse();
+	var startD;
+	var d = startD = this.indices.length;
+	var len = valIndices.length;
+	var header = valIndices.length << 28 | valIndices[0];
+	this.indices[d++] = header;
 	{
 		var _g = 1;
 		while(_g < len) {
 			var i = _g++;
-			indices[d] = indices[i];
-			d++;
+			this.indices[d++] = valIndices[i];
 		}
 	}
+	d = startD;
 }
 a3d.Geometry.prototype.__class__ = a3d.Geometry;
+if(!glidias.debug) glidias.debug = {}
+glidias.debug.SectorGeomTrace = function(sector) { if( sector === $_ ) return; {
+	this._sector = sector;
+	this.id = this._sector.toString();
+}}
+glidias.debug.SectorGeomTrace.__name__ = ["glidias","debug","SectorGeomTrace"];
+glidias.debug.SectorGeomTrace.prototype._sector = null;
+glidias.debug.SectorGeomTrace.prototype.x = null;
+glidias.debug.SectorGeomTrace.prototype.y = null;
+glidias.debug.SectorGeomTrace.prototype.z = null;
+glidias.debug.SectorGeomTrace.prototype.id = null;
+glidias.debug.SectorGeomTrace.prototype.doTrace = function(count) {
+	var geom = this._sector.geom;
+	var verts = geom.vertices;
+	var len = geom.indices.length;
+	var c = geom.indices[Math.floor(count % len)];
+	c &= 268435455;
+	c *= 3;
+	this.x = verts[c];
+	c++;
+	this.y = verts[c];
+	c++;
+	this.z = verts[c];
+}
+glidias.debug.SectorGeomTrace.prototype.toString = function() {
+	return this.id;
+}
+glidias.debug.SectorGeomTrace.prototype.__class__ = glidias.debug.SectorGeomTrace;
 if(typeof jeash=='undefined') jeash = {}
 if(!jeash.geom) jeash.geom = {}
 jeash.geom.Vector3D = function(x,y,z,w) { if( x === $_ ) return; {
@@ -2236,33 +2342,34 @@ glidias.PlaneResult.prototype.clone = function() {
 	me.height = this.height;
 	return me;
 }
+glidias.PlaneResult.prototype.addToGeometry = function(geom) {
+	var x;
+	var y;
+	var z;
+	var a;
+	var b;
+	var c;
+	var d;
+	x = this.pos.x;
+	y = this.pos.y;
+	z = this.pos.z;
+	a = geom.addVertex(x,y,z);
+	x += this.up.x * this.height;
+	y += this.up.y * this.height;
+	z += this.up.z * this.height;
+	b = geom.addVertex(x,y,z);
+	x -= this.right.x * this.width;
+	y -= this.right.y * this.width;
+	z -= this.right.z * this.width;
+	c = geom.addVertex(x,y,z);
+	x -= this.up.x * this.height;
+	y -= this.up.y * this.height;
+	z -= this.up.z * this.height;
+	d = geom.addVertex(x,y,z);
+	geom.addFace([a,b,c,d]);
+}
 glidias.PlaneResult.prototype.__class__ = glidias.PlaneResult;
-a3d.EllipsoidCollider = function() { }
-a3d.EllipsoidCollider.__name__ = ["a3d","EllipsoidCollider"];
-a3d.EllipsoidCollider.prototype.radiusX = null;
-a3d.EllipsoidCollider.prototype.radiusY = null;
-a3d.EllipsoidCollider.prototype.radiusZ = null;
-a3d.EllipsoidCollider.prototype.threshold = null;
-a3d.EllipsoidCollider.prototype.matrix = null;
-a3d.EllipsoidCollider.prototype.inverseMatrix = null;
-a3d.EllipsoidCollider.prototype.geometries = null;
-a3d.EllipsoidCollider.prototype.vertices = null;
-a3d.EllipsoidCollider.prototype.normals = null;
-a3d.EllipsoidCollider.prototype.indices = null;
-a3d.EllipsoidCollider.prototype.numFaces = null;
-a3d.EllipsoidCollider.prototype.radius = null;
-a3d.EllipsoidCollider.prototype.src = null;
-a3d.EllipsoidCollider.prototype.displ = null;
-a3d.EllipsoidCollider.prototype.dest = null;
-a3d.EllipsoidCollider.prototype.collisionPoint = null;
-a3d.EllipsoidCollider.prototype.collisionPlane = null;
-a3d.EllipsoidCollider.prototype.sphere = null;
-a3d.EllipsoidCollider.prototype.cornerA = null;
-a3d.EllipsoidCollider.prototype.cornerB = null;
-a3d.EllipsoidCollider.prototype.cornerC = null;
-a3d.EllipsoidCollider.prototype.cornerD = null;
-a3d.EllipsoidCollider.prototype.timestamp = null;
-a3d.EllipsoidCollider.prototype.EllipsoidCollider = function(radiusX,radiusY,radiusZ,threshold) {
+a3d.EllipsoidCollider = function(radiusX,radiusY,radiusZ,threshold) { if( radiusX === $_ ) return; {
 	if(threshold == null) threshold = 0.001;
 	this.threshold = threshold;
 	this.timestamp = 0;
@@ -2282,10 +2389,37 @@ a3d.EllipsoidCollider.prototype.EllipsoidCollider = function(radiusX,radiusY,rad
 	this.vertices = new Array();
 	this.normals = new Array();
 	this.indices = new Array();
+	this.numI = 0;
 	this.displ = new jeash.geom.Vector3D();
 	this.dest = new jeash.geom.Vector3D();
 	this.src = new jeash.geom.Vector3D();
-}
+}}
+a3d.EllipsoidCollider.__name__ = ["a3d","EllipsoidCollider"];
+a3d.EllipsoidCollider.prototype.radiusX = null;
+a3d.EllipsoidCollider.prototype.radiusY = null;
+a3d.EllipsoidCollider.prototype.radiusZ = null;
+a3d.EllipsoidCollider.prototype.threshold = null;
+a3d.EllipsoidCollider.prototype.matrix = null;
+a3d.EllipsoidCollider.prototype.inverseMatrix = null;
+a3d.EllipsoidCollider.prototype.geometries = null;
+a3d.EllipsoidCollider.prototype.vertices = null;
+a3d.EllipsoidCollider.prototype.normals = null;
+a3d.EllipsoidCollider.prototype.indices = null;
+a3d.EllipsoidCollider.prototype.numFaces = null;
+a3d.EllipsoidCollider.prototype.numI = null;
+a3d.EllipsoidCollider.prototype.radius = null;
+a3d.EllipsoidCollider.prototype.src = null;
+a3d.EllipsoidCollider.prototype.displ = null;
+a3d.EllipsoidCollider.prototype.dest = null;
+a3d.EllipsoidCollider.prototype.collisionPoint = null;
+a3d.EllipsoidCollider.prototype.collisionPlane = null;
+a3d.EllipsoidCollider.prototype.sphere = null;
+a3d.EllipsoidCollider.prototype.cornerA = null;
+a3d.EllipsoidCollider.prototype.cornerB = null;
+a3d.EllipsoidCollider.prototype.cornerC = null;
+a3d.EllipsoidCollider.prototype.cornerD = null;
+a3d.EllipsoidCollider.prototype.gotMoved = null;
+a3d.EllipsoidCollider.prototype.timestamp = null;
 a3d.EllipsoidCollider.prototype.calculateSphere = function(transform) {
 	this.sphere.x = transform.d;
 	this.sphere.y = transform.h;
@@ -2356,6 +2490,7 @@ a3d.EllipsoidCollider.prototype.prepare = function(source,displacement) {
 }
 a3d.EllipsoidCollider.prototype.loopGeometries = function() {
 	var rad = this.radius + Math.abs(jeash.geom.Vector3D.distance(this.displ,new jeash.geom.Vector3D()));
+	this.numI = 0;
 	this.numFaces = 0;
 	var indicesLength = 0;
 	var normalsLength = 0;
@@ -2366,12 +2501,17 @@ a3d.EllipsoidCollider.prototype.loopGeometries = function() {
 	var vx;
 	var vy;
 	var vz;
+	var oa;
 	var numVertices;
 	var geometryIndicesLength;
 	var verts;
 	var geometry;
 	var nSides;
 	var geometryIndices;
+	if(geometriesLength > 400) {
+		haxe.Log.trace("Too much geometries!" + geometriesLength,{ fileName : "EllipsoidCollider.hx", lineNumber : 238, className : "a3d.EllipsoidCollider", methodName : "loopGeometries"});
+		return;
+	}
 	{
 		var _g = 0;
 		while(_g < geometriesLength) {
@@ -2397,10 +2537,14 @@ a3d.EllipsoidCollider.prototype.loopGeometries = function() {
 				}
 			}
 			j = 0;
-			while(j < geometryIndicesLength) {
+			var k = 0;
+			while(k < geometryIndicesLength) {
+				j = k;
 				var a = geometryIndices[j];
 				j++;
-				nSides = a & -268435456;
+				nSides = (a & -268435456) >> 28;
+				k += nSides;
+				oa = a;
 				a &= 268435455;
 				var index = a * 3;
 				var ax = this.vertices[index];
@@ -2446,7 +2590,7 @@ a3d.EllipsoidCollider.prototype.loopGeometries = function() {
 				normalZ *= len;
 				var offset = ax * normalX + ay * normalY + az * normalZ;
 				if(offset > rad || offset < -rad) continue;
-				this.indices[indicesLength] = a;
+				this.indices[indicesLength] = oa;
 				indicesLength++;
 				this.indices[indicesLength] = b;
 				indicesLength++;
@@ -2475,9 +2619,14 @@ a3d.EllipsoidCollider.prototype.loopGeometries = function() {
 		}
 	}
 	this.geometries.length = 0;
+	this.numI = indicesLength;
 }
 a3d.EllipsoidCollider.prototype.calculateDestination = function(source,displacement,collidable) {
-	if(Math.abs(jeash.geom.Vector3D.distance(displacement,new jeash.geom.Vector3D())) <= this.threshold) return new jeash.geom.Vector3D(source.x,source.y,source.z,source.w);
+	if(Math.abs(jeash.geom.Vector3D.distance(displacement,new jeash.geom.Vector3D())) <= this.threshold) {
+		this.gotMoved = false;
+		return new jeash.geom.Vector3D(source.x,source.y,source.z,source.w);
+	}
+	this.gotMoved = true;
 	this.timestamp++;
 	this.prepare(source,displacement);
 	collidable.collectGeometry(this);
@@ -2516,7 +2665,7 @@ a3d.EllipsoidCollider.prototype.checkCollision = function() {
 	var minTime = 1;
 	var displacementLength = Math.abs(jeash.geom.Vector3D.distance(this.displ,new jeash.geom.Vector3D()));
 	var t;
-	var indicesLength = this.indices.length;
+	var indicesLength = this.numI;
 	var j = 0;
 	var i = 0;
 	var p1x;
@@ -2526,12 +2675,14 @@ a3d.EllipsoidCollider.prototype.checkCollision = function() {
 	var p2y;
 	var p2z;
 	var nSides;
-	var baseI;
-	while(i < indicesLength) {
-		baseI = i;
+	var locI;
+	var k = 0;
+	while(k < indicesLength) {
+		locI = i = k;
 		var index = this.indices[i];
 		i++;
-		nSides = index & -268435456;
+		nSides = (index & -268435456) >> 28;
+		k += nSides;
 		index &= 268435455;
 		index *= 3;
 		var ax = this.vertices[index];
@@ -2587,14 +2738,14 @@ a3d.EllipsoidCollider.prototype.checkCollision = function() {
 		{
 			var _g = 0;
 			while(_g < nSides) {
-				var k = _g++;
-				index = this.indices[baseI] * 3;
+				var n = _g++;
+				index = this.indices[locI] * 3;
 				p2x = this.vertices[index];
 				index++;
 				p2y = this.vertices[index];
 				index++;
 				p2z = this.vertices[index];
-				baseI++;
+				locI++;
 				var abx = p2x - p1x;
 				var aby = p2y - p1y;
 				var abz = p2z - p1z;
@@ -2923,20 +3074,18 @@ glidias.AABBSector.prototype.collectGeometry = function(collider) {
 			while(_g < len) {
 				var i = _g++;
 				p = this.portalWalls[i];
-				if(sphere.x + sphere.w > p.minX && sphere.x - sphere.w < p.maxX && sphere.y + sphere.w > p.minY && sphere.y - sphere.w < p.maxY && sphere.z + sphere.w > p.minZ && sphere.z - sphere.w < p.maxZ) {
-					ptl = p.portals;
-					pl = ptl.length;
-					{
-						var _g1 = 0;
-						while(_g1 < pl) {
-							var u = _g1++;
-							portal = ptl[u];
-							if(sphere.x + sphere.w > p.minX && sphere.x - sphere.w < p.maxX && sphere.y + sphere.w > p.minY && sphere.y - sphere.w < p.maxY && sphere.z + sphere.w > p.minZ && sphere.z - sphere.w < p.maxZ) {
-								port = portal.target;
-								if(port == null) continue;
-								if(port.collisionId != timestamp && (sphere.x + sphere.w > port.minX && sphere.x - sphere.w < port.maxX && sphere.y + sphere.w > port.minY && sphere.y - sphere.w < port.maxY && sphere.z + sphere.w > port.minZ && sphere.z - sphere.w < port.maxZ)) {
-									port.collectGeometry(collider);
-								}
+				ptl = p.portals;
+				pl = ptl.length;
+				{
+					var _g1 = 0;
+					while(_g1 < pl) {
+						var u = _g1++;
+						portal = ptl[u];
+						if(sphere.x + sphere.w > p.minX && sphere.x - sphere.w < p.maxX && sphere.y + sphere.w > p.minY && sphere.y - sphere.w < p.maxY && sphere.z + sphere.w > p.minZ && sphere.z - sphere.w < p.maxZ) {
+							port = portal.target;
+							if(port == null) continue;
+							if(port.collisionId != timestamp && (sphere.x + sphere.w > port.minX && sphere.x - sphere.w < port.maxX && sphere.y + sphere.w > port.minY && sphere.y - sphere.w < port.maxY && sphere.z + sphere.w > port.minZ && sphere.z - sphere.w < port.maxZ)) {
+								port.collectGeometry(collider);
 							}
 						}
 					}
@@ -3172,6 +3321,7 @@ glidias.AABBSector.prototype.setup = function(rect,gridSize,height,groundPos) {
 	boundVerts[i++] = a;
 	boundVerts[i++] = b;
 	boundVerts[i] = c;
+	this.geom.pushVertices(boundVerts);
 }
 glidias.AABBSector.prototype.addWallFace = function(direction) {
 	this.geom.addFace(glidias.AABBSector.INDICES_LOOKUP[direction]);
@@ -4603,9 +4753,9 @@ js.Boot.__init();
 		return $r;
 	}(this));
 }
+a3d.A3DConst._NSHIFT = 28;
 a3d.A3DConst._NMASK_ = -268435456;
 a3d.A3DConst._FMASK_ = 268435455;
-a3d.A3DConst._NSHIFT = 28;
 glidias.RoomFiller.COLS = 80;
 glidias.RoomFiller.ROWS = 80;
 glidias.RoomFiller.DIRT = 0;
@@ -4642,8 +4792,6 @@ glidias.AABBPortalPlane.OFFSET_BITMASKS = (function($this) {
 }(this));
 glidias.AABBPortalPlane.DIRECTIONS = [new glidias.Vec3(0,-1,0),new glidias.Vec3(-1,0,0),new glidias.Vec3(0,1,0),new glidias.Vec3(1,0,0)];
 glidias.AABBPortalPlane.UP = new glidias.Vec3(0,0,1);
-a3d.EllipsoidCollider._NMASK_ = -268435456;
-a3d.EllipsoidCollider._FMASK_ = 268435455;
 glidias.AABBSector.INDICES_WEST = [5,1,2,6];
 glidias.AABBSector.INDICES_NORTH = [6,2,3,7];
 glidias.AABBSector.INDICES_SOUTH = [4,0,1,5];

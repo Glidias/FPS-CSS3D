@@ -1,4 +1,5 @@
 package glidias;
+import a3d.Geometry;
 
 /**
  * Generic structure
@@ -58,6 +59,43 @@ class PlaneResult {
 		me.right = new Vec3(-1, 0, 0);
 		me.look = new Vec3(0, 0, 1);
 		return me;
+	}
+	
+	public inline function addToGeometry(geom:Geometry):Void {
+		
+			var x:Float;
+			var y:Float;
+			var z:Float;
+			var a:Int;
+			var b:Int;
+			var c:Int;
+			var d:Int;
+			// Leftmost top position
+			x = pos.x;
+			y = pos.y;
+			z = pos.z;
+			a = geom.addVertex(x, y, z);
+			
+			// Leftmost lower position
+			x += up.x * height;
+			y += up.y * height;
+			z += up.z * height;
+			b = geom.addVertex(x, y, z);
+			
+			// Rightmost lower position
+			x -= right.x * width;
+			y -= right.y * width;
+			z -= right.z * width;
+			c = geom.addVertex(x, y, z);
+			
+			// Rightmost top position
+			x -= up.x * height;
+			y -= up.y * height;
+			z -= up.z * height;
+			d = geom.addVertex(x, y, z);
+			
+			geom.addFace([a, b, c, d]);
+
 	}
 	
 	

@@ -133,13 +133,136 @@ class AABBPortalPlane implements IAABB
 	}
 
 	public function addFaces(sector:AABBSector, gridSize:Float):Void {
-		var geom:Geometry = sector.geom;
-		var doorwayHeight:Float = portals[0].height;  // ASSUMPTION, all portals same height.., this might change later
-		var aboveDoorwayHeight:Float = sector.ceilHeight - doorwayHeight;
+		var planeResult:PlaneResult = getPlaneResult( AABBPortalPlane.DIRECTIONS[direction], sector, gridSize);
+		var p:PlaneResult;
+		//var html:String = planeResult.getOpenHTML(null);  // open html  , // no width, no height, no material, just a  planar container!
 		
-		//geom.addVertex();
-		//geom.addFace();
-		// todo:
+		var x:Float = 0;
+		var y:Float = 0;
+		var z:Float = 0;
+		var width:Float =  planeResult.width;
+		
+		var doorwayHeight:Float = portals[0].height;  // ASSUMPTION, all portals same height.., this might change later
+		var aboveDoorwayHeight:Float = planeResult.height - doorwayHeight;
+		
+	
+		var geom = sector.geom;
+		
+		var pos:Vec3 = planeResult.pos;
+		var right:Vec3 = planeResult.right.getReverse();  // REVERSE BUG: argh! need to get reverse for right
+		var baseOffset:Float = pos.dotProduct(right);
+		var down:Vec3 = planeResult.up;
+		
+		var a:Int;
+		var b:Int;
+		var INDEX_LOOKUP = AABBSector.INDICES_LOOKUP[direction];
+		
+		if (aboveDoorwayHeight > 0) {
+			p =  PlaneResult.getIdentity();
+			
+			// Leftmost top position
+			// Leftmost lower position
+			x = pos.x + down.x * aboveDoorwayHeight;
+			y = pos.y + down.y * aboveDoorwayHeight;
+			z = pos.z + down.z * aboveDoorwayHeight;
+			a = geom.addVertex(x, y, z);
+			
+			// Rightmost lower position
+			x+= right.x * planeResult.width;
+			y+= right.y * planeResult.width;
+			z += right.z * planeResult.width;
+			b = geom.addVertex(x, y, z);
+			// Rightmost top position
+			
+			
+			// add face accordingly
+			geom.addFace([INDEX_LOOKUP[0],a,b,INDEX_LOOKUP[3]]); 
+		
+		//	html += p.getHTML(mat);
+		}
+		
+		
+		// re-arrange portals from left to right using squared dist from starting point or right vector offset). set up walls accordingly.
+		portals.sort( function(a, b):Int {
+			var a2 = right.x * a.minX + right.y * a.minY + right.z * a.minZ;
+			var b2 = right.x * b.minX + right.y * b.minY + right.z * b.minZ;
+			if (a2 < b2) {
+				return -1;
+			}
+			else if (a2 == b2) return 0;
+			return 1;
+		});
+		
+		
+		// add spacings if possible
+		var len:Int = portals.length;
+		var portal:AABBPortal;
+		var c:Float;
+		var lastC:Float = -99999999;
+		var o:Float;
+		var m:Float = 0;
+		for (i in 0...len) {
+			portal = portals[i];
+			c = portal.minX * right.x + portal.minY * right.y + portal.minZ * right.z;
+			o = portal.maxX * right.x + portal.maxY * right.y + portal.maxZ * right.z;
+			if (o < c) c = o;  // get leftmost position for c variable
+			// c should be icnrementing
+			if (lastC > c) trace("WRONG, shoudl be less!");
+			lastC = c;
+
+			o = baseOffset < c ? c - baseOffset : baseOffset - c;
+			//if (o < 0) trace("Need to abs!");
+			p = planeResult.clone();
+			p.pos.x += m * right.x;
+			p.pos.y += m * right.y;
+			p.pos.z += m * right.z;
+			
+			
+			
+			p.pos.x += aboveDoorwayHeight * down.x;
+			p.pos.y += aboveDoorwayHeight * down.y;
+			p.pos.z += aboveDoorwayHeight * down.z;
+			
+			
+			p.width =   o - m ;
+			p.height = portal.height;
+		//	html += p.getHTML(mat);
+		
+		if ( !(p.width == 0 || p.height ==0) )	p.addToGeometry(geom);
+		
+		
+			m += p.width  + portal.width;
+			// door wall spacing rect = (right vector offset - baseOffset, aboveDoorwayHeight, spacignWidth, doorwayHeight)
+			// spacing before portal
+			
+		
+			
+		}
+		///*
+		portal = portals[len -1];
+		
+			p = planeResult.clone();
+				p.pos.x += m * right.x;
+			p.pos.y += m * right.y;
+			p.pos.z += m * right.z;
+			
+			p.pos.x += aboveDoorwayHeight * down.x;
+			p.pos.y += aboveDoorwayHeight * down.y;
+			p.pos.z += aboveDoorwayHeight * down.z;
+			p.width =   planeResult.width - m;
+			p.height = portal.height;
+			if ( !(p.width == 0 || p.height ==0) ) p.addToGeometry(geom);
+			
+		//	html += p.getHTML(mat);
+		//*/
+		
+		// spacing after last portal
+				
+		// validate that all portals lie on the same plane using points of portal
+		
+	
+
+		
 	}
 		
 	public function getHTML(sector:AABBSector, gridSize:Float, mat:String):String { // Gets html of aabb portal plane wall, ie. a wall with portal openings..
@@ -169,7 +292,6 @@ class AABBPortalPlane implements IAABB
 		var pos:Vec3 = planeResult.pos;
 		var right:Vec3 = planeResult.right.getReverse();  // REVERSE BUG: argh! need to get reverse for right
 		var baseOffset:Float = pos.dotProduct(right);
-		var up:Vec3 = UP;
 		
 		// re-arrange portals from left to right using squared dist from starting point or right vector offset). set up walls accordingly.
 		portals.sort( function(a, b):Int {
@@ -204,14 +326,11 @@ class AABBPortalPlane implements IAABB
 			p.pos.y = aboveDoorwayHeight;
 			p.width =   o - m ;
 			p.height = portal.height;
-			html += p.getHTML(mat);
+		if ( !(p.width == 0 || p.height ==0) )	html += p.getHTML(mat);
 		
-			m = p.pos.x + p.width  + portal.width;
+			m +=  p.width  + portal.width;
 			// door wall spacing rect = (right vector offset - baseOffset, aboveDoorwayHeight, spacignWidth, doorwayHeight)
 			// spacing before portal
-			
-		
-			
 		}
 		///*
 		portal = portals[len -1];
@@ -221,7 +340,7 @@ class AABBPortalPlane implements IAABB
 			p.pos.y = aboveDoorwayHeight;
 			p.width =   planeResult.width - m;
 			p.height = portal.height;
-			html += p.getHTML(mat);
+		if ( !(p.width == 0 || p.height ==0) )	html += p.getHTML(mat);
 		//*/
 		
 		// spacing after last portal

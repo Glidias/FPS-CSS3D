@@ -101,7 +101,7 @@ package glidias;
 			 
 		}
 		
-		public function setupFacesFromSectors(map:Array<AABBSector>, gridSize:Float):Void {
+		public function setupGeometryOfSectors(map:Array<AABBSector>, gridSize:Float):Void {
 		
 			var mask:Int;
 			
@@ -115,6 +115,7 @@ package glidias;
 				
 				//str += sector.getCeilingHTML(ceilingMat,gridSize);
 				//str += sector.getFloorHTML(floorMat, gridSize);
+				
 				sector.addWallFace( AABBPortalPlane.DOWNWARDS);
 				sector.addWallFace( AABBPortalPlane.UPWARDS);
 				
@@ -124,13 +125,18 @@ package glidias;
 				for (u in 0...uLen) {
 					p = pWalls[u];
 					//str += p.getHTML(sector, gridSize, wallMat);
+					// p.addFaces(sector, gridSize);
 		
 					mask |= (1 << p.direction);
 				}
-				if ( (mask & (1<< AABBPortalPlane.NORTH)) == 0) sector.addWallFace(AABBPortalPlane.NORTH);
-				if ( (mask & (1<< AABBPortalPlane.SOUTH)) == 0) sector.addWallFace(AABBPortalPlane.SOUTH);
-				if ( (mask & (1<< AABBPortalPlane.WEST)) == 0) sector.addWallFace(AABBPortalPlane.WEST);
-				if ( (mask & (1<< AABBPortalPlane.EAST)) == 0) sector.addWallFace(AABBPortalPlane.EAST);
+				//if ( (mask & (1 << AABBPortalPlane.NORTH)) == 0) 
+					sector.addWallFace(AABBPortalPlane.NORTH);
+				//if ( (mask & (1 << AABBPortalPlane.SOUTH)) == 0) 
+					sector.addWallFace(AABBPortalPlane.SOUTH);
+				//if ( (mask & (1 << AABBPortalPlane.WEST)) == 0)
+					sector.addWallFace(AABBPortalPlane.WEST);
+				//if ( (mask & (1 << AABBPortalPlane.EAST)) == 0)
+					sector.addWallFace(AABBPortalPlane.EAST);
 				
 			}
 		}

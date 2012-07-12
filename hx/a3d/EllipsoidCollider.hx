@@ -47,8 +47,7 @@ package a3d;
 		
 		// flag header 4 bits in 32 bit integer, for determining number of sides for convex n-gons. (up to 16 sides), leaving behind 28 bits (up to 268435456) possible vertex indices per geometry. 
 		// You can add /reduce space if required in the inline variable, but 16 sides should be sufficient for most cases.
-		private static inline var _NMASK_:Int = A3DConst._NMASK_; 
-		private static inline var _FMASK_:Int = A3DConst._FMASK_;
+
 		
 		private var geometries:Vector<Geometry>;
 		
@@ -58,6 +57,7 @@ package a3d;
 		private var normals:Vector<Float>;
 		private var indices:Vector<Int>;
 		private var numFaces:Int;
+		private var numI:Int;
 		
 		private var radius:Float;
 		private var src:Vector3D;
@@ -75,6 +75,7 @@ package a3d;
 		private var cornerB:Vector3D;
 		private var cornerC:Vector3D;
 		private var cornerD:Vector3D;
+		private var gotMoved:Bool;
 		
 		public var timestamp:Int;
 		
@@ -85,7 +86,7 @@ package a3d;
 		 * @param radiusY Ellipsoid radius along Y axis.
 		 * @param radiusZ Ellipsoid radius along Z axis.
 		 */
-		public function EllipsoidCollider(radiusX:Float, radiusY:Float, radiusZ:Float, threshold:Float=0.001) {
+		public function new(radiusX:Float, radiusY:Float, radiusZ:Float, threshold:Float=0.001) {
 			this.threshold = threshold;
 			
 			this.timestamp = 0;
@@ -109,6 +110,7 @@ package a3d;
 			vertices =   new Vector<Float>();
 			normals =  new Vector<Float>();
 			indices = new Vector<Int>();
+			numI = 0;
 			
 			displ =  new Vector3D();
 			dest = new Vector3D();
@@ -168,6 +170,7 @@ package a3d;
 			if (radiusZ > radius) radius = radiusZ;
 			
 			// The matrix of the collider
+		
 			matrix.compose(source.x, source.y, source.z, 0, 0, 0, radiusX/radius, radiusY/radius, radiusZ/radius);
 			inverseMatrix.copy(matrix);
 			inverseMatrix.invert();
@@ -208,6 +211,7 @@ package a3d;
 		
 		public function loopGeometries():Void {
 			var rad:Float = radius + displ.length;
+			numI = 0;
 			
 			numFaces = 0;
 			var indicesLength:Int = 0;
@@ -222,12 +226,18 @@ package a3d;
 			var vx:Float;
 			var vy:Float;
 			var vz:Float;
+			var oa;
 			var numVertices:Int;
 			var geometryIndicesLength:Int;
 			var verts:Vector<Float>;
 			var geometry:Geometry;
 			var nSides:Int;
 			var geometryIndices:Vector<UInt>;
+			
+			if (geometriesLength > 400) {
+				trace("Too much geometries!"+geometriesLength);
+				return;
+			}
 			for (i in 0...geometriesLength) {
 				geometry = geometries[i];	
 				geometryIndices = geometry.indices;
@@ -246,11 +256,32 @@ package a3d;
 					
 				// Loop faces  
 				j = 0;
-				while (j < geometryIndicesLength) {   
-					
+				var k:Int = 0;
+				//var maxIterations:Int = 400;
+				//var count:Int = 0;
+			
+				while (k < geometryIndicesLength) {   
+					j = k;
 					var a:Int = geometryIndices[j]; j++;
-					nSides = (a & _NMASK_);
-					a &= _FMASK_;
+					nSides = ((a & A3DConst._NMASK_) >> A3DConst._NSHIFT);
+					/*
+					if (nSides != 4) {
+						trace("Invalid nsides:" + nSides);
+						nSides = 4;
+						return;
+					}
+			
+					
+					if (count++ > maxIterations) {
+						trace("BREAK OTU!");
+						return;
+					}
+					*/
+					
+					k += nSides;
+
+					oa = a;  // temp fix
+					a &= A3DConst._FMASK_;
 					var index:Int = a*3;
 					var ax:Float = vertices[index]; index++;
 					var ay:Float = vertices[index]; index++;
@@ -266,8 +297,13 @@ package a3d;
 					var cy:Float = vertices[index]; index++;
 					var cz:Float = vertices[index];
 					
+	
+					
 					// Exclusion by bound   // TODO: does n-gons allow for exclusion by bound without looping?  Else remove this test
+					
+					
 					if (nSides == 3) {
+						
 						if (ax > rad && bx > rad && cx > rad || ax < -rad && bx < -rad && cx < -rad) continue;
 						if (ay > rad && by > rad && cy > rad || ay < -rad && by < -rad && cy < -rad) continue;
 						if (az > rad && bz > rad && cz > rad || az < -rad && bz < -rad && cz < -rad) continue;
@@ -290,7 +326,7 @@ package a3d;
 					normalZ *= len;
 					var offset:Float = ax*normalX + ay*normalY + az*normalZ;
 					if (offset > rad || offset < -rad) continue;
-					indices[indicesLength] = a; indicesLength++;
+					indices[indicesLength] = oa; indicesLength++;
 					indices[indicesLength] = b; indicesLength++;
 					indices[indicesLength] = c; indicesLength++;
 					normals[normalsLength] = normalX; normalsLength++;
@@ -298,20 +334,25 @@ package a3d;
 					normals[normalsLength] = normalZ; normalsLength++;
 					normals[normalsLength] = offset; normalsLength++;
 					for (n in 3...nSides) {  // add more indices if required
+						
 						c =  geometryIndices[j]; j++;
 						indices[indicesLength] = c; indicesLength++;
 					}
 					numFaces++;
 				}
 				
+				
 			
 			}
 			
 				#if (cpp||php)
-					geometries.splice(0,arr.length);          
+					geometries.splice(0,arr.length);    
+					
 				#else
 					untyped geometries.length = 0;
 				#end
+				
+				numI = indicesLength;
 			
 		}
 		
@@ -326,12 +367,17 @@ package a3d;
 		///*
 		public function calculateDestination(source:Vector3D, displacement:Vector3D, collidable:IECollidable):Vector3D {
 			
-			if (displacement.length <= threshold) return source.clone();
+			if (displacement.length <= threshold) {
+				gotMoved = false;
+				return source.clone();
+			}
+			gotMoved = true;
 			
 			timestamp++;
 			prepare(source, displacement);
 			collidable.collectGeometry(this);
 			loopGeometries();
+			
 			
 			if (numFaces > 0) {
 			//	var limit:Int = 50;  // Max tries before timing out
@@ -448,7 +494,7 @@ package a3d;
 			var t:Float;
 
 			// Loop triangles
-			var indicesLength:Int = indices.length;
+			var indicesLength:Int = numI;
 			var j:Int = 0;
 			var i:Int = 0;
 			
@@ -461,14 +507,37 @@ package a3d;
 		
 			var nSides:Int;
 			
-			var baseI:Int;
+			var locI:Int;
+			var k:Int = 0;
 			
-			while (i < indicesLength) {
+			//var maxIterations:Int = 400;
+		//	var count:Int = 0;
+			
+			while (k < indicesLength) {
 				// Points
-				baseI = i;
+				locI = i = k;
+				/*
+				if (count++ >= maxIterations) {
+					
+					trace("Brreak out!");
+					return false;
+				}
+				*/
+				
 				var index:Int = indices[i]; i++;
-				nSides = index & _NMASK_; 	// get number of n-sides from header
-				index &= _FMASK_;  			// flag out first point header n-side value
+				nSides = ((index & A3DConst._NMASK_) >> A3DConst._NSHIFT); 	// get number of n-sides from header
+				
+				/*
+				if (nSides != 4) {
+					trace("Invalid nsides:" + nSides);
+					nSides = 4;
+					return false;
+				}
+				*/
+			
+				k += nSides;
+				
+				index &= A3DConst._FMASK_;  			// flag out first point header n-side value
 				index *= 3; 
 				var ax:Float = vertices[index]; index++;
 				var ay:Float = vertices[index]; index++;
@@ -481,6 +550,9 @@ package a3d;
 				var cx:Float = vertices[index]; index++;
 				var cy:Float = vertices[index]; index++;
 				var cz:Float = vertices[index];
+				
+				
+				
 				// Normal
 				var normalX:Float = normals[j]; j++;
 				var normalY:Float = normals[j]; j++;
@@ -512,12 +584,13 @@ package a3d;
 				p1x = ax;
 				p1y = ay;
 				p1z = az;
-				for (k in 0...nSides) { 
-					index = indices[baseI] * 3;
+				
+				for (n in 0...nSides) { 
+					index = indices[locI] * 3;
 					p2x = vertices[index]; index++; 
 					p2y = vertices[index]; index++;
 					p2z = vertices[index]; 
-					baseI++;
+					locI++;
 					
 					var abx:Float = p2x - p1x;
 					var aby:Float = p2y - p1y;
@@ -623,6 +696,8 @@ package a3d;
 						}
 					}
 				}
+				
+		
 			}
 		
 			return minTime < 1;

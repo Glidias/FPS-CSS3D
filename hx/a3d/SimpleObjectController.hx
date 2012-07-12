@@ -6,6 +6,10 @@
  * It is desirable to notify that Covered Software was "Powered by AlternativaPlatform" with link to http://www.alternativaplatform.com/ 
  * */
 
+ /**
+  * // TODO: 
+  */
+
 package a3d;
 
 	//import alternativa.engine3d.core.Camera3D;
@@ -70,8 +74,6 @@ package a3d;
 		private var _vin:Vector<Float>;  // todo: get correct size of array
 		private var _vout:Vector<Float>;
 		
-		
-	
 	
 		public function new(object:Object3D, speed:Float=16, speedMultiplier:Float = 3, mouseSensitivity:Float = 1) {
 			eventSource = { };

@@ -9,12 +9,14 @@ import glidias.Frustum;
 import glidias.AABBSectorVisController;
 import glidias.input.KeyPoll;
 import glidias.input.KeyCode;
+import glidias.debug.SectorGeomTrace;
 #if (jQuery) import jQuery.JQuery; #end
 
 import a3d.Object3D;
 import a3d.SimpleObjectController;
 import a3d.Transform3D;
 import a3d.EllipsoidCollider;
+
 
 /**
  * ...

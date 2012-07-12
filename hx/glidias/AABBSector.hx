@@ -27,6 +27,7 @@ class AABBSector implements IAABB, implements IECollidable
 	
 	public var renderId:Int;  // to ensure it doesnt get visited twice
 	public var collisionId:Int;
+
 	
 	public var rect:Rectangle;  // 2d rectangle on minimap
 	public var ceilHeight:Float;  // 3d ceiling height offset
@@ -66,7 +67,7 @@ class AABBSector implements IAABB, implements IECollidable
 	
 
 	public static var ID_COUNT:Int = 0;
-	public var id:Int;
+	public var id:Dynamic;
 	public function toString():String {
 		return "Sector:" + id + ">>"+renderId;
 	}
@@ -96,6 +97,10 @@ class AABBSector implements IAABB, implements IECollidable
 			var pl:Int;
 			var portal:AABBPortal;
 			
+			
+	
+			
+			
 			for (i in 0...len) {
 				p = portalWalls[i];
 				//if ( AABBUtils.checkSphere(p, sphere) ) { // too unnecessary in most cases. opt out for now.
@@ -104,6 +109,7 @@ class AABBSector implements IAABB, implements IECollidable
 					for (u in 0...pl) {
 						portal = ptl[u];
 						if (AABBUtils.checkSphere(p, sphere)) {
+							
 							port = portal.target;
 							if (port == null) continue;
 							if (port.collisionId != timestamp && AABBUtils.checkSphere(port, sphere) ) {
@@ -356,7 +362,7 @@ class AABBSector implements IAABB, implements IECollidable
 		boundVerts[i++] = b;
 		boundVerts[i] = c;
 		
-		
+		geom.pushVertices(boundVerts);
 	
 	}
 	
