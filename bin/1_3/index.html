@@ -294,11 +294,13 @@
 				
 				var keyPoll = new glidias.input.KeyPoll();
 				var KeyCode =  glidias.input.KeyCode;
-				
+				var checkSector;
 			
 				
 				css3D.preUpdate( function() {
-					portalViser.run(camPos, frustum, sectors);
+					
+					
+					checkSector = portalViser.getCurrentSector(camPos, sectors);
 					colliderPos.x = camPos.x;
 					colliderPos.y = camPos.y;
 					colliderPos.z = camPos.z;
@@ -308,11 +310,12 @@
 				
 				css3D.postUpdate( function() {
 					halted = false;
-					if (portalViser.curSector) {
+					
+					if (checkSector && !keyPoll.isDown(KeyCode.G)) {
 						colliderDisplace.x = camPos.x - colliderPos.x;
 						colliderDisplace.y = camPos.y - colliderPos.y;
 						colliderDisplace.z = camPos.z - colliderPos.z;
-						var result = collider.calculateDestination(colliderPos, colliderDisplace, portalViser.curSector);
+						var result = collider.calculateDestination(colliderPos, colliderDisplace, checkSector);
 						colliderDisplace.x = result.x - camPos.x;
 						colliderDisplace.y = result.y - camPos.y;
 						colliderDisplace.z = result.z - camPos.z;
@@ -328,7 +331,7 @@
 				});
 				
 				css3D.preRender( function() {
-				
+				portalViser.run(camPos, frustum, sectors);
 				var keyArr = [];
 				if (keyPoll.isDown(KeyCode.W)) {
 					keyArr.push("W");
@@ -363,7 +366,7 @@
 						//	tracer.innerHTML =Math.round(curTrace.x);
 							marker.style["-webkit-transform"] = "translate3d("+Math.round(curTrace.x)+"px,"+Math.round(curTrace.y)+"px,"+Math.round(curTrace.z)+"px)";
 						}
-						tracer.innerHTML = counter + ", "+keyArr.join(", ") + ">>>"+ halted;
+						tracer.innerHTML = counter + ", "+keyArr.join(", ") + ">>>"+ halted + ', '+css3D.getControls().timestamp;
 						
 						/*
 						if (count > 1) {

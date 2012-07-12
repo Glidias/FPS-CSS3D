@@ -16,7 +16,7 @@ THREE.FirstPersonNavigationControls = function(object, domElement) {
 	this.velocity = 35.8;
 	
 	// initialization of FirstPersonControls variables
-	this.firstPersonControls.movementSpeed = 800.0;
+	this.firstPersonControls.movementSpeed = 500.0;
 	this.firstPersonControls.lookSpeed = 0.2;
 	this.firstPersonControls.noFly = true;
 	this.firstPersonControls.activeLook = false;
@@ -34,6 +34,7 @@ THREE.FirstPersonNavigationControls = function(object, domElement) {
 	this._mouseDownY = 0;
 	this._mouseDownLon = 0;
 	this._mouseDownLat = 0;
+	this.timestamp = 0;
 	
 	// functions
 	this.setDomElement = function(domElement) {
@@ -68,6 +69,7 @@ THREE.FirstPersonNavigationControls = function(object, domElement) {
 	
 	// update function
 	this.update = function(delta) {
+		
 		
 		this.firstPersonControls.update(delta);
 		
@@ -114,6 +116,8 @@ THREE.FirstPersonNavigationControls = function(object, domElement) {
 
 		if(this.object.rotationAutoUpdate)
 			this.object.rotation.setRotationFromMatrix(this.object.matrix);
+			
+		this.timestamp++;
 	};
 	
 	function bind(scope, fn) {

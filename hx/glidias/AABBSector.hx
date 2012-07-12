@@ -60,6 +60,7 @@ class AABBSector implements IAABB, implements IECollidable
 	
 	public var dom:Dynamic;
 	public inline function setVis(val:Bool):Void {
+		
 		dom.style.visibility = val ? "visible" : "hidden";
 	}
 	

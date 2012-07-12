@@ -25,6 +25,9 @@ function CSS3D() {
 		  _preUpdate = val;
 	   }
         var controls;
+		this.getControls = function() {
+				return controls;
+			};
          var clock = new THREE.Clock();
 		 
         var screenWidth, screenHeight;
@@ -68,6 +71,7 @@ function CSS3D() {
             //Camera Controls
 			///*
             controls = new THREE.FirstPersonNavigationControls(camera);
+			
 			
 			
 			var browser=navigator.appName;
