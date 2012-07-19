@@ -61,8 +61,8 @@ class PlaneResult {
 		return me;
 	}
 	
-	public inline function addToGeometry(geom:Geometry):Void {
-		
+	public  function addToGeometry(geom:Geometry):Void {
+
 			var x:Float;
 			var y:Float;
 			var z:Float;
@@ -87,6 +87,7 @@ class PlaneResult {
 			y -= right.y * width;
 			z -= right.z * width;
 			c = geom.addVertex(x, y, z);
+			
 			
 			// Rightmost top position
 			x -= up.x * height;

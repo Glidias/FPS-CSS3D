@@ -114,7 +114,7 @@ class AABBSector implements IAABB, implements IECollidable
 							port = portal.target;
 							if (port == null) continue;
 							if (port.collisionId != timestamp && AABBUtils.checkSphere(port, sphere) ) {
-								port.collectGeometry(collider);
+							//	port.collectGeometry(collider);
 							}
 						}
 					}
@@ -200,6 +200,7 @@ class AABBSector implements IAABB, implements IECollidable
 		var a:Float;
 		var b:Float;
 		var c:Float;
+		
 		
 		// start bottom 4
 		

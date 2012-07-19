@@ -288,7 +288,7 @@
 				
 				var counter = 0;
 				var marker = document.getElementById("marker3d");
-				var collider = new a3d.EllipsoidCollider(32/2,64/2,32/2);
+				var collider = new a3d.EllipsoidCollider(6/2,48,6/2);
 				var colliderPos = new jeash.geom.Vector3D();
 				var colliderDisplace =  new jeash.geom.Vector3D();
 				
@@ -316,17 +316,26 @@
 						colliderDisplace.y = camPos.y - colliderPos.y;
 						colliderDisplace.z = camPos.z - colliderPos.z;
 						var result = collider.calculateDestination(colliderPos, colliderDisplace, checkSector);
-						colliderDisplace.x = result.x - camPos.x;
-						colliderDisplace.y = result.y - camPos.y;
-						colliderDisplace.z = result.z - camPos.z;
-					
+						//var isValid = !(isNaN(result.x));
+						//if ( isValid ) {
+							colliderDisplace.x = result.x - camPos.x;
+							colliderDisplace.y = result.y - camPos.y;
+							colliderDisplace.z = result.z - camPos.z;
+						//}
+						//else {
+						//	colliderDisplace.x =0;
+						//	colliderDisplace.y =0;
+						//	colliderDisplace.z = 0;
+						//}
 						if ( (keyPoll.isDown(KeyCode.W) || keyPoll.isDown(KeyCode.S) || keyPoll.isDown(KeyCode.A) ||keyPoll.isDown(KeyCode.D) ) &&  (!collider.gotMoved || colliderDisplace.getLength()<=0.00001) ) {
 						 halted = true;
 						}
 						
-						camPos.x = result.x;
-						camPos.y = result.y;
-						camPos.z = result.z;
+					//	if (isValid) {
+							camPos.x = result.x;
+							camPos.y = result.y;
+							camPos.z = result.z;
+					//	}
 					}
 				});
 				
@@ -366,7 +375,7 @@
 						//	tracer.innerHTML =Math.round(curTrace.x);
 							marker.style["-webkit-transform"] = "translate3d("+Math.round(curTrace.x)+"px,"+Math.round(curTrace.y)+"px,"+Math.round(curTrace.z)+"px)";
 						}
-						tracer.innerHTML = counter + ", "+keyArr.join(", ") + ">>>"+ halted + ', '+css3D.getControls().timestamp;
+						tracer.innerHTML = counter + ", "+keyArr.join(", ") + ">>>"+ halted + ', '+css3D.getControls().timestamp + "[[ "+Math.round(camPos.x) + ','+Math.round(camPos.y)+","+Math.round(camPos.z);
 						
 						/*
 						if (count > 1) {

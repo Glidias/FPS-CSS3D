@@ -44,11 +44,13 @@ class Geometry
 			trace("Invalid push vertices. Values not divisible by 3!");
 			return;
 		}
+		numVertices += len;
 		len = values.length;
 		for (i in 0...len) {
 			vertices.push(values[i]);
-			numVertices++;
+			
 		}
+		
 	}
 	
 	public inline function addFace(valIndices:Vector<Int>):Void {

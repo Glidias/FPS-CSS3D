@@ -152,6 +152,8 @@ class AABBPortalPlane implements IAABB
 		var right:Vec3 = planeResult.right.getReverse();  // REVERSE BUG: argh! need to get reverse for right
 		var baseOffset:Float = pos.dotProduct(right);
 		var down:Vec3 = planeResult.up;
+	//	down.normalize();
+		//right.normalize();
 		
 		var a:Int;
 		var b:Int;
@@ -176,7 +178,7 @@ class AABBPortalPlane implements IAABB
 			
 			
 			// add face accordingly
-			geom.addFace([INDEX_LOOKUP[0],a,b,INDEX_LOOKUP[3]]); 
+			//geom.addFace([INDEX_LOOKUP[0],a,b,INDEX_LOOKUP[3]]); 
 		
 		//	html += p.getHTML(mat);
 		}
@@ -217,21 +219,25 @@ class AABBPortalPlane implements IAABB
 			p.pos.y += m * right.y;
 			p.pos.z += m * right.z;
 			
-			
-			
 			p.pos.x += aboveDoorwayHeight * down.x;
 			p.pos.y += aboveDoorwayHeight * down.y;
 			p.pos.z += aboveDoorwayHeight * down.z;
 			
 			
-			p.width =   o - m ;
+			p.width =   (o - m);
+
 			p.height = portal.height;
 		//	html += p.getHTML(mat);
 		
-		if ( !(p.width == 0 || p.height ==0) )	p.addToGeometry(geom);
+			if ( !(p.width == 0 || p.height == 0) ) {
+			
+				p.addToGeometry(geom);
+			
+		//	trace("Should not happen!");
+			}
 		
 		
-			m += p.width  + portal.width;
+			m += (o-m)  + portal.width;
 			// door wall spacing rect = (right vector offset - baseOffset, aboveDoorwayHeight, spacignWidth, doorwayHeight)
 			// spacing before portal
 			
@@ -242,7 +248,7 @@ class AABBPortalPlane implements IAABB
 		portal = portals[len -1];
 		
 			p = planeResult.clone();
-				p.pos.x += m * right.x;
+			p.pos.x += m * right.x;
 			p.pos.y += m * right.y;
 			p.pos.z += m * right.z;
 			
@@ -251,7 +257,7 @@ class AABBPortalPlane implements IAABB
 			p.pos.z += aboveDoorwayHeight * down.z;
 			p.width =   planeResult.width - m;
 			p.height = portal.height;
-			if ( !(p.width == 0 || p.height ==0) ) p.addToGeometry(geom);
+	//	if ( !(p.width == 0 || p.height ==0) ) p.addToGeometry(geom);
 			
 		//	html += p.getHTML(mat);
 		//*/

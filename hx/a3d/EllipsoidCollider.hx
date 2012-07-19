@@ -260,6 +260,8 @@ package a3d;
 				//var maxIterations:Int = 400;
 				//var count:Int = 0;
 			
+			//	trace("Total processed vertices"+verticesLength);
+				
 				while (k < geometryIndicesLength) {   
 					j = k;
 					var a:Int = geometryIndices[j]; j++;
@@ -282,6 +284,7 @@ package a3d;
 
 					oa = a;  // temp fix
 					a &= A3DConst._FMASK_;
+					
 					var index:Int = a*3;
 					var ax:Float = vertices[index]; index++;
 					var ay:Float = vertices[index]; index++;
@@ -296,7 +299,7 @@ package a3d;
 					var cx:Float = vertices[index]; index++;
 					var cy:Float = vertices[index]; index++;
 					var cz:Float = vertices[index];
-					
+			
 	
 					
 					// Exclusion by bound   // TODO: does n-gons allow for exclusion by bound without looping?  Else remove this test
@@ -318,8 +321,9 @@ package a3d;
 					var normalX:Float = acz*aby - acy*abz;
 					var normalY:Float = acx*abz - acz*abx;
 					var normalZ:Float = acy*abx - acx*aby;
+
 					var len:Float = normalX*normalX + normalY*normalY + normalZ*normalZ;
-					if (len < 0.001) continue;
+					if (len < 0.001) continue;  
 					len = 1/Math.sqrt(len);
 					normalX *= len;
 					normalY *= len;
@@ -378,7 +382,7 @@ package a3d;
 			collidable.collectGeometry(this);
 			loopGeometries();
 			
-			
+			var result:Vector3D;
 			if (numFaces > 0) {
 			//	var limit:Int = 50;  // Max tries before timing out
 				for (i in 0...50) {
@@ -400,11 +404,16 @@ package a3d;
 					} else break;
 				}
 				// Setting the coordinates
-				return new Vector3D(matrix.a*dest.x + matrix.b*dest.y + matrix.c*dest.z + matrix.d, matrix.e*dest.x + matrix.f*dest.y + matrix.g*dest.z + matrix.h, matrix.i*dest.x + matrix.j*dest.y + matrix.k*dest.z + matrix.l);
+				result = new Vector3D(matrix.a*dest.x + matrix.b*dest.y + matrix.c*dest.z + matrix.d, matrix.e*dest.x + matrix.f*dest.y + matrix.g*dest.z + matrix.h, matrix.i*dest.x + matrix.j*dest.y + matrix.k*dest.z + matrix.l);
 			} else {
-				return new Vector3D(source.x + displacement.x, source.y + displacement.y, source.z + displacement.z);
+				result = new Vector3D(source.x + displacement.x, source.y + displacement.y, source.z + displacement.z);
 			}
+			return isNaN2(result.x) ? source.clone() : result;
 		}
+		
+		private static inline function isNaN2(a:Float):Bool {
+return a != a;
+}
 		
 		public inline function addGeometry(g:Geometry) 
 		{
@@ -579,17 +588,20 @@ package a3d;
 				var faceZ:Float = 0;
 				
 				var min:Float = 1e+22;
+				
 				// Loop edges
 				var inside:Bool = true;
 				p1x = ax;
 				p1y = ay;
 				p1z = az;
 				
-				for (n in 0...nSides) { 
+				for (n in 0...nSides) {
+					
 					index = indices[locI] * 3;
 					p2x = vertices[index]; index++; 
 					p2y = vertices[index]; index++;
 					p2z = vertices[index]; 
+				
 					locI++;
 					
 					var abx:Float = p2x - p1x;
