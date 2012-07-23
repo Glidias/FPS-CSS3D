@@ -50,11 +50,11 @@ class Geometry
 			vertices.push(values[i]);
 			
 		}
-		
+	
 	}
 	
 	public inline function addFace(valIndices:Vector<Int>):Void {
-		if (valIndices.length < 3) trace("Invalid n-gon length:" + valIndices.length);
+		//if (valIndices.length < 3) trace("Invalid n-gon length:" + valIndices.length);
 		valIndices = valIndices.slice(0);
 		valIndices.reverse();
 		var startD:Int;
@@ -67,6 +67,7 @@ class Geometry
 		for (i in 1...len) {
 			indices[d++] = valIndices[i];
 		}
+	
 		
 			d = startD;
 			// v1

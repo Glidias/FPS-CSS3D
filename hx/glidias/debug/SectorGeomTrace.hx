@@ -34,6 +34,8 @@ class SectorGeomTrace
 		y = verts[c]; c++;
 		z = verts[c]; 
 		
+//	if (count==0) 	trace(geom.vertices.slice(9*3, 13*3) + "|||"+(c-2));
+		
 	}
 	
 	public function toString():String {

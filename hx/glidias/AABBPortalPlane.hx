@@ -178,7 +178,7 @@ class AABBPortalPlane implements IAABB
 			
 			
 			// add face accordingly
-			//geom.addFace([INDEX_LOOKUP[0],a,b,INDEX_LOOKUP[3]]); 
+			geom.addFace([INDEX_LOOKUP[0],a,b,INDEX_LOOKUP[3]]); 
 		
 		//	html += p.getHTML(mat);
 		}
@@ -230,7 +230,6 @@ class AABBPortalPlane implements IAABB
 		//	html += p.getHTML(mat);
 		
 			if ( !(p.width == 0 || p.height == 0) ) {
-			
 				p.addToGeometry(geom);
 			
 		//	trace("Should not happen!");
@@ -257,7 +256,7 @@ class AABBPortalPlane implements IAABB
 			p.pos.z += aboveDoorwayHeight * down.z;
 			p.width =   planeResult.width - m;
 			p.height = portal.height;
-	//	if ( !(p.width == 0 || p.height ==0) ) p.addToGeometry(geom);
+		if ( !(p.width == 0 || p.height ==0) ) p.addToGeometry(geom);
 			
 		//	html += p.getHTML(mat);
 		//*/

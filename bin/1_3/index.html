@@ -288,7 +288,7 @@
 				
 				var counter = 0;
 				var marker = document.getElementById("marker3d");
-				var collider = new a3d.EllipsoidCollider(6/2,48,6/2);
+				var collider = new a3d.EllipsoidCollider(16,36,16);
 				var colliderPos = new jeash.geom.Vector3D();
 				var colliderDisplace =  new jeash.geom.Vector3D();
 				
@@ -372,6 +372,7 @@
 						if (portalViser.curSector) {
 							var curTrace = portalViser.curSector.id;
 							curTrace.doTrace( (Math.round(counter/30) ) );
+							
 						//	tracer.innerHTML =Math.round(curTrace.x);
 							marker.style["-webkit-transform"] = "translate3d("+Math.round(curTrace.x)+"px,"+Math.round(curTrace.y)+"px,"+Math.round(curTrace.z)+"px)";
 						}

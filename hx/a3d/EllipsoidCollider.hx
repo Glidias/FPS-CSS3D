@@ -357,6 +357,7 @@ package a3d;
 				#end
 				
 				numI = indicesLength;
+				
 			
 		}
 		
@@ -408,7 +409,8 @@ package a3d;
 			} else {
 				result = new Vector3D(source.x + displacement.x, source.y + displacement.y, source.z + displacement.z);
 			}
-			return isNaN2(result.x) ? source.clone() : result;
+			//return isNaN2(result.x) ? source.clone() : result;
+			return result;
 		}
 		
 		private static inline function isNaN2(a:Float):Bool {
@@ -546,6 +548,7 @@ return a != a;
 			
 				k += nSides;
 				
+				
 				index &= A3DConst._FMASK_;  			// flag out first point header n-side value
 				index *= 3; 
 				var ax:Float = vertices[index]; index++;
@@ -590,19 +593,25 @@ return a != a;
 				var min:Float = 1e+22;
 				
 				// Loop edges
+				//indices.reverse();
 				var inside:Bool = true;
 				p1x = ax;
 				p1y = ay;
 				p1z = az;
 				
+				
+				var startI:Int = locI;
+				locI++;
+				var count:Int = 0;
 				for (n in 0...nSides) {
-					
-					index = indices[locI] * 3;
+					count++;
+
+					index = count != nSides ? indices[locI] * 3 : (indices[startI] & A3DConst._FMASK_) * 3;
 					p2x = vertices[index]; index++; 
 					p2y = vertices[index]; index++;
 					p2z = vertices[index]; 
 				
-					locI++;
+					locI++;		
 					
 					var abx:Float = p2x - p1x;
 					var aby:Float = p2y - p1y;

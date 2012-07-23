@@ -365,7 +365,7 @@ class AABBSector implements IAABB, implements IECollidable
 		boundVerts[i] = c;
 		
 		geom.pushVertices(boundVerts);
-	
+		
 	}
 	
 	public inline function addWallFace(direction:Int):Void {

@@ -116,8 +116,8 @@ package glidias;
 				//str += sector.getCeilingHTML(ceilingMat,gridSize);
 				//str += sector.getFloorHTML(floorMat, gridSize);
 				
-			//	sector.addWallFace( AABBPortalPlane.DOWNWARDS);
-		//	sector.addWallFace( AABBPortalPlane.UPWARDS);
+				sector.addWallFace( AABBPortalPlane.DOWNWARDS);
+				sector.addWallFace( AABBPortalPlane.UPWARDS);
 				
 				mask = 0;  // keeps track of portaled walls
 				pWalls = sector.portalWalls;
@@ -125,12 +125,11 @@ package glidias;
 				for (u in 0...uLen) {
 					p = pWalls[u];
 					//str += p.getHTML(sector, gridSize, wallMat);
-						if (p.direction == AABBPortalPlane.NORTH)
-					 p.addFaces(sector, gridSize);
+					p.addFaces(sector, gridSize);
 		
-				//	mask |= (1 << p.direction);
+					mask |= (1 << p.direction);
 				}
-				/*
+				///*
 				if ( (mask & (1 << AABBPortalPlane.NORTH)) == 0) 
 					sector.addWallFace(AABBPortalPlane.NORTH);
 				if ( (mask & (1 << AABBPortalPlane.SOUTH)) == 0) 
@@ -139,7 +138,7 @@ package glidias;
 					sector.addWallFace(AABBPortalPlane.WEST);
 				if ( (mask & (1 << AABBPortalPlane.EAST)) == 0)
 					sector.addWallFace(AABBPortalPlane.EAST);
-					*/
+				//	*/
 				
 			}
 		}
