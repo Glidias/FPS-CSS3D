@@ -409,8 +409,8 @@ package a3d;
 			} else {
 				result = new Vector3D(source.x + displacement.x, source.y + displacement.y, source.z + displacement.z);
 			}
-			//return isNaN2(result.x) ? source.clone() : result;
-			return result;
+			return isNaN2(result.x) ? source.clone() : result;
+			//return result;
 		}
 		
 		private static inline function isNaN2(a:Float):Bool {

@@ -2535,7 +2535,7 @@ a3d.EllipsoidCollider.prototype.calculateDestination = function(source,displacem
 		}
 		result = new jeash.geom.Vector3D(this.matrix.a * this.dest.x + this.matrix.b * this.dest.y + this.matrix.c * this.dest.z + this.matrix.d,this.matrix.e * this.dest.x + this.matrix.f * this.dest.y + this.matrix.g * this.dest.z + this.matrix.h,this.matrix.i * this.dest.x + this.matrix.j * this.dest.y + this.matrix.k * this.dest.z + this.matrix.l);
 	} else result = new jeash.geom.Vector3D(source.x + displacement.x,source.y + displacement.y,source.z + displacement.z);
-	return result;
+	return a3d.EllipsoidCollider.isNaN2(result.x)?new jeash.geom.Vector3D(source.x,source.y,source.z,source.w):result;
 }
 a3d.EllipsoidCollider.prototype.addGeometry = function(g) {
 	this.geometries.push(g);
