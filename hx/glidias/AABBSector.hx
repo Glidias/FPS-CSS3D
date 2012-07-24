@@ -98,10 +98,7 @@ class AABBSector implements IAABB, implements IECollidable
 			var pl:Int;
 			var portal:AABBPortal;
 			
-			
-	
-			
-			
+
 			for (i in 0...len) {
 				p = portalWalls[i];
 				//if ( AABBUtils.checkSphere(p, sphere) ) { // too unnecessary in most cases. opt out for now.

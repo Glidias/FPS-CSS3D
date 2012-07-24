@@ -8,9 +8,18 @@ THREE.FirstPersonNavigationControls = function(object, domElement) {
 	this.object = object;
 	this.object.target = new THREE.Vector3(0, 0, 0);
 	
-	this.domElement = domElement || document;
+	this.hammer = null;
 	
 	this.firstPersonControls = new THREE.FirstPersonControls(this.object, this.domElement);
+	this.setDomElement = function(domElement) {
+		this.domElement = domElement;
+		this.firstPersonControls.domElement = this.domElement;
+		this.hammer = new Hammer(domElement);
+		
+	};
+	this.setDomElement( domElement || document.body );
+	
+	
 	
 	//this.inverseDirection = false;
 	this.velocity = 35.8;
@@ -37,19 +46,16 @@ THREE.FirstPersonNavigationControls = function(object, domElement) {
 	this.timestamp = 0;
 	
 	// functions
-	this.setDomElement = function(domElement) {
-		this.domElement = domElement;
-		this.firstPersonControls.domElement = this.domElement;
-	};
+
 	
 	// event functions
 	this.onMouseDown = function(event) {
-		event.preventDefault();
+		event.originalEvent.preventDefault();
 		
 		this._mouseDown = true;
 		
-		this._mouseDownX = event.clientX;
-		this._mouseDownY = event.clientY;
+		this._mouseDownX = event.position.x;//event.clientX;
+		this._mouseDownY = event.position.y;//event.clientY;
 		
 		this._mouseDownLon = this._lon;
 		this._mouseDownLat = this._lat;
@@ -58,8 +64,8 @@ THREE.FirstPersonNavigationControls = function(object, domElement) {
 	this.onMouseMove = function(event) {
 		if(this._mouseDown) {
 			//var dragDirection = this.inverseDirection ? 1 : -1;
-			this._lon = this._mouseDownLon+(-1)*(this._mouseDownX-event.clientX)*this.firstPersonControls.lookSpeed;
-			this._lat = this._mouseDownLat+(1)*(event.clientY-this._mouseDownY)*this.firstPersonControls.lookSpeed;
+			this._lon = this._mouseDownLon+(-1)*(this._mouseDownX-event.position.x)*this.firstPersonControls.lookSpeed;
+			this._lat = this._mouseDownLat+(1)*(event.position.y-this._mouseDownY)*this.firstPersonControls.lookSpeed;
 		}
 	};
 	
@@ -126,7 +132,15 @@ THREE.FirstPersonNavigationControls = function(object, domElement) {
 		};
 	};
 	
-	this.domElement.addEventListener('mousedown', bind(this, this.onMouseDown), false);
-	this.domElement.addEventListener('mousemove', bind(this, this.onMouseMove), false);
-	this.domElement.addEventListener('mouseup', bind(this, this.onMouseUp), false);
+	//this.domElement.addEventListener('mousedown', bind(this, this.onMouseDown), false);
+	//this.domElement.addEventListener('mousemove', bind(this, this.onMouseMove), false);
+	//this.domElement.addEventListener('mouseup', bind(this, this.onMouseUp), false);
+
+	this.hammer.ondragstart= bind(this, this.onMouseDown);
+	this.hammer.ondrag =  bind(this, this.onMouseMove);
+	this.hammer.ondragend=  bind(this, this.onMouseUp);
+	document.ontouchmove = function(e){
+		e.preventDefault();
+	};
+
 };

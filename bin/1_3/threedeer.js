@@ -57,9 +57,10 @@ function CSS3D() {
 
         function init() {
 
-            screenWidth = 900;
-            screenHeight = 600;
-			
+            screenWidth = parseInt( $(document.getElementById("main-container")).css("width") ); 
+
+            screenHeight = parseInt( $(document.getElementById("main-container")).css("height") ); 
+
 			_frustum =  glidias.Frustum.create6();
 
             scene = new THREE.Scene();

@@ -279,7 +279,7 @@
 				
 				//getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null):String {
 				//background-color:#0f00f0;opacity:1;background-image:url(../images/corner_piece.gif);background-repeat:no-repeat;
-				var sectorJ = $( roomFiller.getHTMLFromSectors(sectors, GRID_SIZE, "background-image:url(../images/wall.jpg);", "background-image:url(../images/wood.jpg);"));
+				var sectorJ = $( roomFiller.getHTMLFromSectors(sectors, GRID_SIZE, "background-image:url(../images_low/wall.jpg);", "background-image:url(../images_low/wood.jpg);"));
 				roomFiller.setupGeometryOfSectors(sectors, GRID_SIZE);
 				
 				len = sectorJ.length;
@@ -292,6 +292,7 @@
 				}
 				$("#scene").append(sectorJ);
 				
+				sectors[0].setVis(true);
 				
 				var s = sectors[0]; //Math.floor(Math.random()*roomFiller.rooms.length);
 				var camera = css3D.getCamera();
@@ -317,97 +318,20 @@
 				css3D.preUpdate( function() {
 					
 					
-					checkSector = portalViser.getCurrentSector(camPos, sectors);
-					colliderPos.x = camPos.x;
-					colliderPos.y = camPos.y;
-					colliderPos.z = camPos.z;
+				//	checkSector = portalViser.getCurrentSector(camPos, sectors);
+			
 				});
 				
 				var halted;
 				
-				css3D.postUpdate( function() {
-					halted = false;
-					
-					if (checkSector && !keyPoll.isDown(KeyCode.G)) {
-						colliderDisplace.x = camPos.x - colliderPos.x;
-						colliderDisplace.y = camPos.y - colliderPos.y;
-						colliderDisplace.z = camPos.z - colliderPos.z;
-						var result = collider.calculateDestination(colliderPos, colliderDisplace, checkSector);
-						//var isValid = !(isNaN(result.x));
-						//if ( isValid ) {
-							colliderDisplace.x = result.x - camPos.x;
-							colliderDisplace.y = result.y - camPos.y;
-							colliderDisplace.z = result.z - camPos.z;
-						//}
-						//else {
-						//	colliderDisplace.x =0;
-						//	colliderDisplace.y =0;
-						//	colliderDisplace.z = 0;
-						//}
-						if ( (keyPoll.isDown(KeyCode.W) || keyPoll.isDown(KeyCode.S) || keyPoll.isDown(KeyCode.A) ||keyPoll.isDown(KeyCode.D) ) &&  (!collider.gotMoved || colliderDisplace.getLength()<=0.00001) ) {
-						 halted = true;
-						}
-						
-					//	if (isValid) {
-							camPos.x = result.x;
-							camPos.y = result.y;
-							camPos.z = result.z;
-					//	}
-					}
-				});
+				
 				
 				css3D.preRender( function() {
-				portalViser.run(camPos, frustum, sectors);
-				var keyArr = [];
-				if (keyPoll.isDown(KeyCode.W)) {
-					keyArr.push("W");
-				}
-				if (keyPoll.isDown(KeyCode.S)) {
-					keyArr.push("S");
-				}
-				if (keyPoll.isDown(KeyCode.A)) {
-					keyArr.push("A");
-				}
-				if (keyPoll.isDown(KeyCode.D)) {
-					keyArr.push("D");
-				}
-
-					
-					var focalLen = css3D.getFocalLength();
-					// render radar blip
-					blip.style.left = Math.round((camPos.x*east.x+camPos.y*east.y+camPos.z*east.z)/GRID_SIZE*MAP_SCALE-2) + "px";
-					blip.style.top = Math.round((camPos.x*south.x+camPos.y*south.y+camPos.z*south.z)/GRID_SIZE*MAP_SCALE-2) + "px";
-					
-					
+				//	portalViser.run(camPos, frustum, sectors);
 				//	return;
 				
 					//public function run(camPos:Vec3, camFrus:Frustum, sectors:Array<AABBSector>):Void {
-				
-				
-						var count = portalViser.getVisCount();
-						
-						if (portalViser.curSector) {
-							var curTrace = portalViser.curSector.id;
-							curTrace.doTrace( (Math.round(counter/30) ) );
-							
-						//	tracer.innerHTML =Math.round(curTrace.x);
-							marker.style["-webkit-transform"] = "translate3d("+Math.round(curTrace.x)+"px,"+Math.round(curTrace.y)+"px,"+Math.round(curTrace.z)+"px)";
-						}
-						tracer.innerHTML = counter + ", "+keyArr.join(", ") + ">>>"+ halted + ', '+css3D.getControls().timestamp + "[[ "+Math.round(camPos.x) + ','+Math.round(camPos.y)+","+Math.round(camPos.z);
-						
-						/*
-						if (count > 1) {
-							var pt = portalViser.frustumStack._vec[0 ].debugPts[(Math.round(counter/30) & 3)]; //[(Math.round(counter/30) & 3)
-							marker.style["-webkit-transform"] = "translate3d("+Math.round(pt.x)+"px,"+Math.round(pt.y)+"px,"+Math.round(pt.z)+"px)";
-						}
-						else marker.style["-webkit-transform"] = "translate3d("+Math.round(0)+"px,"+Math.round(0)+"px,"+Math.round(0)+"px)";
-						*/
-						
-						//tracer.innerHTML = count > 1 ?  portalViser.sectorStack.arr.slice(0, count).toString().split(",").join("<br/>") : count;//glidias.AABBUtils.getString(sectors[0]);
-						
-						counter++;
-				
-						
+
 						
 				});
 			});
