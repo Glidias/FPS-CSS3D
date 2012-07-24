@@ -123,6 +123,8 @@ THREE.FirstPersonNavigationControls = function(object, domElement) {
 		if(this.object.rotationAutoUpdate)
 			this.object.rotation.setRotationFromMatrix(this.object.matrix);
 			
+				
+			
 		this.timestamp++;
 	};
 	

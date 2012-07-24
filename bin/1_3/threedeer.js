@@ -97,10 +97,11 @@ var ffindex2 = navigator.userAgent.indexOf('Firefox');
 			
 			var delta = clock.getDelta();
 			
-			_preUpdate();
-			controls.update(delta);
+			if (!_preUpdate()) {
+				controls.update(delta);
+			}
 			_postUpdate();
-			
+				
 			// required before rendering
 			camera.updateMatrixWorld();
 			camera.matrixWorldInverse.getInverse( camera.matrixWorld );
