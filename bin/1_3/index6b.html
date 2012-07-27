@@ -26,11 +26,13 @@
 	-webkit-backface-visibility:hidden;
 	position: absolute;
 }
+
 #css-world .Mesh * {
 	-webkit-transform-origin:left top;
 	-webkit-transform-style: preserve-3d;
 	-webkit-backface-visibility:hidden;
 	position: absolute;
+	
 }
 #css-world  .Object3D {
 	-webkit-transform-origin:left top;
@@ -54,7 +56,7 @@
 /* iPhone [portrait + landscape] */
 @media only screen and (max-device-width: 480px) {
 	.hideForTouch { display:none }
-	.viewport { width:480px; height:280px }
+	.viewport { width:480px; height:220px }
 	
 }
 
@@ -66,7 +68,7 @@
             color: #fff;
             padding: 0;
             margin: 0;
-        
+           
             text-align: center;
         }
         canvas
@@ -97,17 +99,6 @@
             -moz-transform-style: preserve-3d;
         }
 		
-		
-        
-        #css-container
-        {
-            position: absolute;
-
-            z-index: 20;
-
-            -webkit-transform-style: preserve-3d;
-            -moz-transform-style: preserve-3d;
-        }
         
         #css-world
         {
@@ -298,15 +289,9 @@
 				//	sectorJ[i].style.opacity = ".8";
 				}
 				$("#scene").append(sectorJ);
-				
-				
+				sectors[0].setVis(true);
 				
 				var s = sectors[0]; //Math.floor(Math.random()*roomFiller.rooms.length);
-				sectors[0].setVis(true);
-				sectors[1].setVis(true);
-				sectors[2].setVis(true);
-				sectors[3].setVis(true);
-				
 				var camera = css3D.getCamera();
 				camera.position.set(s.minX+(s.maxX - s.minX)*.5,s.minY+(s.maxY - s.minY)*.5,s.minZ+(s.maxZ - s.minZ)*.5);
 				var blip = document.getElementById("blip");
@@ -315,8 +300,7 @@
 				var east = glidias.AABBPortalPlane.DIRECTIONS[glidias.AABBPortalPlane.EAST];
 				var south = glidias.AABBPortalPlane.DIRECTIONS[ glidias.AABBPortalPlane.SOUTH];
 				var portalViser = new glidias.AABBSectorVisController();
-				
-				
+				portalViser.curSector = s;
 				var counter = 0;
 				var marker = document.getElementById("marker3d");
 				var collider = new a3d.EllipsoidCollider(16,36,16);
@@ -331,7 +315,7 @@
 				css3D.preUpdate( function() {
 					
 					
-					//checkSector = portalViser.getCurrentSector(camPos, sectors);
+				//	checkSector = portalViser.getCurrentSector(camPos, sectors);
 			return true;
 				});
 				
@@ -344,7 +328,7 @@
 				css3D.preRender( function() {
 				
 				
-					//portalViser.run(camPos, frustum, sectors);
+				//	portalViser.run(camPos, frustum, sectors);
 					
 				//	return;
 				
