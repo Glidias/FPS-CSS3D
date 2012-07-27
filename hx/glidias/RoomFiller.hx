@@ -25,14 +25,14 @@ package glidias;
 		 
 		 
         // Consts
-        static inline var  FEATURES:Int = 50;
-        static inline var  NEW_FEATURE_TRIES:Int = 200;
+        public static var  FEATURES:Int = 50;
+        public static var  NEW_FEATURE_TRIES:Int = 200;
 
-        static inline var  MIN_CORRIDOR:Int = 10;
-        static inline var  MAX_CORRIDOR:Int = 20;
+        public static var  MIN_CORRIDOR:Int = 10;
+        public static var  MAX_CORRIDOR:Int = 20;
 
-        static inline var  MIN_ROOM:Int = 6;
-        static inline var  MAX_ROOM:Int = 14;
+        public static var  MIN_ROOM:Int = 6;
+        public static var  MAX_ROOM:Int = 14;
 
         // Dungeon container
         public var grid:Array<Array<Int>>;

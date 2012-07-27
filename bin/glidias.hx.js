@@ -1071,7 +1071,7 @@ glidias.RoomFiller.prototype.createFirstRoom = function() {
 	var fw = this.random.nextIntRange(6,12);
 	var fh = this.random.nextIntRange(6,12);
 	this.createRoom(Math.floor(80 * .5 - fw * .5),Math.floor(80 * .5 - fh * .5),fw,fh);
-	this.currFeature = 50;
+	this.currFeature = glidias.RoomFiller.FEATURES;
 	if(this.async == 0) {
 		while(this.createFeature()) null;
 		if(this._onComplete) {
@@ -1130,7 +1130,7 @@ glidias.RoomFiller.prototype.createFeature = function() {
 				dir = 3;
 			}
 		}
-	} while(dir == -1 && giveUp++ < 200);
+	} while(dir == -1 && giveUp++ < glidias.RoomFiller.NEW_FEATURE_TRIES);
 	if(dir != -1) {
 		do {
 			var w, h;
@@ -1141,7 +1141,7 @@ glidias.RoomFiller.prototype.createFeature = function() {
 					if(dir == 0 || dir == 1) {
 						sx = tx - 1;
 						w = 3;
-						h = this.random.nextIntRange(10,20);
+						h = this.random.nextIntRange(glidias.RoomFiller.MIN_CORRIDOR,glidias.RoomFiller.MAX_CORRIDOR);
 						if(dir == 0) {
 							sy = ty - h;
 							if(sy < 1) continue;
@@ -1153,7 +1153,7 @@ glidias.RoomFiller.prototype.createFeature = function() {
 					}
 					else {
 						sy = ty - 1;
-						w = this.random.nextIntRange(10,20);
+						w = this.random.nextIntRange(glidias.RoomFiller.MIN_CORRIDOR,glidias.RoomFiller.MAX_CORRIDOR);
 						h = 3;
 						if(dir == 2) {
 							sx = tx - w;
@@ -1169,8 +1169,8 @@ glidias.RoomFiller.prototype.createFeature = function() {
 			else {
 				{
 					if(dir == 0 || dir == 1) {
-						w = this.random.nextIntRange(6,14);
-						h = this.random.nextIntRange(6,14);
+						w = this.random.nextIntRange(glidias.RoomFiller.MIN_ROOM,glidias.RoomFiller.MAX_ROOM);
+						h = this.random.nextIntRange(glidias.RoomFiller.MIN_ROOM,glidias.RoomFiller.MAX_ROOM);
 						sx = tx - Math.floor(w * .5);
 						if(sx < 1 || sx + w > 79) continue;
 						if(dir == 0) {
@@ -1183,8 +1183,8 @@ glidias.RoomFiller.prototype.createFeature = function() {
 						}
 					}
 					else {
-						w = this.random.nextIntRange(6,14);
-						h = this.random.nextIntRange(6,14);
+						w = this.random.nextIntRange(glidias.RoomFiller.MIN_ROOM,glidias.RoomFiller.MAX_ROOM);
+						h = this.random.nextIntRange(glidias.RoomFiller.MIN_ROOM,glidias.RoomFiller.MAX_ROOM);
 						sy = ty - Math.floor(h * .5);
 						if(sy < 1 || sy + h > 79) return true;
 						if(dir == 2) {
@@ -1224,7 +1224,7 @@ glidias.RoomFiller.prototype.createFeature = function() {
 				}
 				break;
 			}
-		} while(giveUp++ < 200);
+		} while(giveUp++ < glidias.RoomFiller.NEW_FEATURE_TRIES);
 	}
 	return true;
 }
