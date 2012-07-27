@@ -6,6 +6,9 @@
 function CSS3D() {
 
         var camera, scene;
+		this.getCamera = function() {
+			return camera;
+		};
        
         var controls;
          var clock = new THREE.Clock();
@@ -31,8 +34,9 @@ function CSS3D() {
 
         function init() {
 
-            screenWidth = 900;
-            screenHeight = 600;
+             screenWidth = parseInt( $(document.getElementById("main-container")).css("width") ); 
+
+            screenHeight = parseInt( $(document.getElementById("main-container")).css("height") ); 
 
             scene = new THREE.Scene();
 

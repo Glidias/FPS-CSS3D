@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<title>FPS_Css</title>
+	<meta name="description" content="" />
+	
+	    <meta charset="utf-8">
+
+			<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<script src="../js/jquery-1.7.2.min.js"></script>
+<script src="../js/hammer.js"></script>
+    <script src="three.js" type="text/javascript"></script>
+	 <script src="FirstPersonNavigationControls.js" type="text/javascript"></script>
+	  <script src="RequestAnimationFrame.js" type="text/javascript"></script>
+    <script src="threedeer.js" type="text/javascript"></script>
+	
+	
+	 <style type="text/css">
+		#css-world .identity {
+		-webkit-transform:matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+	}
+	#css-world .plane {
+	-webkit-transform-origin:left top;
+	-webkit-transform-style: preserve-3d;
+	-webkit-backface-visibility:hidden;
+	position: absolute;
+}
+#css-world .Mesh * {
+	-webkit-transform-origin:left top;
+	-webkit-transform-style: preserve-3d;
+	-webkit-backface-visibility:hidden;
+	position: absolute;
+}
+#css-world  .Object3D {
+	-webkit-transform-origin:left top;
+	-webkit-transform-style: preserve-3d;
+	-webkit-backface-visibility:hidden;
+	position: absolute;
+}
+
+.viewport {
+		 width:900px;
+		 height:600px;
+		}
+		
+
+/* iPad [portrait + landscape] */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+	.hideForTouch { display:none }
+	.viewport { width:768px; height:512px }
+}
+
+/* iPhone [portrait + landscape] */
+@media only screen and (max-device-width: 480px) {
+	.hideForTouch { display:none }
+	.viewport { width:480px; height:320px }
+}
+
+
+
+        body
+        {
+            background: #000;
+            color: #fff;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+        }
+        canvas
+        {
+            pointer-events: none;
+            z-index: 10;
+        }
+        #log
+        {
+            position: absolute;
+            top: 50px;
+            text-align: left;
+            display: block;
+            z-index: 100;
+        }
+        
+        #main-container
+        {
+            background: #fff;
+        
+            margin: 0 auto;
+            overflow: hidden;
+        }
+		
+		
+        
+        #css-container
+        {
+            position: absolute;
+            overflow: hidden;
+            z-index: 20;
+
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+        }
+        
+        #css-world
+        {
+
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+        }
+        
+        #css-camera
+        {
+
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+        }
+        
+        #shape
+        {
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+        }
+        
+        .plane
+        {
+            position: absolute;
+            height: 200px;
+            width: 200px;
+			padding:0;
+            aborder: 1px solid white;
+            aborder-radius: 12px;
+            a-webkit-box-sizing: border-box;
+            a-moz-box-sizing: border-box;
+            text-align: center;
+            font-family: Times, serif;
+            font-size: 124pt;
+            color: black;
+            background-color: rgba(27, 205, 52, 0.6);
+            -webkit-backface-visibility: hidden;
+            -moz-backface-visibility: hidden;
+        }
+        
+        #shape.backfaces .plane
+        {
+            -webkit-backface-visibility: hidden;
+            -moz-backface-visibility: visible;
+			
+        }
+        
+        /* ---------- cube styles ------------- */
+        .cube > .one
+        {
+			adisplay:none;
+            opacity: 0.5;
+            
+        }
+        
+        .cube > .two
+        {
+			adisplay:none;
+            opacity: 0.5;
+            -webkit-transform: translateX(200px);
+
+        }
+        
+        .cube > .three
+        {
+			display:none;
+            opacity: 0.5;
+            -webkit-transform: scale3d(1.0, 1.0, 1.0) rotateY(90deg) translateZ(100px);
+            -moz-transform: scale3d(1.0, 1.0, 1.0) rotateY(90deg) translateZ(100px);
+        }
+        
+        .cube > .four
+        {
+			display:none;
+            opacity: 0.5;
+            -webkit-transform: scale3d(1.0, 1.0, 1.0) rotateY(180deg) translateZ(100px);
+            -moz-transform: scale3d(1.0, 1.0, 1.0) rotateY(180deg) translateZ(100px);
+        }
+        
+        .cube > .five
+        {
+			display:none;
+            opacity: 0.5;
+            -webkit-transform: scale3d(1.0, 1.0, 1.0) rotateY(-90deg) translateZ(100px);
+            -moz-transform: scale3d(1.0, 1.0, 1.0) rotateY(-90deg) translateZ(100px);
+        }
+        
+        .cube > .six
+        {
+			display:none;
+            opacity: 0.5;
+            -webkit-transform: scale3d(1.0, 1.0, 1.0) rotateX(-90deg) translateZ(100px) rotate(180deg);
+            -moz-transform: scale3d(1.0, 1.0, 1.0) rotateX(-90deg) translateZ(100px) rotate(180deg);
+        }
+    </style>
+	
+	<script>
+	var css3D;
+	function startCSS3D() {
+		css3D = new CSS3D();
+		
+		css3D.start();
+	}
+	</script>
+	
+	<script type="text/javascript">
+		$(document).ready( function() {
+		var roomFiller = new glidias.RoomFiller();
+		glidias.AABBPortalPlane.setEastSouthUp(new glidias.Vec3(1,0,0), new glidias.Vec3(0,0,1), new glidias.Vec3(0,-1,0));
+		roomFiller.enableOutdoors = true;
+		roomFiller.wallColor = "#000000";
+			var tracer = document.getElementById("tracer");
+			var haxeTracer = document.getElementById("haxe:trace");
+			var GRID_SIZE =128;
+			var MAP_SCALE = 5;
+
+			roomFiller.doorHeight = GRID_SIZE;
+			
+			roomFiller.run(function() {
+			var sectors = roomFiller.getSectors(GRID_SIZE, GRID_SIZE*2);
+				var arr = roomFiller.rooms;
+				var len = arr.length;
+				var i;
+				var htmlStr = "<div>";
+				var color;
+				
+				///*
+				roomFiller.testUpdate(function(result) {
+			//		htmlStr += result;
+				}, GRID_SIZE)
+				//*/
+				
+				/*
+				for (i=0; i< len; i++) {
+					color =  'rgb(' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ')';
+					htmlStr += arr[i].toHTML("background-color:"+color, GRID_SIZE);
+				}
+				*/
+				
+				htmlStr += "</div>";	
+				document.getElementById("testBed").innerHTML = htmlStr;
+				
+				
+				
+				htmlStr = "<div>";
+				
+				
+				
+				len = sectors.length; 
+				var u;
+				var uLen;
+				var col;
+				var col2;
+					col = "background-color:#00ff00;";
+					col2 = "background-color:#ff0000;z-index:2;";
+				// roomFiller.rooms.length
+				for (i=0 ;  i< len; i++) {
+			//		col = i != 0 ? "background-color:#00ff00;" : "background-color:#ff0000;" ;
+		
+					htmlStr += glidias.AABBUtils.getRect(sectors[i]).toHTML(col, 1/GRID_SIZE*MAP_SCALE);
+					sectors[i].id = new glidias.debug.SectorGeomTrace(sectors[i]);
+				//	htmlStr += sectors[i].rect.toHTML(col2, MAP_SCALE);
+					var portalList = sectors[i].getPortalList();
+					uLen = portalList.length;
+					//for (u=0;u<uLen; u++) {
+					//	portalList[u].traceValid();
+						//htmlStr +=glidias.AABBUtils.getRect(portalList[u],1).toHTML("background-color:#ff0000; z-index:1;", .1);
+					//}
+				
+				}
+				htmlStr += "</div>";
+				
+				document.getElementById("testBed2").innerHTML = htmlStr;
+				
+				startCSS3D();
+				
+				//getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null):String {
+				//background-color:#0f00f0;opacity:1;background-image:url(../images/corner_piece.gif);background-repeat:no-repeat;
+				var sectorJ = $( roomFiller.getHTMLFromSectors(sectors, GRID_SIZE, "background-image:url(../images_low/wall.jpg);", "background-image:url(../images_low/wood.jpg);"));
+				roomFiller.setupGeometryOfSectors(sectors, GRID_SIZE);
+				
+				len = sectorJ.length;
+				i = 0;
+				var s;
+				for (i = 0; i<len; i++) {
+					sectors[i].dom = sectorJ[i];
+					sectors[i].setVis(false);
+				//	sectorJ[i].style.opacity = ".8";
+				}
+				$("#scene").append(sectorJ);
+				
+				
+				
+				var s = sectors[0]; //Math.floor(Math.random()*roomFiller.rooms.length);
+				var camera = css3D.getCamera();
+				camera.position.set(s.minX+(s.maxX - s.minX)*.5,s.minY+(s.maxY - s.minY)*.5,s.minZ+(s.maxZ - s.minZ)*.5+1400);
+				var blip = document.getElementById("blip");
+				var camPos = camera.position;
+				var frustum = css3D.getFrustum();
+				var east = glidias.AABBPortalPlane.DIRECTIONS[glidias.AABBPortalPlane.EAST];
+				var south = glidias.AABBPortalPlane.DIRECTIONS[ glidias.AABBPortalPlane.SOUTH];
+				var portalViser = new glidias.AABBSectorVisController();
+				
+				var counter = 0;
+				var marker = document.getElementById("marker3d");
+				var collider = new a3d.EllipsoidCollider(16,36,16);
+				var colliderPos = new jeash.geom.Vector3D();
+				var colliderDisplace =  new jeash.geom.Vector3D();
+				
+				var keyPoll = new glidias.input.KeyPoll();
+				var KeyCode =  glidias.input.KeyCode;
+				var checkSector;
+				
+				
+			
+				// set up drag controls
+				camera.rotation.x = Math.PI * .5;
+				camera.position.y -= 2044;
+				var hammer = new Hammer(document.body);
+				var startDragX;
+				var startDragY;
+				hammer.ondragstart = function(e) {
+		
+					startDragX= camPos.x;
+					startDragY = camPos.z;
+				}
+				hammer.ondrag = function(e) {
+					camPos.x = startDragX + e.distanceX * 8;
+					camPos.z =startDragY +  e.distanceY * 8;
+				};
+				
+				css3D.preUpdate( function() {
+					//camera.rotation.z+= .0025;
+					return true;
+				//	checkSector = portalViser.getCurrentSector(camPos, sectors);
+			
+				});
+				
+				///*
+				var halted;
+				var len = sectors.length;
+					var s;
+					var frus = frustum;
+					for (i=0; i< len; i++) {
+						s = sectors[i];
+						s.setVis(true );
+						
+						
+					}
+				//	*/
+				
+				
+				css3D.preRender( function() {
+					var len = sectors.length;
+					var s;
+					var state;
+					var frus = frustum;
+					for (i=0; i< len; i++) {
+						s = sectors[i];
+						state = frus.checkVisibility(s);
+						if (state != s.visible) {
+							s.dom.style.visibility = s.dom.style.visibility;
+							s.visible = state;
+						}
+						
+						
+					}
+				});
+			});
+		});
+	</script>
+</head>
+<body>
+	<div id="tracer" style="position:absolute; z-index:99999; right:80px; top:0px; font-size:11px; color:#FF4499" class="hideForTouch" ></div>
+	<div id="haxe:trace" style="position:absolute; z-index:99999; left:0px; top:0px; font-size:11px; color:#FF4499" class="hideForTouch" ></div>
+	<script src="../glidias.hx.js"></script>
+
+	<div id="testBed" class="hideForTouch" style="position:absolute; z-index:2">
+		
+	</div>
+	
+	<div id="testBed2"  class="hideForTouch"  style="position:absolute; z-index:3">
+		
+	</div>
+	
+	<div id="blip" style="position:absolute; z-index:4; width:4px; height:4px; background-color:#ff0000;"></div>
+	
+	<div id="main-container" style="position:relative; z-index:1;" class="viewport">  <!-- todo: make less complex dom tree -->
+        <div id="css-container" class="viewport" >
+            <div id="css-world" class="viewport">
+                <div id="css-camera" class="viewport">
+					 <div class="boxHead Mesh Object3D" id="marker3d">
+          <div class="plane" style="background-image:url(../danbo_textures/danbo_tx_right.png); background-position:-32px 0px; width:32px; height:32px; -webkit-transform:matrix3d(0,3.1875,0,0,0,0,-3.1875,0,1,0,0,0,80,-51,51,1);"></div>
+          <div class="plane" style="background-image:url(../danbo_textures/danbo_tx_left.png); background-position:0px 0px; width:32px; height:32px; -webkit-transform:matrix3d(0,3.1875,0,0,0,0,3.1875,0,-1,0,0,0,-80,-51,-51,1);"></div>
+          <div class="plane" style="background-image:url(../danbo_textures/danbo_tx_face.png); background-position:0px 0px; width:50px; height:32px; -webkit-transform:matrix3d(-3.200000047683716,0,0,0,0,0,3.1875,0,0,-1,0,0,80,-51,-51,1);"></div>
+          <div class="plane" style="background-image:url(../danbo_textures/danbo_tx_back.png); background-position:-32px 0px; width:32px; height:32px; -webkit-transform:matrix3d(-5,0,0,0,0,0,-3.1875,0,0,1,0,0,80,51,51,1);"></div>
+          <div class="plane" style="background-image:url(../danbo_textures/danbo_tx_headtop.png); background-position:-50px 0px; width:50px; height:32px; -webkit-transform:matrix3d(-3.200000047683716,0,0,0,0,-3.1875,0,0,0,0,-1,0,80,51,-51,1);"></div>
+          <div class="plane" style="background-image:url(../danbo_textures/danbo_tx_bottom.png); background-position:-32px -32px; width:32px; height:32px; -webkit-transform:matrix3d(5,0,0,0,0,-3.1875,0,0,0,0,1,0,-80,51,51,1);"></div>
+        </div>
+					<div class="root Object3DContainer Object3D" id="scene" style=""> <!-- -webkit-transform:rotateX(-90deg) rotateY(180deg);  -->
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

@@ -36,7 +36,9 @@ class PlaneResult {
 		height = 300;
 		*/
 		//REVERSE BUG:
-		return '<div style='+(mat!=null ? '"margin:0;padding:0;width:'+Math.round(width)+'px;height:'+Math.round(height)+'px;' : '')+'-webkit-transform:matrix3d('+[-right.x,-right.y,-right.z, 0,up.x,up.y,up.z, 0,  look.x,look.y,look.z, 0,pos.x,pos.y,pos.z,1].join(",")+');'+(mat!=null ? mat : "")+'">';
+		var w = Math.round(width);
+		var h = Math.round(height);
+		return '<div style='+(mat!=null ? '"margin:0;padding:0;width:'+1+'px;height:'+1+'px;' : '')+'-webkit-transform:matrix3d('+[-right.x,-right.y,-right.z, 0,up.x,up.y,up.z, 0,  look.x,look.y,look.z, 0,pos.x,pos.y,pos.z,1].join(",")+') scaleX('+width+') scaleY('+height+');'+(mat!=null ? mat : "")+'">';
 	}
 	
 	public function clone():PlaneResult

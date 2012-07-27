@@ -814,8 +814,8 @@ glidias.RoomFiller.prototype.getHTMLFromSectors = function(map,gridSize,wallMat,
 			var i = _g++;
 			sector = map[i];
 			str += "<div class=\"Mesh Object3D\">";
-			str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP.getReverse(),sector,gridSize).getHTML(ceilingMat);
-			str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP,sector,gridSize).getHTML(floorMat);
+			str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP.getReverse(),sector,gridSize).getOpenHTML(ceilingMat) + "</div>";
+			str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP,sector,gridSize).getOpenHTML(floorMat) + "</div>";
 			mask = 0;
 			pWalls = sector.portalWalls;
 			uLen = pWalls.length;
@@ -828,10 +828,10 @@ glidias.RoomFiller.prototype.getHTMLFromSectors = function(map,gridSize,wallMat,
 					mask |= 1 << p.direction;
 				}
 			}
-			if((mask & 1) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[0],sector,gridSize).getHTML(wallMat);
-			if((mask & 4) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[2],sector,gridSize).getHTML(wallMat);
-			if((mask & 2) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[1],sector,gridSize).getHTML(wallMat);
-			if((mask & 8) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[3],sector,gridSize).getHTML(wallMat);
+			if((mask & 1) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[0],sector,gridSize).getOpenHTML(wallMat) + "</div>";
+			if((mask & 4) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[2],sector,gridSize).getOpenHTML(wallMat) + "</div>";
+			if((mask & 2) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[1],sector,gridSize).getOpenHTML(wallMat) + "</div>";
+			if((mask & 8) == 0) str += glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[3],sector,gridSize).getOpenHTML(wallMat) + "</div>";
 			str += "</div>";
 		}
 	}
@@ -1748,7 +1748,7 @@ glidias.AABBPortalPlane.prototype.addFaces = function(sector,gridSize) {
 glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 	var planeResult = glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[this.direction],sector,gridSize);
 	var p;
-	var html = "<div style=" + "" + "-webkit-transform:matrix3d(" + [-planeResult.right.x,-planeResult.right.y,-planeResult.right.z,0,planeResult.up.x,planeResult.up.y,planeResult.up.z,0,planeResult.look.x,planeResult.look.y,planeResult.look.z,0,planeResult.pos.x,planeResult.pos.y,planeResult.pos.z,1].join(",") + ");" + "" + "\">";
+	var html = planeResult.getOpenHTML(null);
 	var x = 0;
 	var y = 0;
 	var width = planeResult.width;
@@ -1758,7 +1758,7 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 		p = glidias.PlaneResult.getIdentity();
 		p.width = planeResult.width;
 		p.height = aboveDoorwayHeight;
-		html += "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(p.width) + "px;height:" + Math.round(p.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-p.right.x,-p.right.y,-p.right.z,0,p.up.x,p.up.y,p.up.z,0,p.look.x,p.look.y,p.look.z,0,p.pos.x,p.pos.y,p.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
+		html += p.getOpenHTML(mat) + "</div>";
 	}
 	var pos = planeResult.pos;
 	var right = planeResult.right.getReverse();
@@ -1794,7 +1794,7 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 			p.pos.y = aboveDoorwayHeight;
 			p.width = o - m;
 			p.height = portal.height;
-			if(!(p.width == 0 || p.height == 0)) html += "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(p.width) + "px;height:" + Math.round(p.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-p.right.x,-p.right.y,-p.right.z,0,p.up.x,p.up.y,p.up.z,0,p.look.x,p.look.y,p.look.z,0,p.pos.x,p.pos.y,p.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
+			if(!(p.width == 0 || p.height == 0)) html += p.getOpenHTML(mat) + "</div>";
 			m += p.width + portal.width;
 		}
 	}
@@ -1804,7 +1804,7 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat) {
 	p.pos.y = aboveDoorwayHeight;
 	p.width = planeResult.width - m;
 	p.height = portal.height;
-	if(!(p.width == 0 || p.height == 0)) html += "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(p.width) + "px;height:" + Math.round(p.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-p.right.x,-p.right.y,-p.right.z,0,p.up.x,p.up.y,p.up.z,0,p.look.x,p.look.y,p.look.z,0,p.pos.x,p.pos.y,p.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
+	if(!(p.width == 0 || p.height == 0)) html += p.getOpenHTML(mat) + "</div>";
 	html += "</div>";
 	return html;
 }
@@ -2329,10 +2329,12 @@ glidias.PlaneResult.prototype.pos = null;
 glidias.PlaneResult.prototype.width = null;
 glidias.PlaneResult.prototype.height = null;
 glidias.PlaneResult.prototype.getHTML = function(mat) {
-	return "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(this.width) + "px;height:" + Math.round(this.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">" + "</div>";
+	return this.getOpenHTML(mat) + "</div>";
 }
 glidias.PlaneResult.prototype.getOpenHTML = function(mat) {
-	return "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + Math.round(this.width) + "px;height:" + Math.round(this.height) + "px;":"") + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">";
+	var w = Math.round(this.width);
+	var h = Math.round(this.height);
+	return "<div style=" + (mat != null?"\"margin:0;padding:0;width:" + 1 + "px;height:" + 1 + "px;":"") + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ") scaleX(" + this.width + ") scaleY(" + this.height + ");" + (mat != null?mat:"") + "\">";
 }
 glidias.PlaneResult.prototype.clone = function() {
 	var me = new glidias.PlaneResult();
@@ -3336,13 +3338,13 @@ glidias.AABBSector.prototype.addWallFace = function(direction) {
 	this.geom.addFace(glidias.AABBSector.INDICES_LOOKUP[direction]);
 }
 glidias.AABBSector.prototype.getWallHTML = function(direction,mat,gridSize) {
-	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[direction],this,gridSize).getHTML(mat);
+	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[direction],this,gridSize).getOpenHTML(mat) + "</div>";
 }
 glidias.AABBSector.prototype.getCeilingHTML = function(mat,gridSize) {
-	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP.getReverse(),this,gridSize).getHTML(mat);
+	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP.getReverse(),this,gridSize).getOpenHTML(mat) + "</div>";
 }
 glidias.AABBSector.prototype.getFloorHTML = function(mat,gridSize) {
-	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP,this,gridSize).getHTML(mat);
+	return glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.UP,this,gridSize).getOpenHTML(mat) + "</div>";
 }
 glidias.AABBSector.prototype.getPortalPlane = function(direction) {
 	var len = this.portalWalls.length;
