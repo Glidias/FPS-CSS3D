@@ -147,9 +147,14 @@ package glidias;
 		 * Javascript method to generate CSSPlanes definitnation from sector map
 		 * @param	map
 		 */
-		public function getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null):String {
+		public function getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null, wallTextureSize:Float=1, floorTextureSize:Float=0, ceilTextureSize:Float=0):String {
 			if (floorMat == null) floorMat = wallMat;
 			if (ceilingMat == null) ceilingMat = floorMat;
+			
+			wallTextureSize = wallTextureSize != 0 ? wallTextureSize : gridSize;
+			floorTextureSize = floorTextureSize != 0 ? floorTextureSize : wallTextureSize;
+			ceilTextureSize = ceilTextureSize != 0 ? ceilTextureSize : wallTextureSize;
+			
 			
 			var str:String = "";
 			var mask:Int;
@@ -162,8 +167,8 @@ package glidias;
 			for (i in 0...len) {
 				sector = map[i];
 				str += '<div class="Mesh Object3D">';
-				str += sector.getCeilingHTML(ceilingMat,gridSize);
-				str += sector.getFloorHTML(floorMat, gridSize);
+				str += sector.getCeilingHTML(ceilingMat,gridSize,ceilTextureSize);
+				str += sector.getFloorHTML(floorMat, gridSize,floorTextureSize);
 				
 				mask = 0;  // keeps track of portaled walls
 				pWalls = sector.portalWalls;
@@ -171,14 +176,14 @@ package glidias;
 				for (u in 0...uLen) {
 					p = pWalls[u];
 				
-					str += p.getHTML(sector, gridSize, wallMat);
+					str += p.getHTML(sector, gridSize, wallMat, wallTextureSize);
 					
 					mask |= (1 << p.direction);
 				}
-				if ( (mask & (1<< AABBPortalPlane.NORTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.NORTH,wallMat,gridSize);
-				if ( (mask & (1<< AABBPortalPlane.SOUTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.SOUTH,wallMat,gridSize);
-				if ( (mask & (1<< AABBPortalPlane.WEST)) == 0) str += sector.getWallHTML(AABBPortalPlane.WEST,wallMat,gridSize);
-				if ( (mask & (1<< AABBPortalPlane.EAST)) == 0) str += sector.getWallHTML(AABBPortalPlane.EAST,wallMat,gridSize);
+				if ( (mask & (1<< AABBPortalPlane.NORTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.NORTH,wallMat,gridSize,wallTextureSize);
+				if ( (mask & (1<< AABBPortalPlane.SOUTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.SOUTH,wallMat,gridSize,wallTextureSize);
+				if ( (mask & (1<< AABBPortalPlane.WEST)) == 0) str += sector.getWallHTML(AABBPortalPlane.WEST,wallMat,gridSize,wallTextureSize);
+				if ( (mask & (1<< AABBPortalPlane.EAST)) == 0) str += sector.getWallHTML(AABBPortalPlane.EAST,wallMat,gridSize,wallTextureSize);
 				str += '</div>';
 			}
 			

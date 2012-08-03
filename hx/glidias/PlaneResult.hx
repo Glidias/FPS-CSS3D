@@ -19,12 +19,31 @@ class PlaneResult {
 		
 	}
 	
-	public inline function getHTML(mat:String):String {
-		return getOpenHTML(mat)+"</div>";
+	public inline function getTiledHTML(mat:String, textureSize:Float):String {
+		var w = Math.round(width);
+		var h = Math.round(height);
+		var str:String =  '<div class="Object3D" style="' + '-webkit-transform:matrix3d(' + [ -right.x, -right.y, -right.z, 0, up.x, up.y, up.z, 0,  look.x, look.y, look.z, 0, pos.x, pos.y, pos.z, 1].join(",") + ')">';
+		
+		
+		w = Std.int(w / textureSize);
+		h = Std.int(h / textureSize);
+		
+		for (u in 0...w) {
+			for (v in 0...h) {
+				str += '<img src="'+mat+'" style="-webkit-transform:translateX('+ (u * textureSize)+'px) translateY('+(v * textureSize)+'px)"></img>';
+			}
+		}
+		
+		str += "</div>";
+		return str;
+	}
+	
+	public inline function getHTML(mat:String, textureSize:Float):String {
+		return (textureSize != 1 ? getTiledHTML(mat, textureSize) :  getOpenHTML(mat,textureSize) ) +"</div>" ;
 	}
 //	public static var COUNT:Int = 0;
 //
-	public inline function getOpenHTML(mat:String):String {
+	public inline function getOpenHTML(mat:String, textureSize:Float):String {
 		// darn, not too sure why must use -right?
 		/*
 		var c:Int = (COUNT++);
@@ -38,7 +57,7 @@ class PlaneResult {
 		//REVERSE BUG:
 		var w = Math.round(width);
 		var h = Math.round(height);
-		return '<div style='+(mat!=null ? '"margin:0;padding:0;width:'+1+'px;height:'+1+'px;' : '')+'-webkit-transform:matrix3d('+[-right.x,-right.y,-right.z, 0,up.x,up.y,up.z, 0,  look.x,look.y,look.z, 0,pos.x,pos.y,pos.z,1].join(",")+') scaleX('+width+') scaleY('+height+');'+(mat!=null ? mat : "")+'">';
+		return '<div style="'+(mat!=null ? 'margin:0;padding:0;width:'+1+'px;height:'+1+'px;' : '')+'-webkit-transform:matrix3d('+[-right.x,-right.y,-right.z, 0,up.x,up.y,up.z, 0,  look.x,look.y,look.z, 0,pos.x,pos.y,pos.z,1].join(",")+') scaleX('+width+') scaleY('+height+');'+(mat!=null ? mat : "")+'">';
 	}
 	
 	public function clone():PlaneResult

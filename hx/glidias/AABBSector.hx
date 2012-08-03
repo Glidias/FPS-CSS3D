@@ -370,14 +370,14 @@ class AABBSector implements IAABB, implements IECollidable
 	}
 	
 	
-	public inline function getWallHTML(direction:Int, mat:String, gridSize:Float):String {
-		return AABBPortalPlane.getPlaneResult(AABBPortalPlane.DIRECTIONS[direction], this, gridSize).getHTML(mat);
+	public inline function getWallHTML(direction:Int, mat:String, gridSize:Float, textureSize:Float):String {
+		return AABBPortalPlane.getPlaneResult(AABBPortalPlane.DIRECTIONS[direction], this, gridSize).getHTML(mat, textureSize);
 	}
-	public inline function getCeilingHTML(mat:String, gridSize:Float):String {
-		return AABBPortalPlane.getPlaneResult(AABBPortalPlane.UP.getReverse(), this, gridSize).getHTML(mat);
+	public inline function getCeilingHTML(mat:String, gridSize:Float, textureSize:Float):String {
+		return AABBPortalPlane.getPlaneResult(AABBPortalPlane.UP.getReverse(), this, gridSize).getHTML(mat,  textureSize);
 	}
-	public inline function getFloorHTML(mat:String, gridSize:Float):String {
-		return AABBPortalPlane.getPlaneResult(AABBPortalPlane.UP, this, gridSize).getHTML(mat);
+	public inline function getFloorHTML(mat:String, gridSize:Float, textureSize:Float):String {
+		return AABBPortalPlane.getPlaneResult(AABBPortalPlane.UP, this, gridSize).getHTML(mat,  textureSize );
 	}
 	
 	
