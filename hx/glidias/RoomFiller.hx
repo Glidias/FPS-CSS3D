@@ -151,9 +151,9 @@ package glidias;
 			if (floorMat == null) floorMat = wallMat;
 			if (ceilingMat == null) ceilingMat = floorMat;
 			
-			wallTextureSize = wallTextureSize != 0 ? wallTextureSize : gridSize;
-			floorTextureSize = floorTextureSize != 0 ? floorTextureSize : wallTextureSize;
-			ceilTextureSize = ceilTextureSize != 0 ? ceilTextureSize : wallTextureSize;
+
+			floorTextureSize = floorTextureSize > 1 ? floorTextureSize : wallTextureSize;
+			ceilTextureSize = ceilTextureSize > 1 ? ceilTextureSize : wallTextureSize;
 			
 			
 			var str:String = "";

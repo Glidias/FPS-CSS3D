@@ -274,7 +274,8 @@ class AABBPortalPlane implements IAABB
 		
 		var planeResult:PlaneResult = getPlaneResult( AABBPortalPlane.DIRECTIONS[direction], sector, gridSize);
 		var p:PlaneResult;
-		var html:String = planeResult.getOpenHTML(null,textureSize);  // open html  , // no width, no height, no material, just a  planar container!
+		
+		var html:String = planeResult.getEmptyOpenHTML();  // open html  , // no width, no height, no material, just a  planar container!
 		
 		var x:Float = 0;
 		var y:Float = 0;

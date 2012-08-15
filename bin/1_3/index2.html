@@ -276,7 +276,7 @@
 				
 				//getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null):String {
 				//background-color:#0f00f0;opacity:1;background-image:url(../images/corner_piece.gif);background-repeat:no-repeat;
-				var sectorJ = $( roomFiller.getHTMLFromSectors(sectors, GRID_SIZE, "background-image:url(../images_low/wall.jpg);", "background-image:url(../images_low/wood.jpg);"));
+				var sectorJ = $( roomFiller.getHTMLFromSectors(sectors, GRID_SIZE, "../images/wood.jpg", "../images/wood.jpg", null, 128));
 				roomFiller.setupGeometryOfSectors(sectors, GRID_SIZE);
 				
 				len = sectorJ.length;

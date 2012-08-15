@@ -804,9 +804,8 @@ glidias.RoomFiller.prototype.getHTMLFromSectors = function(map,gridSize,wallMat,
 	if(wallTextureSize == null) wallTextureSize = 1;
 	if(floorMat == null) floorMat = wallMat;
 	if(ceilingMat == null) ceilingMat = floorMat;
-	wallTextureSize = wallTextureSize != 0?wallTextureSize:gridSize;
-	floorTextureSize = floorTextureSize != 0?floorTextureSize:wallTextureSize;
-	ceilTextureSize = ceilTextureSize != 0?ceilTextureSize:wallTextureSize;
+	floorTextureSize = floorTextureSize > 1?floorTextureSize:wallTextureSize;
+	ceilTextureSize = ceilTextureSize > 1?ceilTextureSize:wallTextureSize;
 	var str = "";
 	var mask;
 	var sector;
@@ -1754,7 +1753,7 @@ glidias.AABBPortalPlane.prototype.addFaces = function(sector,gridSize) {
 glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat,textureSize) {
 	var planeResult = glidias.AABBPortalPlane.getPlaneResult(glidias.AABBPortalPlane.DIRECTIONS[this.direction],sector,gridSize);
 	var p;
-	var html = planeResult.getOpenHTML(null,textureSize);
+	var html = "<div style=\"-webkit-transform:matrix3d(" + [-planeResult.right.x,-planeResult.right.y,-planeResult.right.z,0,planeResult.up.x,planeResult.up.y,planeResult.up.z,0,planeResult.look.x,planeResult.look.y,planeResult.look.z,0,planeResult.pos.x,planeResult.pos.y,planeResult.pos.z,1].join(",") + ");\">";
 	var x = 0;
 	var y = 0;
 	var width = planeResult.width;
@@ -1764,7 +1763,7 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat,texture
 		p = glidias.PlaneResult.getIdentity();
 		p.width = planeResult.width;
 		p.height = aboveDoorwayHeight;
-		html += (textureSize != 1?p.getTiledHTML(mat,textureSize):p.getOpenHTML(mat,textureSize)) + "</div>";
+		html += (textureSize > 1?p.getOpenTiledHTML(mat,textureSize):p.getOpenHTML(mat,textureSize)) + "</div>";
 	}
 	var pos = planeResult.pos;
 	var right = planeResult.right.getReverse();
@@ -1792,7 +1791,7 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat,texture
 			c = portal.minX * right.x + portal.minY * right.y + portal.minZ * right.z;
 			o = portal.maxX * right.x + portal.maxY * right.y + portal.maxZ * right.z;
 			if(o < c) c = o;
-			if(lastC > c) haxe.Log.trace("WRONG, shoudl be less!",{ fileName : "AABBPortalPlane.hx", lineNumber : 324, className : "glidias.AABBPortalPlane", methodName : "getHTML"});
+			if(lastC > c) haxe.Log.trace("WRONG, shoudl be less!",{ fileName : "AABBPortalPlane.hx", lineNumber : 325, className : "glidias.AABBPortalPlane", methodName : "getHTML"});
 			lastC = c;
 			o = baseOffset < c?c - baseOffset:baseOffset - c;
 			p = glidias.PlaneResult.getIdentity();
@@ -1800,7 +1799,7 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat,texture
 			p.pos.y = aboveDoorwayHeight;
 			p.width = o - m;
 			p.height = portal.height;
-			if(!(p.width == 0 || p.height == 0)) html += (textureSize != 1?p.getTiledHTML(mat,textureSize):p.getOpenHTML(mat,textureSize)) + "</div>";
+			if(!(p.width == 0 || p.height == 0)) html += (textureSize > 1?p.getOpenTiledHTML(mat,textureSize):p.getOpenHTML(mat,textureSize)) + "</div>";
 			m += p.width + portal.width;
 		}
 	}
@@ -1810,7 +1809,7 @@ glidias.AABBPortalPlane.prototype.getHTML = function(sector,gridSize,mat,texture
 	p.pos.y = aboveDoorwayHeight;
 	p.width = planeResult.width - m;
 	p.height = portal.height;
-	if(!(p.width == 0 || p.height == 0)) html += (textureSize != 1?p.getTiledHTML(mat,textureSize):p.getOpenHTML(mat,textureSize)) + "</div>";
+	if(!(p.width == 0 || p.height == 0)) html += (textureSize > 1?p.getOpenTiledHTML(mat,textureSize):p.getOpenHTML(mat,textureSize)) + "</div>";
 	html += "</div>";
 	return html;
 }
@@ -2334,10 +2333,10 @@ glidias.PlaneResult.prototype.look = null;
 glidias.PlaneResult.prototype.pos = null;
 glidias.PlaneResult.prototype.width = null;
 glidias.PlaneResult.prototype.height = null;
-glidias.PlaneResult.prototype.getTiledHTML = function(mat,textureSize) {
+glidias.PlaneResult.prototype.getOpenTiledHTML = function(mat,textureSize) {
 	var w = Math.round(this.width);
 	var h = Math.round(this.height);
-	var str = "<div class=\"Object3D\" style=\"" + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ")\">";
+	var str = "<div class=\"Object3D\" style=\"-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ")\">";
 	w = Std["int"](w / textureSize);
 	h = Std["int"](h / textureSize);
 	{
@@ -2348,21 +2347,23 @@ glidias.PlaneResult.prototype.getTiledHTML = function(mat,textureSize) {
 				var _g1 = 0;
 				while(_g1 < h) {
 					var v = _g1++;
-					str += "<img src=\"" + mat + "\" style=\"-webkit-transform:translateX(" + u * textureSize + "px) translateY(" + v * textureSize + "px)\"></img>";
+					str += "<img src=\"" + mat + "\" style=\"-webkit-transform:translateX(" + u * textureSize + "px) translateY(" + v * textureSize + "px);\"></img>";
 				}
 			}
 		}
 	}
-	str += "</div>";
 	return str;
 }
 glidias.PlaneResult.prototype.getHTML = function(mat,textureSize) {
-	return (textureSize != 1?this.getTiledHTML(mat,textureSize):this.getOpenHTML(mat,textureSize)) + "</div>";
+	return (textureSize > 1?this.getOpenTiledHTML(mat,textureSize):this.getOpenHTML(mat,textureSize)) + "</div>";
 }
 glidias.PlaneResult.prototype.getOpenHTML = function(mat,textureSize) {
 	var w = Math.round(this.width);
 	var h = Math.round(this.height);
-	return "<div style=\"" + (mat != null?"margin:0;padding:0;width:" + 1 + "px;height:" + 1 + "px;":"") + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ") scaleX(" + this.width + ") scaleY(" + this.height + ");" + (mat != null?mat:"") + "\">";
+	return textureSize > 0?"<div style=\"margin:0;padding:0;width:" + 1 + "px;height:" + 1 + "px;" + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ") scaleX(" + w + ") scaleY(" + h + ");" + (mat != null?mat:"") + "\">":"<div style=\"margin:0;padding:0;width:" + w + "px;height:" + h + "px;" + "-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ");" + (mat != null?mat:"") + "\">";
+}
+glidias.PlaneResult.prototype.getEmptyOpenHTML = function() {
+	return "<div style=\"-webkit-transform:matrix3d(" + [-this.right.x,-this.right.y,-this.right.z,0,this.up.x,this.up.y,this.up.z,0,this.look.x,this.look.y,this.look.z,0,this.pos.x,this.pos.y,this.pos.z,1].join(",") + ");\">";
 }
 glidias.PlaneResult.prototype.clone = function() {
 	var me = new glidias.PlaneResult();
