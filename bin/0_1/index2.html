@@ -1,0 +1,310 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <title>CSS3 3d transforms and memory usage saving</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,   maximum-scale=1.0">
+<script src="../js/jquery-1.7.2.min.js"></script>
+		<script src="../js/hammer.js"></script>
+    <script src="three.js" type="text/javascript"></script>
+	 <script src="FirstPersonNavigationControls.js" type="text/javascript"></script>
+	  <script src="RequestAnimationFrame.js" type="text/javascript"></script>
+    <script src="threedeer.js" type="text/javascript"></script>
+	
+
+
+	<link rel="stylesheet" href="anims.css">
+	<link rel="stylesheet" href="danbo_anims.css">
+
+
+    <style type="text/css">
+		#css-world .identity {
+		-webkit-transform:matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+	}
+	#css-world .plane {
+	-webkit-transform-origin:left top;
+	-webkit-transform-style: preserve-3d;
+	-webkit-backface-visibility:hidden;
+	position: absolute;
+}
+#css-world .Mesh>* {
+	-webkit-transform-origin:left top;
+	-webkit-transform-style: preserve-3d;
+	-webkit-backface-visibility:hidden;
+	position: absolute;
+}
+#css-world  .Object3D {
+	-webkit-transform-origin:center center;
+	-webkit-transform-style: preserve-3d;
+	-webkit-backface-visibility:hidden;
+	position: absolute;
+}
+
+#css-world .root {
+	-awebkit-transform:matrix3d(-1,0,0,0,0,0,-1,0,0,1,0,0,0,0,0,1);
+	-awebkit-transform:rotateX(90deg);
+}
+
+        body
+        {
+            background: #000;
+            color: #fff;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+        }
+        canvas
+        {
+            pointer-events: none;
+            z-index: 10;
+        }
+        #log
+        {
+            position: absolute;
+            top: 50px;
+            text-align: left;
+            display: block;
+            z-index: 100;
+        }
+		
+		/* iPad [portrait + landscape] */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+	.hideForTouch { display:none }
+	.viewport { width:768px; height:512px }
+}
+
+/* iPhone [portrait + landscape] */
+@media only screen and (max-device-width: 480px) {
+	.hideForTouch { display:none }
+	.viewport { width:480px; height:320px }
+}
+
+/* iPad [portrait + landscape] */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+	.hideForTouch { display:none }
+	.viewport { width:768px; height:512px }
+}
+
+
+.viewport {
+ width: 900px;
+            height: 600px;
+}
+        
+        #main-container
+        {
+            background: #fff;
+           
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        #css-container
+        {
+            position: absolute;
+            overflow: hidden;
+            z-index: 20;
+           
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+        }
+        
+        #css-world
+        {
+          
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+        }
+        
+        #css-camera
+        {
+            width: 900px;
+            height: 600px;
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+        }
+        
+        #shape
+        {
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+        }
+        
+        .plane
+        {
+            position: absolute;
+            height: 200px;
+            width: 200px;
+			padding:0;
+            aborder: 1px solid white;
+            aborder-radius: 12px;
+            a-webkit-box-sizing: border-box;
+            a-moz-box-sizing: border-box;
+            text-align: center;
+            font-family: Times, serif;
+            font-size: 124pt;
+            color: black;
+            background-color: rgba(27, 205, 52, 0.6);
+            -webkit-backface-visibility: hidden;
+            -moz-backface-visibility: hidden;
+        }
+        
+        #shape.backfaces .plane
+        {
+            -webkit-backface-visibility: hidden;
+            -moz-backface-visibility: visible;
+			
+        }
+        
+        /* ---------- cube styles ------------- */
+        .cube > .one
+        {
+			adisplay:none;
+            opacity: 0.5;
+            
+        }
+        
+        .cube > .two
+        {
+			adisplay:none;
+            opacity: 0.5;
+            -webkit-transform: translateX(200px);
+
+        }
+        
+        .cube > .three
+        {
+			display:none;
+            opacity: 0.5;
+            -webkit-transform: scale3d(1.0, 1.0, 1.0) rotateY(90deg) translateZ(100px);
+            -moz-transform: scale3d(1.0, 1.0, 1.0) rotateY(90deg) translateZ(100px);
+        }
+        
+        .cube > .four
+        {
+			display:none;
+            opacity: 0.5;
+            -webkit-transform: scale3d(1.0, 1.0, 1.0) rotateY(180deg) translateZ(100px);
+            -moz-transform: scale3d(1.0, 1.0, 1.0) rotateY(180deg) translateZ(100px);
+        }
+        
+        .cube > .five
+        {
+			display:none;
+            opacity: 0.5;
+            -webkit-transform: scale3d(1.0, 1.0, 1.0) rotateY(-90deg) translateZ(100px);
+            -moz-transform: scale3d(1.0, 1.0, 1.0) rotateY(-90deg) translateZ(100px);
+        }
+        
+        .cube > .six
+        {
+			display:none;
+            opacity: 0.5;
+            -webkit-transform: scale3d(1.0, 1.0, 1.0) rotateX(-90deg) translateZ(100px) rotate(180deg);
+            -moz-transform: scale3d(1.0, 1.0, 1.0) rotateX(-90deg) translateZ(100px) rotate(180deg);
+        }
+		
+		div.wallimg {
+			width:800px;
+			height:500px;
+			background-image:url(../images/wall.jpg);
+		}
+    </style>
+	
+	<script>
+	function start() {
+		var css3D = new CSS3D();
+		
+		css3D.start();
+		css3D.getCamera().position.set(1500,1500,900);
+	}
+	</script>
+</head>
+<body onload="start();">
+    <div id="main-container" class="viewport">
+        <div id="css-container">
+            <div id="css-world">
+                <div id="css-camera">
+					<div class="root Object3DContainer Object3D">
+						
+						<div id="shape" class="cube backfaces">
+							
+							
+		
+						
+						
+						<div id="FPSWorld" class="Object3DContainer Object3D" style="-webkit-transform:rotateX(-90deg); display:none">
+						</div>
+						
+						<div id="FPSWorld_NoShade" class="Object3DContainer Object3D" style="-webkit-transform:rotateX(-90deg); display:none;">
+						</div>
+						
+						<div class="plane" style="background-color:#ff0000; width:1px; height:1px; -webkit-transform:scaleX(5000) scaleY(5000) translateZ(-100px)"></div>
+						
+						<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+							<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+								<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+									<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+										<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+											<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+																				<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+																				<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+																				<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												<img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img><img class="wallimg Object3D" src="../images/wall.jpg" style="display:block; position:static"></img>
+												
+						
+					</div>
+                </div>
+            </div>
+        </div>
+      
+    </div>
+</body>
+</html>
