@@ -25,14 +25,14 @@ package glidias;
 		 
 		 
         // Consts
-        static inline var  FEATURES:Int = 50;
-        static inline var  NEW_FEATURE_TRIES:Int = 200;
+        public static var  FEATURES:Int = 50;
+        public static var  NEW_FEATURE_TRIES:Int = 200;
 
-        static inline var  MIN_CORRIDOR:Int = 10;
-        static inline var  MAX_CORRIDOR:Int = 20;
+        public static var  MIN_CORRIDOR:Int = 10;
+        public static var  MAX_CORRIDOR:Int = 20;
 
-        static inline var  MIN_ROOM:Int = 6;
-        static inline var  MAX_ROOM:Int = 14;
+        public static var  MIN_ROOM:Int = 6;
+        public static var  MAX_ROOM:Int = 14;
 
         // Dungeon container
         public var grid:Array<Array<Int>>;
@@ -147,9 +147,14 @@ package glidias;
 		 * Javascript method to generate CSSPlanes definitnation from sector map
 		 * @param	map
 		 */
-		public function getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null):String {
+		public function getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null, wallTextureSize:Float=1, floorTextureSize:Float=0, ceilTextureSize:Float=0):String {
 			if (floorMat == null) floorMat = wallMat;
 			if (ceilingMat == null) ceilingMat = floorMat;
+			
+
+			floorTextureSize = floorTextureSize > 1 ? floorTextureSize : wallTextureSize;
+			ceilTextureSize = ceilTextureSize > 1 ? ceilTextureSize : wallTextureSize;
+			
 			
 			var str:String = "";
 			var mask:Int;
@@ -162,8 +167,8 @@ package glidias;
 			for (i in 0...len) {
 				sector = map[i];
 				str += '<div class="Mesh Object3D">';
-				str += sector.getCeilingHTML(ceilingMat,gridSize);
-				str += sector.getFloorHTML(floorMat, gridSize);
+				str += sector.getCeilingHTML(ceilingMat,gridSize,ceilTextureSize);
+				str += sector.getFloorHTML(floorMat, gridSize,floorTextureSize);
 				
 				mask = 0;  // keeps track of portaled walls
 				pWalls = sector.portalWalls;
@@ -171,14 +176,14 @@ package glidias;
 				for (u in 0...uLen) {
 					p = pWalls[u];
 				
-					str += p.getHTML(sector, gridSize, wallMat);
+					str += p.getHTML(sector, gridSize, wallMat, wallTextureSize);
 					
 					mask |= (1 << p.direction);
 				}
-				if ( (mask & (1<< AABBPortalPlane.NORTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.NORTH,wallMat,gridSize);
-				if ( (mask & (1<< AABBPortalPlane.SOUTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.SOUTH,wallMat,gridSize);
-				if ( (mask & (1<< AABBPortalPlane.WEST)) == 0) str += sector.getWallHTML(AABBPortalPlane.WEST,wallMat,gridSize);
-				if ( (mask & (1<< AABBPortalPlane.EAST)) == 0) str += sector.getWallHTML(AABBPortalPlane.EAST,wallMat,gridSize);
+				if ( (mask & (1<< AABBPortalPlane.NORTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.NORTH,wallMat,gridSize,wallTextureSize);
+				if ( (mask & (1<< AABBPortalPlane.SOUTH)) == 0) str += sector.getWallHTML(AABBPortalPlane.SOUTH,wallMat,gridSize,wallTextureSize);
+				if ( (mask & (1<< AABBPortalPlane.WEST)) == 0) str += sector.getWallHTML(AABBPortalPlane.WEST,wallMat,gridSize,wallTextureSize);
+				if ( (mask & (1<< AABBPortalPlane.EAST)) == 0) str += sector.getWallHTML(AABBPortalPlane.EAST,wallMat,gridSize,wallTextureSize);
 				str += '</div>';
 			}
 			

@@ -65,7 +65,7 @@
             color: #fff;
             padding: 0;
             margin: 0;
-            overflow: hidden;
+           
             text-align: center;
         }
         canvas
@@ -82,25 +82,20 @@
             z-index: 100;
         }
         
+        
         #main-container
         {
             background: #fff;
         
             margin: 0 auto;
             overflow: hidden;
-        }
-		
-		
-        
-        #css-container
-        {
-            position: absolute;
-            overflow: hidden;
+			position: absolute;
+           
             z-index: 20;
-
-            -webkit-transform-style: preserve-3d;
+			 -webkit-transform-style: preserve-3d;
             -moz-transform-style: preserve-3d;
         }
+		
         
         #css-world
         {
@@ -279,7 +274,7 @@
 				
 				//getHTMLFromSectors(map:Array<AABBSector>, gridSize:Float, wallMat:String, floorMat:String = null, ceilingMat:String = null):String {
 				//background-color:#0f00f0;opacity:1;background-image:url(../images/corner_piece.gif);background-repeat:no-repeat;
-				var sectorJ = $( roomFiller.getHTMLFromSectors(sectors, GRID_SIZE, "background-image:url(../images/wall.jpg);", "background-image:url(../images/wood.jpg);"));
+				var sectorJ = $( roomFiller.getHTMLFromSectors(sectors, GRID_SIZE, "background-image:url(../images/wall.jpg);", "background-image:url(../images/wood.jpg);", null, 0));
 				roomFiller.setupGeometryOfSectors(sectors, GRID_SIZE);
 				
 				len = sectorJ.length;
@@ -430,7 +425,7 @@
 	<div id="blip" style="position:absolute; z-index:4; width:4px; height:4px; background-color:#ff0000;"></div>
 	
 	<div id="main-container" style="position:relative; z-index:1;" class="viewport">  <!-- todo: make less complex dom tree -->
-        <div id="css-container" class="viewport" >
+      
             <div id="css-world" class="viewport">
                 <div id="css-camera" class="viewport">
 					 <div class="boxHead Mesh Object3D" id="marker3d">
@@ -446,7 +441,7 @@
 					</div>
 				</div>
 			</div>
-		</div>
+		
 	</div>
 
 </body>

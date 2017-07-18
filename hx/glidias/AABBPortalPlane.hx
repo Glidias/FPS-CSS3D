@@ -270,11 +270,12 @@ class AABBPortalPlane implements IAABB
 		
 	}
 		
-	public function getHTML(sector:AABBSector, gridSize:Float, mat:String):String { // Gets html of aabb portal plane wall, ie. a wall with portal openings..
+	public function getHTML(sector:AABBSector, gridSize:Float, mat:String, textureSize:Float):String { // Gets html of aabb portal plane wall, ie. a wall with portal openings..
 		
 		var planeResult:PlaneResult = getPlaneResult( AABBPortalPlane.DIRECTIONS[direction], sector, gridSize);
 		var p:PlaneResult;
-		var html:String = planeResult.getOpenHTML(null);  // open html  , // no width, no height, no material, just a  planar container!
+		
+		var html:String = planeResult.getEmptyOpenHTML();  // open html  , // no width, no height, no material, just a  planar container!
 		
 		var x:Float = 0;
 		var y:Float = 0;
@@ -289,7 +290,7 @@ class AABBPortalPlane implements IAABB
 			p.width = planeResult.width;
 			p.height = aboveDoorwayHeight;
 		
-			html += p.getHTML(mat);
+			html += p.getHTML(mat, textureSize);
 		}
 		
 		
@@ -331,7 +332,7 @@ class AABBPortalPlane implements IAABB
 			p.pos.y = aboveDoorwayHeight;
 			p.width =   o - m ;
 			p.height = portal.height;
-		if ( !(p.width == 0 || p.height ==0) )	html += p.getHTML(mat);
+		if ( !(p.width == 0 || p.height ==0) )	html += p.getHTML(mat, textureSize);
 		
 			m +=  p.width  + portal.width;
 			// door wall spacing rect = (right vector offset - baseOffset, aboveDoorwayHeight, spacignWidth, doorwayHeight)
@@ -345,7 +346,7 @@ class AABBPortalPlane implements IAABB
 			p.pos.y = aboveDoorwayHeight;
 			p.width =   planeResult.width - m;
 			p.height = portal.height;
-		if ( !(p.width == 0 || p.height ==0) )	html += p.getHTML(mat);
+		if ( !(p.width == 0 || p.height ==0) )	html += p.getHTML(mat, textureSize);
 		//*/
 		
 		// spacing after last portal

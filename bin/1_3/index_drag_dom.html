@@ -54,8 +54,7 @@
 /* iPhone [portrait + landscape] */
 @media only screen and (max-device-width: 480px) {
 	.hideForTouch { display:none }
-	.viewport { width:480px; height:280px }
-	
+	.viewport { width:480px; height:320px }
 }
 
 
@@ -66,7 +65,7 @@
             color: #fff;
             padding: 0;
             margin: 0;
-        
+            overflow: hidden;
             text-align: center;
         }
         canvas
@@ -83,18 +82,12 @@
             z-index: 100;
         }
         
-        
         #main-container
         {
             background: #fff;
         
             margin: 0 auto;
             overflow: hidden;
-			position: absolute;
-           
-            z-index: 20;
-			 -webkit-transform-style: preserve-3d;
-            -moz-transform-style: preserve-3d;
         }
 		
 		
@@ -102,7 +95,7 @@
         #css-container
         {
             position: absolute;
-
+            overflow: hidden;
             z-index: 20;
 
             -webkit-transform-style: preserve-3d;
@@ -294,28 +287,25 @@
 				var s;
 				for (i = 0; i<len; i++) {
 					sectors[i].dom = sectorJ[i];
-					sectors[i].setVis(false);
+				//	sectors[i].setVis(false);
 				//	sectorJ[i].style.opacity = ".8";
 				}
-				$("#scene").append(sectorJ);
+				//$("#scene").append(sectorJ);
 				
 				
+				var scene =$("#sectors");
+				var sceneDom = scene[0];
+				var rootScene = $("#scene");
 				
 				var s = sectors[0]; //Math.floor(Math.random()*roomFiller.rooms.length);
-				sectors[0].setVis(true);
-				sectors[1].setVis(true);
-				sectors[2].setVis(true);
-				sectors[3].setVis(true);
-				
 				var camera = css3D.getCamera();
-				camera.position.set(s.minX+(s.maxX - s.minX)*.5,s.minY+(s.maxY - s.minY)*.5,s.minZ+(s.maxZ - s.minZ)*.5);
+				camera.position.set(s.minX+(s.maxX - s.minX)*.5,s.minY+(s.maxY - s.minY)*.5,s.minZ+(s.maxZ - s.minZ)*.5+1400);
 				var blip = document.getElementById("blip");
 				var camPos = camera.position;
 				var frustum = css3D.getFrustum();
 				var east = glidias.AABBPortalPlane.DIRECTIONS[glidias.AABBPortalPlane.EAST];
 				var south = glidias.AABBPortalPlane.DIRECTIONS[ glidias.AABBPortalPlane.SOUTH];
 				var portalViser = new glidias.AABBSectorVisController();
-				
 				
 				var counter = 0;
 				var marker = document.getElementById("marker3d");
@@ -326,26 +316,72 @@
 				var keyPoll = new glidias.input.KeyPoll();
 				var KeyCode =  glidias.input.KeyCode;
 				var checkSector;
+				
+				
 			
+				// set up drag controls
+				camera.rotation.x = Math.PI * .5;
+				camera.position.y -= 2044;
+				var hammer = new Hammer(document.body);
+				var startDragX;
+				var startDragY;
+				hammer.ondragstart = function(e) {
+		
+					startDragX= camPos.x;
+					startDragY = camPos.z;
+				}
+				hammer.ondrag = function(e) {
+					camPos.x = startDragX + e.distanceX * 8;
+					camPos.z =startDragY +  e.distanceY * 8;
+				};
 				
 				css3D.preUpdate( function() {
-					
-					
-					//checkSector = portalViser.getCurrentSector(camPos, sectors);
-			return true;
+					//camera.rotation.z+= .0025;
+					return true;
+				//	checkSector = portalViser.getCurrentSector(camPos, sectors);
+			
 				});
 				
+				///*
 				var halted;
+				var len = sectors.length;
+					var s;
+					var frus = frustum;
+					for (i=0; i< len; i++) {
+						s = sectors[i];
+						//s.setVis(true );
+						s.visible = false;
+						
+					}
+				//	*/
 				
 				
-				css3D.postUpdate( function() {
-				camera.rotation.y += .01;
-				});
 				css3D.preRender( function() {
+			//	/*
+			
+					//rootScene.removeChild(scene);
+				//	scene.detach();
 				
-				
-					//portalViser.run(camPos, frustum, sectors);
+					var len = sectors.length;
+					var s;
+					var state;
+					var frus = frustum;
+					for (i=0; i< len; i++) {
+						s = sectors[i];
+						state = frus.checkVisibility(s);
+						if (state != s.visible) {
+						//	s.dom.style.visibility = state ? "visible" : "hidden";
+							s.visible = state;
+							if (state) sceneDom.appendChild(s.dom);
+							else $(s.dom).detach(); //removeNode()
+						}
+					}
 					
+					//rootScene.append(scene);
+					
+					
+				//	*/
+				//	portalViser.run(camPos, frustum, sectors);
 				//	return;
 				
 					//public function run(camPos:Vec3, camFrus:Frustum, sectors:Array<AABBSector>):Void {
@@ -369,10 +405,10 @@
 		
 	</div>
 	
-	<div id="blip" class="hideForTouch" style="position:absolute; z-index:4; width:4px; height:4px; background-color:#ff0000;"></div>
+	<div id="blip" style="position:absolute; z-index:4; width:4px; height:4px; background-color:#ff0000;"></div>
 	
 	<div id="main-container" style="position:relative; z-index:1;" class="viewport">  <!-- todo: make less complex dom tree -->
-      
+        <div id="css-container" class="viewport" >
             <div id="css-world" class="viewport">
                 <div id="css-camera" class="viewport">
 					 <div class="boxHead Mesh Object3D" id="marker3d">
@@ -384,11 +420,13 @@
           <div class="plane" style="background-image:url(../danbo_textures/danbo_tx_bottom.png); background-position:-32px -32px; width:32px; height:32px; -webkit-transform:matrix3d(5,0,0,0,0,-3.1875,0,0,0,0,1,0,-80,51,51,1);"></div>
         </div>
 					<div class="root Object3DContainer Object3D" id="scene" style=""> <!-- -webkit-transform:rotateX(-90deg) rotateY(180deg);  -->
-						
+						<div class="Object3D" id="sectors">
+							
+						</div>
 					</div>
 				</div>
 			</div>
-		
+		</div>
 	</div>
 
 </body>

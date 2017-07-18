@@ -54,7 +54,7 @@
 /* iPhone [portrait + landscape] */
 @media only screen and (max-device-width: 480px) {
 	.hideForTouch { display:none }
-	.viewport { width:480px; height:320px }
+	.viewport { width:480px; height:220px }
 }
 
 
@@ -65,7 +65,7 @@
             color: #fff;
             padding: 0;
             margin: 0;
-            overflow: hidden;
+           
             text-align: center;
         }
         canvas
@@ -82,25 +82,20 @@
             z-index: 100;
         }
         
+        
         #main-container
         {
             background: #fff;
         
             margin: 0 auto;
             overflow: hidden;
-        }
-		
-		
-        
-        #css-container
-        {
-            position: absolute;
-            overflow: hidden;
+			position: absolute;
+           
             z-index: 20;
-
-            -webkit-transform-style: preserve-3d;
+			 -webkit-transform-style: preserve-3d;
             -moz-transform-style: preserve-3d;
         }
+		
         
         #css-world
         {
@@ -322,16 +317,20 @@
 					
 					
 				//	checkSector = portalViser.getCurrentSector(camPos, sectors);
-			
+					return true;
 				});
 				
 				var halted;
-				
+				css3D.postUpdate( function() {
+				camera.rotation.y += .01;
+				});
 				
 				
 				css3D.preRender( function() {
 				//	portalViser.run(camPos, frustum, sectors);
 				//	return;
+				
+				
 				
 					//public function run(camPos:Vec3, camFrus:Frustum, sectors:Array<AABBSector>):Void {
 
@@ -357,7 +356,7 @@
 	<div id="blip" class="hideForTouch" style="position:absolute; z-index:4; width:4px; height:4px; background-color:#ff0000;"></div>
 	
 	<div id="main-container" style="position:relative; z-index:1;" class="viewport">  <!-- todo: make less complex dom tree -->
-        <div id="css-container" class="viewport" >
+       
             <div id="css-world" class="viewport">
                 <div id="css-camera" class="viewport">
 					 <div class="boxHead Mesh Object3D" id="marker3d">
@@ -373,7 +372,7 @@
 					</div>
 				</div>
 			</div>
-		</div>
+	
 	</div>
 
 </body>

@@ -1,0 +1,160 @@
+/* GENERAL */
+.container { font-size: 14px; height: 619px; line-height: 1.5em; overflow: hidden; padding: 0 30px 30px; position: relative; width: 840px; z-index: 0; }
+.container h1,
+.container h2,
+.container h3 { color: #fff; font-weight: normal; }
+.container h2 { font-size: 20px; margin: 10px 0 0; }
+.container h3 { font-size: 14px; margin: 12px 0 8px; }
+.container header { background: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0)), color-stop(0.5,rgba(0,0,0,0.04)), to(rgba(0,0,0,0.08))); border-width: 0 0 4px 0; -webkit-border-image: url(https://devimages.apple.com.edgekey.net/safaridemos/showcase/images/showcase_header_border.png) 0 0 4 0 stretch stretch; margin: 0 -30px; padding: 18px 30px; position: relative; width: auto; z-index: 0; }
+.container header h1 { font-size: 28px; margin: 0; text-shadow: 0 -1px 0 rgba(0,0,0,0.3); }
+.container header + * { padding-top: 30px; }
+.container select { -webkit-appearance: none; width: 170px; height: 25px; padding-left: 10px; border: none; line-height: 16px; }
+
+.container .toggle { clear: both; margin: 0 0 .1em; width: 170px; padding: 0; -webkit-user-select: none; }
+.container .toggle:first-of-type { margin-top: 1.5em; }
+.container .toggle:last-of-type { margin-bottom: .5em; }
+.container .toggle label { cursor: pointer; color: rgba(255, 255, 255, .5); }
+.container .toggle legend { float: left; margin: 0 0 .6em; padding: 0; color: rgb(255, 255, 255); }
+.container .toggle-control { float: right; }
+.container .toggle-control input[type="checkbox"] { -webkit-appearance: none; margin: -5px -6px -7px; width: 82px; height: 24px; border: none; background: url(https://devimages.apple.com.edgekey.net/safaridemos/showcase/images/toggle.png) no-repeat 0 -24px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.container .toggle-control input[type="checkbox"]:checked { background-position: 0 0; }
+@media only screen and (max-device-width: 768px) {
+	.container .toggle { padding-top: 1em; }
+	.container .toggle-control input[type="checkbox"] { margin: -5px 6px -7px; background-image: url(https://devimages.apple.com.edgekey.net/safaridemos/showcase/images/toggle_mobile.png); }
+}
+.selfclear:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+
+.resetButton {
+	-webkit-appearance: none;
+	background: -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0.30)), color-stop(0.5,rgba(255,255,255,0.05)), to(rgba(255,255,255,0.05))); 
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	border-top: 1px solid rgba(255,255,255,0.4);
+	border-left: 1px solid rgba(255,255,255,0.25);
+	border-right: 1px solid rgba(255,255,255,0.25);
+	border-bottom: 1px solid rgba(0,0,0,0.1);
+	-webkit-box-shadow: 1px 1px 1px rgba(0,0,0, 1);
+	-moz-box-shadow: 1px 1px 1px rgba(0,0,0, 1);
+	-o-box-shadow: 1px 1px 1px rgba(0,0,0, 1);
+	box-shadow: 1px 1px 1px rgba(0,0,0, 1);
+	cursor: pointer;
+	padding: 4px 10px;
+	margin-left: 0;
+	color: #fff;
+	font-size: 12px;
+	line-height: 1.2em;
+	text-shadow: 0 -1px 0 rgba(0,0,0,0.35);
+}
+.resetButton:hover {
+	background: -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0.4)), color-stop(0.5,rgba(255,255,255,0.05)), to(rgba(255,255,255,0.05)));
+}
+.container .how {
+	padding-top: 16px;
+}
+.container .how h3 {
+	font-size: 16px;
+	font-weight: normal;
+	color: rgba(0,0,0,0.5);
+	margin: 0 0 8px;
+	display: none;
+}
+.container .how p {
+	font-size: 14px;
+	line-height: 18px;
+	color: rgba(0,0,0,0.5);
+	margin: 0 0 8px;
+	display: none;	
+}
+.alt .container .how strong { color: rgba(255,255,255,0.8); }
+
+/* sliders */
+.sliderTrackLeft,
+.sliderTrackRight,
+.sliderTicks,
+.sliderTicksAbove,
+.sliderTicksBelow,
+.tickMark { display:none; }
+
+/* horizontal slider */
+.horizontalSlider { position:relative; height:6px; }
+.horizontalSlider * { margin:0; height:6px; padding:0; }
+.horizontalSlider .sliderTrack { z-index:1;
+  background-color:rgba(0,0,0,0.08);
+  border:1px solid #999; border-color:rgba(0,0,0,0.4) rgba(128,128,128,0.4) rgba(255,255,255,0.4);
+  -webkit-box-shadow:inset 1px 1px 3px rgba(0,0,0,0.4);
+  -webkit-border-radius:6px; -webkit-box-sizing:border-box;
+}
+.horizontalSlider .sliderThumb { position:absolute; top:-3px; left:1px; width:13px; height:13px; z-index:2; cursor:pointer; background:url(https://devimages.apple.com.edgekey.net/safaridemos/showcase/images/sliderThumb_H_plain.png) no-repeat; }
+
+.horizontalSlider .sliderTrackLeft,
+.horizontalSlider .sliderTrackRight,
+.horizontalSlider .sliderTicks,
+.horizontalSlider .sliderTicksAbove,
+.horizontalSlider .sliderTicksBelow,
+.horizontalSlider .tickMark { display:none; }
+
+@media only screen and (max-device-width: 768px) {
+	.horizontalSlider { height:13px; }
+	.horizontalSlider .sliderThumb { width:33px; height:33px; top:-10px; background-image:url(https://devimages.apple.com.edgekey.net/safaridemos/showcase/images/sliderThumb_H_mobile.png); }
+	.horizontalSlider .sliderTrack { height:13px; -webkit-border-radius:7px; -webkit-box-shadow:0 1px 1px rgba(255,255,255,0.2); border:none;
+		background:rgba(0,0,0,0.1) -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.2)), color-stop(0.3,transparent), to(transparent));
+	}
+}
+
+/* vertical slider */
+.verticalSlider { position: absolute; width:12px; }
+.verticalSlider * { margin:0; width:12px; padding:0; }
+.verticalSlider .sliderTrack { float:left; width: 5px; z-index:1; background: url(https://devimages.apple.com.edgekey.net/safaridemos/showcase/images/sliderTrack_V.png) no-repeat 0 0; }
+.verticalSlider .sliderThumb { position:absolute; left:-3px; top:1px; margin-top:4px; width: 12px; height: 20px; z-index:2; background: url(https://devimages.apple.com.edgekey.net/safaridemos/showcase/images/sliderThumb_V.png) no-repeat 0 0; cursor:default; }
+
+
+/* preset nav */
+.container .presets { color: #fff; display: block; font-size: 12px; line-height: 1.2; position: absolute; top: 20px; right: 170px; text-shadow: 0 -1px 0 rgba(0,0,0,0.3); text-align: right; width: 464px; z-index: 2; }
+.container .presets .label { padding: 3px 0 0; width: 72px; }
+.container .presets .label,
+.container .presets .preset { float: left; margin-right: 10px; position: relative; }
+.container .presets .preset { width: 48px; background: rgba(0,0,0,0.25); border: 1px solid rgba(0,0,0,0.2); height: 34px; position: relative; -webkit-border-radius: 4px; }
+.container .presets .preset img { opacity: 1; position: relative; top: 0; left: 0; text-align: center; -webkit-border-radius: 4px; -webkit-transition: opacity 0.2s linear; }
+.container .presets .preset.active img { opacity: 0.4; }
+.container .presets .preset.active:hover { cursor: default; }
+
+.container .presets .preset .highlight { background: -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0)), color-stop(0.2,rgba(255,255,255,0.2)), to(rgba(255,255,255,0.35))); height: 17px; opacity: 1; position: absolute; top: 0; left: 0; width: 100%; z-index: 3; }
+.container .presets .preset:hover .highlight { background: -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0.2)), color-stop(0.2,rgba(255,255,255,0.4)), to(rgba(255,255,255,0.75))); height: 17px; opacity: 1; position: absolute; top: 0; left: 0; width: 100%; z-index: 3; }
+.container .presets .preset.active .highlight { 
+	background: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.4)), color-stop(0.05,rgba(0,0,0,0.25)), color-stop(0.1,rgba(0,0,0,0)), to(rgba(0,0,0,0))),
+				-webkit-gradient(linear, left top, right top, from(rgba(0,0,0,0.25)), color-stop(0.025,rgba(0,0,0,0.15)), color-stop(0.05,rgba(0,0,0,0)), to(rgba(0,0,0,0))),
+				-webkit-gradient(linear, right top, left top, from(rgba(0,0,0,0.25)), color-stop(0.025,rgba(0,0,0,0.15)), color-stop(0.05,rgba(0,0,0,0)), to(rgba(0,0,0,0)));
+	height: 34px; }
+.container .presets .preset .screen { background: rgba(255,255,255,0.25); display: none; height: 34px; position: absolute; top: 0; left: 0; width: 48px; -webkit-border-radius: 4px; }
+.container .presets .preset:hover .screen { display: block; }
+.container .presets .preset.active:hover .screen { display: none; }
+
+.container .presets .preset b { background: url(https://devimages.apple.com.edgekey.net/safaridemos/showcase/images/preset_arrow_active.png) no-repeat 0 0; display: block; height: 7px; opacity: 0; overflow: hidden; position: absolute; bottom: -12px; left: 18px; text-indent: -9999px; text-align: left; width: 12px; }
+.alt .container .presets .preset b { background: url(https://devimages.apple.com.edgekey.net/safaridemos/showcase/images/preset_arrow_active_light.png) no-repeat 0 0; }
+.container .presets .preset.active b { opacity: 1; }
+
+/* dev center link */
+.container .safari_dev_center { clear: both; margin-bottom: 0; margin-left:-30px; width: 900px;
+	font-size: 12px; line-height: 2.2; text-align: center; text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
+	border-top: 1px solid rgba(0,0,0,0.1);
+	background: -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0.2)), color-stop(0.05,rgba(0,0,0,0.1)), to(rgba(0,0,0,0.1)));
+}
+.alt .container .safari_dev_center { 
+	border-top: 1px solid rgba(0,0,0,1);
+	background: -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0.2)), color-stop(5%,rgba(255,255,255,0.08)), to(rgba(255,255,255,0.08))); 
+}
+.container .safari_dev_center a { background: url(https://devimages.apple.com.edgekey.net/safaridemos/showcase/images/morearrow_fff.png) no-repeat 100% 60%; color: #fff; padding-right: 10px; text-decoration: none; }
+
+@media only screen and (max-device-width: 768px) {
+	.noMobile { display: none; }
+}
+
+.container a.mediaFallback { position:absolute; left:0; top:0; z-index:10; display: block; padding: 220px 60px; height: 210px; text-decoration: none; text-align: center; font-size: 16px; width: 780px; }
+.container a h3 { font-size: 18px; color: inherit; font-weight: bold; }
+.container a p { margin: 0; }
+.container a span { color: #08c; }
+.container a:hover span { text-decoration: underline; }
+
+/* SHOWCASE BACKGROUND OVERRIDE FOR BACKGROUNDS */
+#main.content{-webkit-box-shadow:none;background-color:transparent;}

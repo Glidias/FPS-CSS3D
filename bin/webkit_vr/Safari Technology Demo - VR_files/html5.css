@@ -1,0 +1,369 @@
+* { -webkit-touch-callout: none; }
+header, footer, article, section, nav, aside { display: block; }
+html, body { background-color: #f2f2f2; }
+h2 { font-size: 26px; margin: 0; }
+#main { margin: 0 auto 18px; width:980px; }
+#main.isipad { width:900px; }
+.subhead { color: #777; font-size: 20px; }
+#optimized, #overview #future, #overview #apple, #overview #showcase { clear: left; }
+
+
+#pageheader { background: url(https://devimages.apple.com.edgekey.net/safaridemos/images/bg_showcase_hero.gif) repeat-x 0 100%; padding:38px 60px 28px 0; width: 920px; }
+#pageheader h1 { margin-bottom: 0; margin-left: 514px; }
+#pageheader .intro { font-size: 16px; line-height: 1.4; margin-left: 514px; padding-bottom: 1.5em; }
+#pageheader .left { margin-bottom: 0; margin-top: -70px; position: relative; }
+
+
+.promos { width:980px; margin:0 auto 2em; line-height:1.4; }
+.promos a { display:block; padding-top:24px; text-decoration:none; }
+.promos .more { padding-right:10px; color:#08c; white-space:nowrap; background:url(https://devimages.apple.com.edgekey.net/global/elements/arrows/morearrow_08c.gif) no-repeat 100% 60%; }
+.promos a:hover .more { text-decoration:underline; }
+.promos h2 { font-size:18px; }
+.promos p { color:#666; }
+.promos img.right { margin:0 0 0 20px; }
+
+.promos .column.first { width:450px; padding:0 0 0 40px; }
+.promos .column.last { width:370px; padding:0 80px 0 40px; }
+
+#optimized img.right { margin-top:-24px; }
+#thoughts img.right { margin-left:70px; }
+
+
+nav#showcasenav { margin:-15px 0 2px 39px; text-align:center; font-size:14px; text-shadow:0 1px 0 rgba(255,255,255,.75); }
+nav#showcasenav:after { content:'.'; display:block; height:0; clear:both; visibility:hidden; }
+nav#showcasenav a,
+nav#showcasenav span { position:relative; float:left; padding:30px 6px 6px; -webkit-border-radius:5px; color:#000; z-index:0; }
+nav#showcasenav > :nth-child(3n) { margin-right:-1px; }
+nav#showcasenav a:after,
+nav#showcasenav span:after { display:block; position:absolute; top:0; left:0; width:100%; height:100%; content:' '; background:url(https://devimages.apple.com.edgekey.net/safaridemos/images/navmask.png) no-repeat 0 0; }
+nav#showcasenav a:hover,
+nav#showcasenav a:focus { color:#08c; text-decoration:none; }
+@media only screen and (min-device-width:1025px) {
+	nav#showcasenav a:hover {
+		background:
+			-webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,.92)), color-stop(.4, rgba(255,255,255,0)), color-stop(.6, rgba(255,255,255,0)), to(rgba(255,255,255,.92))),
+			-webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,.65)), color-stop(.014, rgba(0,0,0,.2)), color-stop(.04, rgba(0,0,0,0)), color-stop(.97, rgba(0,0,0,0)), color-stop(.986, rgba(0,0,0,.15)), to(rgba(0,0,0,.4))),
+			-webkit-gradient(linear, left top, right top, from(rgba(0,0,0,.5)), color-stop(.01, rgba(0,0,0,.2)), color-stop(.03, rgba(0,0,0,0)), color-stop(.97, rgba(0,0,0,0)), color-stop(.99, rgba(0,0,0,.2)), to(rgba(0,0,0,.5))),
+			-webkit-gradient(linear, left top, left bottom, from(#e5e5e5), color-stop(.84, #e5e5e5), to(#b2b2b2))
+		;
+	}
+}
+nav#showcasenav span { color:#999;
+	background:
+		url(https://devimages.apple.com.edgekey.net/safaridemos/images/nav.png) no-repeat 50% 9px,
+		-webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,.92)), color-stop(.4, rgba(255,255,255,0)), color-stop(.6, rgba(255,255,255,0)), to(rgba(255,255,255,.92))),
+		-webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,.65)), color-stop(.014, rgba(0,0,0,.2)), color-stop(.04, rgba(0,0,0,0)), color-stop(.97, rgba(0,0,0,0)), color-stop(.986, rgba(0,0,0,.15)), to(rgba(0,0,0,.4))),
+		-webkit-gradient(linear, left top, right top, from(rgba(0,0,0,.5)), color-stop(.01, rgba(0,0,0,.2)), color-stop(.03, rgba(0,0,0,0)), color-stop(.97, rgba(0,0,0,0)), color-stop(.99, rgba(0,0,0,.2)), to(rgba(0,0,0,.5))),
+		-webkit-gradient(linear, left top, left bottom, from(#e5e5e5), color-stop(.84, #e5e5e5), to(#b2b2b2))
+	;
+}
+nav#showcasenav img { display:block; margin-bottom:4px; border:1px solid #fff; }
+
+
+#future { margin-bottom: 26px; padding: 0 40px 18px; position: relative; width: 900px; }
+#future .column { margin-left: 3%; width: 31%; }
+#future strong { font-size: 120%; }
+
+
+#whystandards { border-top: 1px solid #e5e5e5; clear: left; }
+#whystandards .intro { width: 62%; }
+
+#whystandards { margin: 90px 40px 60px; padding: 17px; border-width: 1px; }
+#whystandards h3 { border-bottom: 1px solid rgba(0,0,0,0.1); font-size: 14px; line-height: 2.2; margin-bottom: 0; width: 100%; }
+#whystandards #why { border-top: 1px solid rgba(255,255,255,1); clear: both; padding-top: 30px; width: 100%; }
+#whystandards #why h4 { font-size: 14px; }
+#whystandards #why p { font-size: 12px; }
+
+
+#apple { border-bottom: 1px solid #e5e5e5; border-top: 1px solid #e5e5e5; float: left; margin: 0 40px 12px; padding: 12px 0 50px; }
+#apple .intro { width: 56%; }
+#apple .apple_example { float: left; padding-bottom: 18px; width: 414px; }
+#apple .apple_example:nth-child(even) { float: right; }
+#apple .apple_example.last { float: right; }
+#apple .apple_example img { margin-bottom: 18px; }
+#apple .apple_example p { width: 384px; margin-bottom: 0px; }
+
+
+#warning_container { display: block; height: 100%; width: 100%;
+	background: #fff; background: rgba(255,255,255,0.8); 
+	*background: none; -ms-filter:"progid:DXImageTransform.Microsoft.gradient(startColorstr=#80FFFFFF,endColorstr=#80FFFFFF)"; filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#80FFFFFF,endColorstr=#80FFFFFF);
+}
+#warning_container.scaling_pane { -webkit-animation-duration: 0s; }
+#warning_container .warning_content { position: relative; top: 50%; margin: -25% auto 0; width: 390px; min-height: 310px; *height: 330px; padding: 57px 67px 37px; 
+	background:url(https://devimages.apple.com.edgekey.net/safaridemos/images/warning_bg.png) no-repeat 50% 50%;
+	_padding: 20px 30px 0; _background:#fff; _border: 1px solid; _border-color: #e5e5e5 #dbdbdb #d2d2d2;
+}
+#warning_container .warning_content h1,
+#warning_container .warning_content .grid2col a b { font-size: 18px; font-weight: bold; }
+#warning_container .warning_content p { font-size: 14px; }
+#warning_container .warning_content h3 { font-size: 14px; font-weight: bold; }
+#warning_container .warning_content .grid2col a,
+#warning_container .warning_content .grid2col a b,
+#warning_container .warning_content .grid2col a .more { color: #000; display: block; text-decoration: none; }
+#warning_container .warning_content .grid2col a .more { background: url(https://devimages.apple.com.edgekey.net/global/elements/arrows/morearrow_08c.gif) no-repeat 100% 60%; color: #08c; display: inline; padding-right: 8px; text-align: left; white-space: nowrap; }
+#warning_container .warning_content .grid2col a { background-repeat: no-repeat; background-position: 0 100%; min-height: 87px; margin: 0 auto; padding: 22px 0 0 70px; width: 124px; *height: 87px; }
+#warning_container .warning_content .grid2col a:hover .more { text-decoration: underline; }
+#warning_container .warning_content .grid2col #warning_safari { background-image: url(https://devimages.apple.com.edgekey.net/safaridemos/images/warning_icon_safari.jpg); }
+#warning_container .warning_close { display: block; position: absolute !important; top: 24px; left: 22px; _top: -14px; _left: -16px; width: 30px; height: 30px; overflow: hidden; text-indent: -9999px; z-index: 2; background: url('https://devimages.apple.com.edgekey.net/safari/images/close_button.png') no-repeat 0 0; behavior:url(/global/scripts/lib/iepngfix.htc); }
+
+#warning_container .warning_content:nth-child(1n) { padding: 20px 30px 0; border: 6px solid #fff;
+	background: #fff; background: -webkit-gradient(linear, left top, left bottom, from(#fff), color-stop(0.3,#fefefe), to(#f4f4f4)); background: -moz-linear-gradient(top, #fff, #f4f4f4);
+	-webkit-border-radius: 4px; -moz-border-radius: 4px; -o-border-radius: 4px; border-radius: 4px;
+	-webkit-box-shadow: rgba(0,0,0,0.3) 0 4px 13px; -moz-box-shadow: rgba(0,0,0,0.3) 0 4px 13px;
+}
+#warning_container .warning_close:nth-child(1n) { top: -18px; left: -22px; }
+
+
+noscript p { margin:0 auto 10px; padding:10px; text-align:center; font-size:14px; background:#333; color:#ccc; }
+#overview noscript p { border-right:1px solid #fff; }
+
+
+#showcase { margin: 0;padding: 0; }
+#showcase .intro { width: 64%; }
+#showcase .hidden { visibility:hidden; display:none; opacity: 0; }
+#html5-showcase { height: 650px; margin-bottom: 2em; overflow: hidden; position: relative; width: auto; z-index: 0; }
+#html5-showcase .HTML5Pane { height: 210px; position: absolute; width: 293px; }
+#html5-showcase #loading_pane { position: absolute; background: url(http://images.apple.com/global/elements/quicktime/qt_loading480x272.gif) no-repeat 50% 50%; width: 293px; height: 210px; opacity:.4; -webkit-transition: opacity 0.3s linear; -webkit-transition-delay: 0; -moz-transition: opacity 0.3s linear; -moz-transition-delay: 0;}
+#html5-showcase #loading_pane.hidden { opacity: 0; }
+#html5-showcase .HTML5Pane.learnmore { background: url(https://devimages.apple.com.edgekey.net/safaridemos/images/showcase_learnmore.jpg) no-repeat 0 0; width: 596px; }
+#html5-showcase .HTML5Pane a { display: block; height: 210px; text-decoration: none; width: 293px; }
+#html5-showcase #pane_8 a { width: 596px; }
+#html5-showcase .HTML5Pane .caption { display: block; position: absolute; left: 0; bottom: 0; width: 285px; padding-left: 8px; color: #fff; font-size: 16px; line-height: 2.2em; 
+	background: #000; background: rgba(0,0,0,0.1);
+	*background: none; -ms-filter:"progid:DXImageTransform.Microsoft.gradient(startColorstr=#10000000,endColorstr=#10000000)"; filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#10000000,endColorstr=#10000000);
+}
+#html5-showcase .HTML5Pane #sc_360 .caption { text-shadow: 0 -1px 0 #aaa; }
+
+#html5-showcase .HTML5Pane.learnmore .caption { background: transparent; -ms-filter:none; filter:none; color: #666; font-size: 14px; line-height: 1.4; margin: 0 0 0 50px; top: 32%; text-shadow: none; width: 460px; }
+#html5-showcase .HTML5Pane.learnmore .caption strong { color: #000; display: block; font-weight: bold; font-size: 22px; margin-right:-10px; }
+#html5-showcase .HTML5Pane.learnmore .caption .more { padding-right: 8px; white-space: nowrap; color: #08c; font-weight: normal; background: url(http://images.apple.com/global/elements/arrows/morearrow_08c.gif) no-repeat 100% 60%; zoom:1; }
+#html5-showcase .HTML5Pane.learnmore a:hover { cursor: pointer; }
+#html5-showcase .HTML5Pane.learnmore a:hover .more { text-decoration: underline; }
+
+
+a.backtoshowcase { float:right; margin:10px 0 0 0; padding-left:12px; font-size:14px; background:url(http://images.apple.com/global/elements/arrows/lessarrow_big_08c.gif) no-repeat 0 50%; }
+
+#html5-showcase .HTML5Pane.incompatible { opacity: 0.4; }
+
+
+#globalfooter #breadcrumbs a { position:static; *position:relative; }
+
+
+.pane_1 { left: 0; top:0; }
+.pane_2 { left: 303px; top:0px; }
+.pane_3 { left: 606px; top: 0; }
+.pane_4 { left: 0; top: 220px; }
+.pane_5 { left: 303px; top: 220px; }
+.pane_6 { left: 606px; top: 220px; }
+.pane_7 { left: 0; top: 440px; }
+.pane_8 { left: 303px; top: 440px; }
+.pane_9 { left: 606px; top: 440px; }
+
+
+.pane_1_transformOrigin { -webkit-transform-origin: top left;}
+.pane_2_transformOrigin { -webkit-transform-origin: top center;}
+.pane_3_transformOrigin { -webkit-transform-origin: top right;}
+.pane_4_transformOrigin { -webkit-transform-origin: center left;}
+.pane_5_transformOrigin { -webkit-transform-origin: center center;}
+.pane_6_transformOrigin { -webkit-transform-origin: center right;}
+.pane_7_transformOrigin { -webkit-transform-origin: bottom left;}
+.pane_8_transformOrigin { -webkit-transform-origin: bottom center;}
+
+
+.fading_pane {
+	position:absolute;
+	opacity: 0.0;
+	-webkit-transform:scale3d(3.12,3.12,1);
+	-webkit-animation-duration: 1.05s;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-name: pane_fadeOut;
+}
+@-webkit-keyframes pane_fadeOut {
+  0%   { -webkit-transform:scale3d(1.0,1.0,1.0); opacity:1; }
+  50%  { -webkit-transform:scale3d(2.06,2.06,1); opacity:0; }
+  100% { -webkit-transform:scale3d(3.12,3.12,1); opacity:0; }    
+}
+
+.scaling_pane {
+	position:absolute;
+	opacity: 1.0;
+	-webkit-animation-duration: .6s;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-name: pane_scaleOut;
+}
+
+@-webkit-keyframes pane_scaleOut {
+  0%   { -webkit-transform:scale3d(0.33,0.33,1); opacity:0; }
+  50%  { -webkit-transform:scale3d(0.665,0.665,1); opacity:1.00; }
+  100% { -webkit-transform:scale3d(1,1,1); opacity:1; }
+}
+
+.fadedIn_pane {
+	position:absolute;
+	opacity: 0;
+	-webkit-animation-duration: .735s;
+	-webkit-animation-name: pane_scaleIn;
+}
+
+@-webkit-keyframes pane_scaleIn {
+  0%   { -webkit-transform:scale3d(1,1,1); opacity:1; }
+  50%  { -webkit-transform:scale3d(0.665,0.665,1); opacity:0; }
+  100% { -webkit-transform:scale3d(0.33,0.33,1); opacity:0; }
+}
+
+.origin_pane {
+	position:absolute;
+	opacity: 1.0;
+	-webkit-animation-duration: .735s;
+	-webkit-transform:scale3d(1.0,1.0,1.0);
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-name: pane_scaleToOrigin;
+}
+
+@-webkit-keyframes pane_scaleToOrigin {
+  0%   { -webkit-transform:scale3d(3.12,3.12,1); opacity:0; }
+  50%  { -webkit-transform:scale3d(2.06,2.06,1); opacity:1; }
+  100% { -webkit-transform:scale3d(1,1,1); opacity:1; }
+}
+
+.spreading {
+  -webkit-transition-timing-function: linear;
+  -webkit-transition-property: -webkit-transform;
+  -webkit-transition-duration: 0.8s;
+}
+
+.HTML5Pane.pane_1_p2 { -webkit-transform: translate3d(739.6875px, 0px, 0px);       }
+.HTML5Pane.pane_1_p3 { -webkit-transform: translate3d(790px, -137px, 0px);         }
+.HTML5Pane.pane_1_p4 { -webkit-transform: translate3d(108.75px, 533px, 0px);       }
+.HTML5Pane.pane_1_p5 { -webkit-transform: translate3d(267px, 533px, 0px);          }
+.HTML5Pane.pane_1_p6 { -webkit-transform: translate3d(367px, 327.75px, 0px);       }
+.HTML5Pane.pane_1_p7 { -webkit-transform: translate3d(-54.25px, 533px, 0px);       }
+.HTML5Pane.pane_1_p8 { -webkit-transform: translate3d(450px, 533px, 0px);          }
+
+.HTML5Pane.pane_2_p1 { -webkit-transform: translate3d(-365px,-108.5px, 0px);       }
+.HTML5Pane.pane_2_p3 { -webkit-transform: translate3d(365px, -108.5px, 0px);       }
+.HTML5Pane.pane_2_p4 { -webkit-transform: translate3d(-365px, 217px, 0px);         }
+.HTML5Pane.pane_2_p5 { -webkit-transform: translate3d(0px, 533px, 0px);            }
+.HTML5Pane.pane_2_p6 { -webkit-transform: translate3d(365px, 217px, 0px);          }
+.HTML5Pane.pane_2_p7 { -webkit-transform: translate3d(-54.375px, 270.75px, 0px);   }
+.HTML5Pane.pane_2_p8 { -webkit-transform: translate3d(182.5px, 567px, 0px);        }
+
+.HTML5Pane.pane_3_p1 { -webkit-transform: translate3d(-729.375px, -217px, 0px);    } 
+.HTML5Pane.pane_3_p2 { -webkit-transform: translate3d(-729.375px, 0px, 0px);       }
+.HTML5Pane.pane_3_p4 { -webkit-transform: translate3d(-365px, 108.5px, 0px);       }
+.HTML5Pane.pane_3_p5 { -webkit-transform: translate3d(-300px, 533px, 0px);         }
+.HTML5Pane.pane_3_p6 { -webkit-transform: translate3d(0px, 533px, 0px);            }
+.HTML5Pane.pane_3_p7 { -webkit-transform: translate3d(-300px, 294.5px, 0px);       }
+.HTML5Pane.pane_3_p8 { -webkit-transform: translate3d(150px, 867px, 0px);          }
+
+.HTML5Pane.pane_4_p1 { -webkit-transform: translate3d(0px, -270.75px, 0px);        }
+.HTML5Pane.pane_4_p2 { -webkit-transform: translate3d(150px, -270.75px, 0px);      }
+.HTML5Pane.pane_4_p3 { -webkit-transform: translate3d(300px, -270.75px, 0px);      }
+.HTML5Pane.pane_4_p5 { -webkit-transform: translate3d(750px, 0px, 0px);            }
+.HTML5Pane.pane_4_p6 { -webkit-transform: translate3d(900px, 0px, 0px);            }
+.HTML5Pane.pane_4_p7 { -webkit-transform: translate3d(0px, 270.75px, 0px);         }
+.HTML5Pane.pane_4_p8 { -webkit-transform: translate3d(450px, 324.5px, 0px);        }
+
+.HTML5Pane.pane_5_p1 { -webkit-transform: translate3d(-374.308px, -270.75px, 0px); }
+.HTML5Pane.pane_5_p2 { -webkit-transform: translate3d(0px, -270.75px, 0px);        }
+.HTML5Pane.pane_5_p3 { -webkit-transform: translate3d(374.308px, -270.75px, 0px);  }
+.HTML5Pane.pane_5_p4 { -webkit-transform: translate3d(-374.308px, 0px, 0px);       }
+.HTML5Pane.pane_5_p6 { -webkit-transform: translate3d(374.308px, 0px, 0px);        }
+.HTML5Pane.pane_5_p7 { -webkit-transform: translate3d(-374.308px, 270.75px, 0px);  }
+.HTML5Pane.pane_5_p8 { -webkit-transform: translate3d(0px, 294.5px, 0px);          }
+
+.HTML5Pane.pane_6_p1 { -webkit-transform: translate3d(-300px, -257.8125px, 0px);   }
+.HTML5Pane.pane_6_p2 { -webkit-transform: translate3d(-150px, -257.8125px, 0px);   }
+.HTML5Pane.pane_6_p3 { -webkit-transform: translate3d(0px, -257.8125px, 0px);      }
+.HTML5Pane.pane_6_p4 { -webkit-transform: translate3d(-858.75px, 0px, 0px);        }
+.HTML5Pane.pane_6_p5 { -webkit-transform: translate3d(-708.75px, 0px, 0px);        } 
+.HTML5Pane.pane_6_p7 { -webkit-transform: translate3d(-300px, 294.5px, 0px);       }
+.HTML5Pane.pane_6_p8 { -webkit-transform: translate3d(0px, 270.75px, 0px);         }
+
+.HTML5Pane.pane_7_p1 { -webkit-transform: translate3d(0px, -533px, 0px);           }  
+.HTML5Pane.pane_7_p2 { -webkit-transform: translate3d(300px, -294.5px, 0px);       }
+.HTML5Pane.pane_7_p3 { -webkit-transform: translate3d(1200px, -433px, 0px);        }
+.HTML5Pane.pane_7_p4 { -webkit-transform: translate3d(300px, -533px, 0px);         }
+.HTML5Pane.pane_7_p5 { -webkit-transform: translate3d(729.375px, -294.5px, 0px);   }
+.HTML5Pane.pane_7_p6 { -webkit-transform: translate3d(729.375px, 0px, 0px);        }
+.HTML5Pane.pane_7_p8 { -webkit-transform: translate3d(708.75px, 0px, 0px);         }
+
+.HTML5Pane.r1c0_5 { -webkit-transform: translate3d(-637.5px, -433px, 0px); }
+.HTML5Pane.r1c1   { -webkit-transform: translate3d(-600px, -433px, 0px); }
+.HTML5Pane.r1c2   { -webkit-transform: translate3d(-300px, -433px, 0px); }
+.HTML5Pane.r1c3   { -webkit-transform: translate3d(0px, -433px, 0px);    }
+.HTML5Pane.r1_5c3 { -webkit-transform: translate3d(0px, -270.75px, 0px);    }
+.HTML5Pane.r1c3_5 { -webkit-transform: translate3d(150px, -433px, 0px);  }
+.HTML5Pane.r1c4   { -webkit-transform: translate3d(300px, -433px, 0px);  }
+.HTML5Pane.r1c5   { -webkit-transform: translate3d(600px, -433px, 0px);  }
+.HTML5Pane.r1c6   { -webkit-transform: translate3d(900px, -433px, 0px);  }
+.HTML5Pane.r1c7   { -webkit-transform: translate3d(1200px, -433px, 0px); }
+
+.HTML5Pane.r2c1   { -webkit-transform: translate3d(-600px, -217px, 0px); }
+.HTML5Pane.r2c2   { -webkit-transform: translate3d(-300px, -217px, 0px); }
+.HTML5Pane.r2c2_5 { -webkit-transform: translate3d(-150px, -217px, 0px); }
+.HTML5Pane.r2_5c2 { -webkit-transform: translate3d(-300px,-108.5px, 0px);}
+.HTML5Pane.r2c3   { -webkit-transform: translate3d(0px, -217px, 0px);    }
+.HTML5Pane.r2c3_5 { -webkit-transform: translate3d(150px, -217px, 0px);  }
+.HTML5Pane.r2c4   { -webkit-transform: translate3d(300px, -217px, 0px);  }
+.HTML5Pane.r2c4_5 { -webkit-transform: translate3d(450px, -217px, 0px);  }
+.HTML5Pane.r2c5   { -webkit-transform: translate3d(600px, -217px, 0px);  }
+.HTML5Pane.r2c5_xx{ -webkit-transform: translate3d(708.75px, -108.5px, 0px);  }
+.HTML5Pane.r2c5_5 { -webkit-transform: translate3d(750px, -217px, 0px);  }
+.HTML5Pane.r2c6   { -webkit-transform: translate3d(900px, -217px, 0px);  }
+.HTML5Pane.r2_5c6 { -webkit-transform: translate3d(900px, -108.5px, 0px);}
+.HTML5Pane.r2c7   { -webkit-transform: translate3d(1200px, -217px, 0px); }
+
+.HTML5Pane.r3c0   { -webkit-transform: translate3d(-900px, 0px, 0px);    }
+.HTML5Pane.r3c0_5 { -webkit-transform: translate3d(-637.5px, 0px, 0px);    }
+.HTML5Pane.r3c1   { -webkit-transform: translate3d(-600px, 0px, 0px);    }
+.HTML5Pane.r3c2   { -webkit-transform: translate3d(-300px, 0px, 0px);    }
+.HTML5Pane.r3c3   { -webkit-transform: translate3d(0px, 0px, 0px);       }
+.HTML5Pane.r3c4   { -webkit-transform: translate3d(300px, 0px, 0px);     }
+.HTML5Pane.r3c4_5 { -webkit-transform: translate3d(450px, 0px, 0px);     }
+.HTML5Pane.r3c5   { -webkit-transform: translate3d(600px, 0px, 0px);     }
+.HTML5Pane.r3c5_5 { -webkit-transform: translate3d(750px, 0px, 0px);     }
+.HTML5Pane.r3_5c6 { -webkit-transform: translate3d(900px, 108.5px, 0px); }
+.HTML5Pane.r3c6   { -webkit-transform: translate3d(900px, 0px, 0px);     }
+.HTML5Pane.r3c6_5 { -webkit-transform: translate3d(1050px, 0px, 0px);    }
+.HTML5Pane.r3c7   { -webkit-transform: translate3d(1200px, 0px, 0px);    }
+
+.HTML5Pane.r4c0_5 { -webkit-transform: translate3d(-637.5px, 217px, 0px);  }
+.HTML5Pane.r4c1   { -webkit-transform: translate3d(-600px, 217px, 0px);  }
+.HTML5Pane.r4c1_5 { -webkit-transform: translate3d(-450px, 217px, 0px);  }
+.HTML5Pane.r4c2   { -webkit-transform: translate3d(-300px, 217px, 0px);  }
+.HTML5Pane.r4_5c2 { -webkit-transform: translate3d(-300px, 294.5px, 0px);  }
+.HTML5Pane.r4c3   { -webkit-transform: translate3d(0px, 217px, 0px);     }
+.HTML5Pane.r4_5c3 { -webkit-transform: translate3d(0px, 294.5px, 0px);     }
+.HTML5Pane.r4c4   { -webkit-transform: translate3d(300px, 217px, 0px);   }
+.HTML5Pane.r4c5   { -webkit-transform: translate3d(600px, 217px, 0px);   }
+.HTML5Pane.r4c6   { -webkit-transform: translate3d(900px, 217px, 0px);   }
+.HTML5Pane.r4c7   { -webkit-transform: translate3d(1200px, 217px, 0px);  }
+
+.HTML5Pane.r5c1   { -webkit-transform: translate3d(-600px, 433px, 0px);  }
+.HTML5Pane.r5c2   { -webkit-transform: translate3d(-300px, 433px, 0px);  }
+.HTML5Pane.r5c3   { -webkit-transform: translate3d(0px, 433px, 0px);     }
+.HTML5Pane.r5c4   { -webkit-transform: translate3d(300px, 433px, 0px);   }
+.HTML5Pane.r5c5   { -webkit-transform: translate3d(600px, 433px, 0px);   }
+.HTML5Pane.r5c6   { -webkit-transform: translate3d(900px, 433px, 0px);   }
+.HTML5Pane.r5c7   { -webkit-transform: translate3d(1200px, 433px, 0px);  }
+
+.HTML5Pane.r6c1   { -webkit-transform: translate3d(-600px, 650px, 0px);  }
+.HTML5Pane.r6c2   { -webkit-transform: translate3d(-300px, 650px, 0px);  }
+.HTML5Pane.r6c3   { -webkit-transform: translate3d(0px, 650px, 0px);     }
+.HTML5Pane.r6c3_5 { -webkit-transform: translate3d(150px, 650px, 0px);   }
+.HTML5Pane.r6c4   { -webkit-transform: translate3d(300px, 650px, 0px);   }
+.HTML5Pane.r6c4_5 { -webkit-transform: translate3d(450px, 650px, 0px);   }
+.HTML5Pane.r6c5   { -webkit-transform: translate3d(600px, 650px, 0px);   }
+.HTML5Pane.r6c6   { -webkit-transform: translate3d(900px, 650px, 0px);   }
+.HTML5Pane.r6c7   { -webkit-transform: translate3d(1200px, 650px, 0px);  }
+
+.HTML5Pane.r7c1   { -webkit-transform: translate3d(-600px, 867px, 0px);  }
+.HTML5Pane.r7c2   { -webkit-transform: translate3d(-300px, 867px, 0px);  }
+.HTML5Pane.r7c3   { -webkit-transform: translate3d(0px, 867px, 0px);     }
+.HTML5Pane.r7c3_5 { -webkit-transform: translate3d(150px, 867px, 0px);   }
+.HTML5Pane.r7c4   { -webkit-transform: translate3d(300px, 867px, 0px);   }
+.HTML5Pane.r7c4_5 { -webkit-transform: translate3d(450px, 867px, 0px);   }
+.HTML5Pane.r7c5   { -webkit-transform: translate3d(600px, 867px, 0px);   }
+.HTML5Pane.r7c6   { -webkit-transform: translate3d(900px, 867px, 0px);   }
+.HTML5Pane.r7c7   { -webkit-transform: translate3d(1200px, 867px, 0px);  }

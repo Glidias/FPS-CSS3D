@@ -19,12 +19,31 @@ class PlaneResult {
 		
 	}
 	
-	public inline function getHTML(mat:String):String {
-		return getOpenHTML(mat)+"</div>";
+	public inline function getOpenTiledHTML(mat:String, textureSize:Float):String {
+		var w = Math.round(width);
+		var h = Math.round(height);
+		var str:String =  '<div class="Object3D" style="-webkit-transform:matrix3d(' + [ -right.x, -right.y, -right.z, 0, up.x, up.y, up.z, 0,  look.x, look.y, look.z, 0, pos.x, pos.y, pos.z, 1].join(",") + ')">';
+		
+		
+		w = Std.int(w / textureSize);
+		h = Std.int(h / textureSize);
+		
+		for (u in 0...w) {
+			for (v in 0...h) {
+				str += '<img src="'+mat+'" style="-webkit-transform:translateX('+ (u * textureSize)+'px) translateY('+(v * textureSize)+'px);"></img>';
+			}
+		}
+		
+	
+		return str;
+	}
+	
+	public inline function getHTML(mat:String, textureSize:Float):String {
+		return (textureSize > 1 ? getOpenTiledHTML(mat, textureSize) :  getOpenHTML(mat,textureSize) ) +"</div>" ;
 	}
 //	public static var COUNT:Int = 0;
 //
-	public inline function getOpenHTML(mat:String):String {
+	public inline function getOpenHTML(mat:String, textureSize:Float):String {
 		// darn, not too sure why must use -right?
 		/*
 		var c:Int = (COUNT++);
@@ -35,8 +54,19 @@ class PlaneResult {
 		width = 500;
 		height = 300;
 		*/
+
+	
 		//REVERSE BUG:
-		return '<div style='+(mat!=null ? '"margin:0;padding:0;width:'+Math.round(width)+'px;height:'+Math.round(height)+'px;' : '')+'-webkit-transform:matrix3d('+[-right.x,-right.y,-right.z, 0,up.x,up.y,up.z, 0,  look.x,look.y,look.z, 0,pos.x,pos.y,pos.z,1].join(",")+');'+(mat!=null ? mat : "")+'">';
+		var w = Math.round(width);
+		var h = Math.round(height);
+		
+	return textureSize > 0 ? '<div style="margin:0;padding:0;width:' + 1 + 'px;height:' + 1 + 'px;' + '-webkit-transform:matrix3d(' + [ -right.x, -right.y, -right.z, 0, up.x, up.y, up.z, 0,  look.x, look.y, look.z, 0, pos.x, pos.y, pos.z, 1].join(",") + ') scaleX(' + w + ') scaleY(' + h + ');' + (mat != null ? mat : "") + '">'  :   
+		'<div style="margin:0;padding:0;width:' + w + 'px;height:' + h + 'px;' + '-webkit-transform:matrix3d(' + [ -right.x, -right.y, -right.z, 0, up.x, up.y, up.z, 0,  look.x, look.y, look.z, 0, pos.x, pos.y, pos.z, 1].join(",") + ');' + (mat != null ? mat : "") + '">' 
+		;
+	}
+	
+	public inline function getEmptyOpenHTML():String {
+		return '<div style="-webkit-transform:matrix3d('+[-right.x,-right.y,-right.z, 0,up.x,up.y,up.z, 0,  look.x,look.y,look.z, 0,pos.x,pos.y,pos.z,1].join(",")+');">';
 	}
 	
 	public function clone():PlaneResult

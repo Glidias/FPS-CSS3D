@@ -66,7 +66,7 @@
             color: #fff;
             padding: 0;
             margin: 0;
-        
+          
             text-align: center;
         }
         canvas
@@ -83,7 +83,6 @@
             z-index: 100;
         }
         
-        
         #main-container
         {
             background: #fff;
@@ -98,16 +97,6 @@
         }
 		
 		
-        
-        #css-container
-        {
-            position: absolute;
-
-            z-index: 20;
-
-            -webkit-transform-style: preserve-3d;
-            -moz-transform-style: preserve-3d;
-        }
         
         #css-world
         {
@@ -298,15 +287,13 @@
 				//	sectorJ[i].style.opacity = ".8";
 				}
 				$("#scene").append(sectorJ);
-				
-				
-				
-				var s = sectors[0]; //Math.floor(Math.random()*roomFiller.rooms.length);
-				sectors[0].setVis(true);
 				sectors[1].setVis(true);
 				sectors[2].setVis(true);
 				sectors[3].setVis(true);
+		
 				
+				
+				var s = sectors[0]; //Math.floor(Math.random()*roomFiller.rooms.length);
 				var camera = css3D.getCamera();
 				camera.position.set(s.minX+(s.maxX - s.minX)*.5,s.minY+(s.maxY - s.minY)*.5,s.minZ+(s.maxZ - s.minZ)*.5);
 				var blip = document.getElementById("blip");
@@ -315,7 +302,6 @@
 				var east = glidias.AABBPortalPlane.DIRECTIONS[glidias.AABBPortalPlane.EAST];
 				var south = glidias.AABBPortalPlane.DIRECTIONS[ glidias.AABBPortalPlane.SOUTH];
 				var portalViser = new glidias.AABBSectorVisController();
-				
 				
 				var counter = 0;
 				var marker = document.getElementById("marker3d");
@@ -327,25 +313,29 @@
 				var KeyCode =  glidias.input.KeyCode;
 				var checkSector;
 			
+				portalViser.curSector =sectors[0]; 
+				
+				
+				camPos.y -= 1100;
+		
 				
 				css3D.preUpdate( function() {
 					
 					
-					//checkSector = portalViser.getCurrentSector(camPos, sectors);
-			return true;
+					checkSector = portalViser.getCurrentSector(camPos, sectors);
+					return true;
 				});
 				
 				var halted;
-				
-				
-				css3D.postUpdate( function() {
-				camera.rotation.y += .01;
+					css3D.postUpdate( function() {
+					camera.rotation.x = Math.PI*.5;
+						camera.rotation.z+= .01;
 				});
+				
+				
+				
 				css3D.preRender( function() {
-				
-				
-					//portalViser.run(camPos, frustum, sectors);
-					
+					portalViser.run(camPos, frustum, sectors);
 				//	return;
 				
 					//public function run(camPos:Vec3, camFrus:Frustum, sectors:Array<AABBSector>):Void {
